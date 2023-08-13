@@ -18,7 +18,7 @@ const Dashboard: NextPage = () => {
   useEffect(() => {
     setLoading(true);
 
-    if (user) {
+    if (user && loading) {
       // Get real-time data to monitor collection changes
       const dbInstance = query(
         collection(database, 'burgers'),
@@ -46,7 +46,7 @@ const Dashboard: NextPage = () => {
         unsub;
       };
     }
-  }, [user]);
+  }, [user, loading]);
 
   return (
     <Layout user={user}>

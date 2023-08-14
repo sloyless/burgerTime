@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
+import Image from 'next/image';
 import Head from 'next/head';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 
@@ -8,6 +9,10 @@ import { useAuth } from 'context/AuthContext';
 import { database } from 'utils/firebase';
 import { Burger } from 'utils/types';
 import Card from 'components/Card';
+import EmptyState from 'components/EmptyState';
+
+import logo from 'components/NavBar/assets/logo.png';
+import Button from 'components/Button';
 
 const Dashboard: NextPage = () => {
   const { user } = useAuth();
@@ -70,7 +75,22 @@ const Dashboard: NextPage = () => {
               })}
             </section>
           ) : (
-            <div>Nothing</div>
+            <div className="mx-auto text-center">
+              <Image
+                className="mx-auto my-5"
+                width={120}
+                src={logo}
+                alt=""
+                priority
+              />
+              <EmptyState
+                message="Rate some burgers!"
+                title="No Burgers Found"
+              />
+              <Button url="/add" status="primary">
+                Add Burgers!
+              </Button>
+            </div>
           )}
         </div>
       </main>

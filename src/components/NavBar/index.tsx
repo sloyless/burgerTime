@@ -101,19 +101,23 @@ function NavBar({ user }: NavProps) {
         <Image width={60} src={logo} alt="" priority />
         <h1 className="hidden text-xl lg:inline">BurgerTime</h1>
       </Link>
-      <div className="flex w-auto grow justify-around">
-        <div className="ml-5 mt-1 flex items-center justify-around gap-8">
+      <div className="flex grow justify-around">
+        <div className="ml-5 mt-1 flex w-auto items-center justify-around gap-8">
           {user &&
             navLinks.map((item, i) => {
               return (
                 <Link
                   className={`${styles.link} ${
                     item.active ? 'text-amber-300' : 'text-white'
-                  } items-center text-center transition-colors duration-300 hover:text-amber-400 lg:w-auto`}
+                  } items-center text-center transition-colors duration-300 hover:text-amber-400`}
                   href={item.path}
                   key={i}
                 >
-                  <FontAwesomeIcon icon={item.icon} size="xl" />
+                  <FontAwesomeIcon
+                    icon={item.icon}
+                    size="xl"
+                    className="mx-auto w-[24px]"
+                  />
                   <span className="mt-1 hidden md:block">{item.title}</span>
                 </Link>
               );
@@ -139,6 +143,7 @@ function NavBar({ user }: NavProps) {
               <FontAwesomeIcon
                 icon={dropdown ? faCaretUp : faCaretDown}
                 size="sm"
+                className="mx-auto w-[9px]"
               />
             </button>
           ) : (
@@ -164,21 +169,24 @@ function NavBar({ user }: NavProps) {
                   <Link
                     className={`${
                       item.active ? 'bg-amber-300' : ''
-                    } ${rounded} px-4 py-2 hover:bg-amber-300`}
+                    } ${rounded} flex items-center px-4 py-2 hover:bg-amber-300`}
                     href={item.path}
                     key={i}
                   >
-                    <FontAwesomeIcon icon={item.icon} />
+                    <FontAwesomeIcon icon={item.icon} className="w-[16px]" />
                     <span className="ml-2">{item.title}</span>
                   </Link>
                 );
               })}
               <button
                 type="button"
-                className="rounded-b-md px-4 py-2 text-left hover:bg-amber-300"
+                className="flex items-center rounded-b-md px-4 py-2 text-left hover:bg-amber-300"
                 onClick={() => logoutUser()}
               >
-                <FontAwesomeIcon icon={faRightFromBracket} />
+                <FontAwesomeIcon
+                  icon={faRightFromBracket}
+                  className="w-[16px]"
+                />
                 <span className="ml-2">Logout</span>
               </button>
             </div>

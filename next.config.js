@@ -11,6 +11,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'www.comicmanager.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
     ],
   },
 };

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
@@ -7,27 +7,26 @@ import { Layout } from 'layout';
 import { useAuth } from 'context/AuthContext';
 import { database } from 'utils/firebase';
 import { Burger } from 'utils/types';
+import Card from 'components/Card';
 
 const Dashboard: NextPage = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [items, setItems] = useState([]);
-  console.log(user);
+  const [items, setItems] = useState<Burger[]>();
 
   // Get data if user set or changed
   useEffect(() => {
     setLoading(true);
 
-    if (user && loading) {
+    if (!!user) {
+      console.log('firing');
       // Get real-time data to monitor collection changes
       const dbInstance = query(
         collection(database, 'burgers'),
         where('userId', '==', user.uid)
       );
       const unsub = onSnapshot(dbInstance, (docs) => {
-        const matchedItems:
-          | ((prevState: never[]) => never[])
-          | { id: string }[] = [];
+        const matchedItems: Burger[] = [];
         docs.forEach((doc) => {
           // onSnapshot does not return ids
           const item = {
@@ -37,8 +36,6 @@ const Dashboard: NextPage = () => {
           matchedItems.push(item);
         });
         setItems(matchedItems);
-
-        // Get other static collections
         setLoading(false);
       });
 
@@ -46,27 +43,36 @@ const Dashboard: NextPage = () => {
         unsub;
       };
     }
-  }, [user, loading]);
+  }, [user]);
 
   return (
-    <Layout user={user}>
+    <Layout>
       <Head>
         <title>Your Dashboard :: BurgerTime</title>
       </Head>
       <main className="p-4">
-        <div className="container mx-auto flex flex-col items-center">
-          <h1 className="text-center text-2xl">Your Dashboard</h1>
-        </div>
-        {items.map((item: Burger, i: number) => {
-          if (!item) return;
+        <div className="container mx-auto flex flex-col">
+          <h1 className="text-3xl">Your Dashboard</h1>
+          {loading ? (
+            <div>Loading...</div>
+          ) : !loading && items?.length ? (
+            <section className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {items?.map((item) => {
+                if (!item) return;
 
-          return (
-            <div key={item.id}>
-              <div>{item.venue}</div>
-              <div>{item.address}</div>
-            </div>
-          );
-        })}
+                return (
+                  <Card
+                    burger={item}
+                    key={item.id}
+                    url={`/burger/${item.id}`}
+                  />
+                );
+              })}
+            </section>
+          ) : (
+            <div>Nothing</div>
+          )}
+        </div>
       </main>
     </Layout>
   );

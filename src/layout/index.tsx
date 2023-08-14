@@ -1,18 +1,16 @@
 import { ReactNode } from 'react';
-import { Inter } from 'next/font/google';
-import { User } from '@firebase/auth';
-const inter = Inter({ subsets: ['latin'] });
+import NavBar from 'components/NavBar';
+import { useAuth } from 'context/AuthContext';
 
 interface LayoutProps {
   children: ReactNode;
-  user?: User | null;
 }
 
-export const Layout = ({ children, user }: LayoutProps) => {
-  console.log(user);
+export const Layout = ({ children }: LayoutProps) => {
+  const { user } = useAuth();
   return (
     <>
-      <div>Hello {user?.displayName}</div>
+      <NavBar user={user} />
       <div>{children}</div>
     </>
   );

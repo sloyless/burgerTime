@@ -5,7 +5,7 @@ import 'styles/globals.css';
 import { AuthProvider } from 'context/AuthContext';
 import ProtectedRoute from 'components/ProtectedRoute';
 
-const protectedRoutes = ['/dashboard'];
+const protectedRoutes = ['/dashboard', '/add'];
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();

@@ -38,7 +38,7 @@ function StarRating({ children, id, rating = 0, updateRating }: Props) {
               title={`${i + 1} star${i > 0 ? 's' : ''}`}
               className={`${starColor} me-4 hover:text-orange-300`}
             >
-              <FontAwesomeIcon icon={starIcon} size="2xl" />
+              <FontAwesomeIcon icon={starIcon} size="xl" />
             </button>
           );
         })}

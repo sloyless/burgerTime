@@ -94,7 +94,7 @@ function NavBar({ user }: NavProps) {
 
   return (
     <nav
-      className="flex h-[72px] flex-wrap items-center bg-red-700 px-4 py-2 text-white
+      className="flex h-[72px] flex-wrap items-center bg-orange-600 px-4 py-2 text-white
       transition-[height] md:px-8"
     >
       <Link href="/" className="flex flex-wrap items-center gap-4 md:mr-6">

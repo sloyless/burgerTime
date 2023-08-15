@@ -37,11 +37,12 @@ function Button({ children, disabled, onClick, status, type, url }: Props) {
     type,
   };
   let bg: string =
-    'bg-red-700 hover:bg-red-800 text-slate-50 disabled:bg-red-800/30';
+    'bg-orange-600 hover:bg-orange-800 text-slate-50 disabled:bg-orange-800/30';
 
   switch (status) {
     case 'primary':
-      bg = 'bg-red-700 hover:bg-red-800 text-slate-50 disabled:bg-red-800/30';
+      bg =
+        'bg-orange-600 hover:bg-orange-800 text-slate-50 disabled:bg-orange-800/30';
       break;
     case 'danger':
       bg = 'bg-red-800 hover:bg-red-900 text-slate-50';

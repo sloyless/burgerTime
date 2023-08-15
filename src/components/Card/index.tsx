@@ -21,7 +21,6 @@ function Card({ burger, url }: Props) {
   if (!burger) return;
   const score = calculateScore(burger) || 100;
   const color = calculateScoreColor(score);
-  console.log(score, color);
 
   const timestampDate = burger.timestamp
     ? new Date(burger.timestamp?.seconds * 1000)
@@ -30,7 +29,7 @@ function Card({ burger, url }: Props) {
 
   return (
     <Link
-      className="box-shadow relative block overflow-hidden rounded-lg bg-amber-500 text-white"
+      className="box-shadow relative block overflow-hidden rounded-lg bg-orange-600 text-white"
       href={url}
     >
       <div className="flex flex-row">
@@ -41,7 +40,12 @@ function Card({ burger, url }: Props) {
           <h2 className="text-2xl">{burger.venue}</h2>
           <hr className="my-1 w-full" />
           <div className="line-clamp-1 text-xs">
-            <FontAwesomeIcon icon={faGlobe} size="sm" /> {burger.address}
+            <FontAwesomeIcon
+              icon={faGlobe}
+              size="sm"
+              className="mx-auto me-1 inline-block w-[12px] align-bottom"
+            />{' '}
+            {burger.address}
           </div>
           <div className="mt-4 flex flex-row items-end">
             <div className="w-2/3">
@@ -61,7 +65,7 @@ function Card({ burger, url }: Props) {
                 Score
               </strong>
               <br />
-              <span className="text-4xl">{score}</span>
+              <span className="text-3xl">{score}</span>
             </div>
           </div>
         </div>

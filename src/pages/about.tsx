@@ -1,7 +1,12 @@
 import type { NextPage } from 'next';
 import Image from 'next/image';
 import Head from 'next/head';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faInstagram,
+  faGithub,
+  faLinkedin,
+} from '@fortawesome/free-brands-svg-icons';
 import { Layout } from 'layout';
 
 const About: NextPage = () => {
@@ -41,6 +46,55 @@ const About: NextPage = () => {
               priority
             />
             <p>Yep.</p>
+          </div>
+          <div className="mb-5">
+            <h1 className="text-3xl">Who are you?</h1>
+            <p>
+              <a
+                href="https://seanloyless.com"
+                rel="nofollow"
+                target="_blank"
+                className="text-orange-600"
+              >
+                I&apos;m Sean.
+              </a>{' '}
+              I live in NYC and I make websites and apps.
+            </p>
+            <ul className="my-3 flex gap-3">
+              <li>
+                <a
+                  href="https://linkedin.com/in/seanloyless/"
+                  rel="nofollow"
+                  title="My LinkedIn Profile"
+                  className="text-orange-600"
+                  target="_blank"
+                >
+                  <FontAwesomeIcon icon={faLinkedin} size="2xl" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://instagram.com/CrudeBaron"
+                  rel="nofollow"
+                  title="My Instagram"
+                  className="text-orange-600"
+                  target="_blank"
+                >
+                  <FontAwesomeIcon icon={faInstagram} size="2xl" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://github.com/sloyless"
+                  rel="nofollow"
+                  title="My Github Profile"
+                  className="text-orange-600"
+                  target="_blank"
+                >
+                  <FontAwesomeIcon icon={faGithub} size="2xl" />
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
       </main>

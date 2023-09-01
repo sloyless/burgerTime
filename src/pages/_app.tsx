@@ -14,7 +14,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <AuthProvider>
       <Head>
         <meta charSet="utf-8" />
-        <title>BurgerTime</title>
+        <title>BurgerTime - Rate and review your favorite burgers!</title>
         <meta
           name="description"
           content="Rate and review your favorite burgers"

@@ -78,7 +78,7 @@ const BurgerPage: NextPage = () => {
                     {burger.address}
                   </div>
                 </div>
-                <div className="w-1/6">
+                <div className="w-1/5 md:w-1/6">
                   <div
                     className={`rounded-xl border border-white ${color} box-shadow p-1 text-center text-white `}
                   >

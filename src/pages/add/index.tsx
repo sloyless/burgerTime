@@ -1,10 +1,4 @@
-import {
-  FormEvent,
-  MutableRefObject,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -23,6 +17,7 @@ import FieldSet from 'components/Forms/FieldSet';
 import Input from 'components/Forms/Input';
 import Label from 'components/Forms/Label';
 import StarRating from 'components/StarRating';
+import { Burger } from 'utils/types';
 
 const Add: NextPage = () => {
   const { user } = useAuth();
@@ -38,11 +33,11 @@ const Add: NextPage = () => {
   const [veg, setVeg] = useState(0);
 
   // Form Fields
-  const venueInputRef = useRef() as MutableRefObject<HTMLInputElement>;
-  const locationInputRef = useRef() as MutableRefObject<HTMLInputElement>;
-  const burgerNameInputRef = useRef() as MutableRefObject<HTMLInputElement>;
-  const notesInputRef = useRef() as MutableRefObject<HTMLInputElement>;
-  const cookInputRef = useRef() as MutableRefObject<HTMLInputElement>;
+  const venueInputRef = useRef<HTMLInputElement>(null);
+  const locationInputRef = useRef<HTMLInputElement>(null);
+  const burgerNameInputRef = useRef<HTMLInputElement>(null);
+  const notesInputRef = useRef<HTMLInputElement>(null);
+  const cookInputRef = useRef<HTMLInputElement>(null);
 
   function updateScoreHandler() {
     const newBurger = {
@@ -73,25 +68,34 @@ const Add: NextPage = () => {
     )
       return;
 
-    const newBurger = {
+    const venue = venueInputRef?.current?.value;
+    const address = locationInputRef?.current?.value;
+    const burgerName = burgerNameInputRef?.current?.value;
+    const notes = notesInputRef?.current?.value;
+    const cookType = cookInputRef?.current?.value;
+
+    if (!venue || !address || burgerName) return;
+
+    const timestamp = serverTimestamp();
+    const newBurger: Burger = {
+      address,
       appearance,
       bun,
+      burgerName,
       cheese,
+      cookType,
       meat,
+      notes,
       price,
       sauce,
-      veg,
-      venue: venueInputRef.current.value,
-      address: locationInputRef.current.value,
-      burgerName: burgerNameInputRef.current.value,
-      notes: notesInputRef.current.value,
-      cookType: cookInputRef.current.value,
-      timestamp: serverTimestamp(),
+      timestamp,
       userId: user?.uid,
+      veg,
+      venue,
     };
+    newBurger.total = calculateScore(newBurger);
 
     setLoading(true);
-    console.log(newBurger);
 
     const dbInstance = collection(database, 'burgers'); // connect to Firestore
     try {
@@ -110,11 +114,11 @@ const Add: NextPage = () => {
       <Head>
         <title>Add a Burger :: BurgerTime</title>
       </Head>
-      <main className="p-4">
-        <div className="container mx-auto">
+      <main className="md:flex md:gap-4">
+        <div className="container mx-auto mt-5 px-8">
           <h1 className="text-3xl">Add a Burger</h1>
-          <section className="flex gap-4">
-            <form onSubmit={submitHandler} className="my-5 w-3/4">
+          <section>
+            <form onSubmit={submitHandler} className="my-5">
               <FieldSet>
                 <div className="md:flex md:w-1/2">
                   <Label id="venue">Venue Name</Label>
@@ -265,68 +269,68 @@ const Add: NextPage = () => {
                 </Button>
               </div>
             </form>
-            <aside className="mt-5 w-1/4 bg-slate-500 px-4 pt-4 text-white">
-              <h2 className="mb-3 text-xl">How does the scoring work?</h2>
-              <ul>
-                <li className="mb-3 flex gap-1">
-                  <div className="h-[40px] w-[60px] bg-green-900 py-3 text-center text-xs text-white">
-                    95-100
-                  </div>
-                  <span className="ms-1 w-2/3 text-xs leading-none">
-                    I could eat this burger every day for the rest of my life.
-                  </span>
-                </li>
-                <li className="mb-3 flex gap-1">
-                  <div className="h-[40px] w-[60px] bg-green-600 py-3 text-center text-xs text-white">
-                    80-95
-                  </div>
-                  <span className="ms-1 w-2/3 text-xs leading-none">
-                    This is, excuse me, a damn fine burger.
-                  </span>
-                </li>
-                <li className="mb-3 flex gap-1">
-                  <div className="h-[40px] w-[60px] bg-yellow-500 py-3 text-center text-xs text-white">
-                    50-80
-                  </div>
-                  <span className="ms-1 w-2/3 text-xs leading-none">
-                    This is a decent burger.
-                  </span>
-                </li>
-                <li className="mb-3 flex gap-1">
-                  <div className="h-[40px] w-[60px] bg-orange-500 py-3 text-center text-xs text-white">
-                    20-50
-                  </div>
-                  <span className="ms-1 w-2/3 text-xs leading-none">
-                    I&apos;m glad I ate this once so I know I never have to eat
-                    it again.
-                  </span>
-                </li>
-                <li className="mb-3 flex gap-1">
-                  <div className="h-[40px] w-[60px] bg-red-900 py-3 text-center text-xs text-white">
-                    &lt; 20
-                  </div>
-                  <span className="ms-1 w-2/3 text-xs leading-none">
-                    Send this garbage back to the nightmare it came from.
-                  </span>
-                </li>
-              </ul>
-              <hr />
-              <h3 className="my-3 text-lg">Score Breakdown</h3>
-              <strong>Appearance</strong>
-              <p className="mb-3 text-sm">Max score: 5pts</p>
-              <strong>Bun</strong>
-              <p className="mb-3 text-sm">Max score: 15pts</p>
-              <strong>Meat</strong>
-              <p className="mb-3 text-sm">Max score: 30pts</p>
-              <strong>Cheese</strong>
-              <p className="mb-3 text-sm">Max score: 25pts</p>
-              <strong>Vegetables</strong>
-              <p className="mb-3 text-sm">Max score: 15pts</p>
-              <strong>Sauces</strong>
-              <p className="mb-3 text-sm">Max score: 15pts</p>
-            </aside>
           </section>
         </div>
+        <aside className="w-full bg-slate-500 p-4 text-white md:w-1/4">
+          <h2 className="mb-3 text-xl">How does the scoring work?</h2>
+          <ul>
+            <li className="mb-3 flex gap-1">
+              <div className="h-[40px] w-[60px] bg-green-900 py-3 text-center text-xs text-white">
+                95-100
+              </div>
+              <span className="ms-1 w-2/3 text-xs leading-none">
+                I could eat this burger every day for the rest of my life.
+              </span>
+            </li>
+            <li className="mb-3 flex gap-1">
+              <div className="h-[40px] w-[60px] bg-green-600 py-3 text-center text-xs text-white">
+                80-95
+              </div>
+              <span className="ms-1 w-2/3 text-xs leading-none">
+                This is, excuse me, a damn fine burger.
+              </span>
+            </li>
+            <li className="mb-3 flex gap-1">
+              <div className="h-[40px] w-[60px] bg-yellow-500 py-3 text-center text-xs text-white">
+                50-80
+              </div>
+              <span className="ms-1 w-2/3 text-xs leading-none">
+                This is a decent burger.
+              </span>
+            </li>
+            <li className="mb-3 flex gap-1">
+              <div className="h-[40px] w-[60px] bg-orange-500 py-3 text-center text-xs text-white">
+                20-50
+              </div>
+              <span className="ms-1 w-2/3 text-xs leading-none">
+                I&apos;m glad I ate this once so I know I never have to eat it
+                again.
+              </span>
+            </li>
+            <li className="mb-3 flex gap-1">
+              <div className="h-[40px] w-[60px] bg-red-900 py-3 text-center text-xs text-white">
+                &lt; 20
+              </div>
+              <span className="ms-1 w-2/3 text-xs leading-none">
+                Send this garbage back to the nightmare it came from.
+              </span>
+            </li>
+          </ul>
+          <hr />
+          <h3 className="my-3 text-lg">Score Breakdown</h3>
+          <strong>Appearance</strong>
+          <p className="mb-3 text-sm">Max score: 5pts</p>
+          <strong>Bun</strong>
+          <p className="mb-3 text-sm">Max score: 15pts</p>
+          <strong>Meat</strong>
+          <p className="mb-3 text-sm">Max score: 30pts</p>
+          <strong>Cheese</strong>
+          <p className="mb-3 text-sm">Max score: 25pts</p>
+          <strong>Vegetables</strong>
+          <p className="mb-3 text-sm">Max score: 15pts</p>
+          <strong>Sauces</strong>
+          <p className="mb-3 text-sm">Max score: 15pts</p>
+        </aside>
       </main>
     </Layout>
   );

@@ -4,32 +4,12 @@ import Link from 'next/link';
 type Props = {
   children: ReactNode;
   disabled?: boolean;
-  onClick?: MouseEventHandler<HTMLInputElement>;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
   status: 'primary' | 'danger' | 'warning' | 'success' | 'text' | 'link';
   type?: 'button' | 'submit' | 'reset';
   url?: string;
 };
 
-/**
- * Button
- * - Displays a button or Link
- *
- * @component
- * @example
- * // Link
- * <Button status="primary" url="/profile">Button text</Button>
- *
- * // Button with onClick
- * <Button type="button" status="primary" onClick={onClick}>Button text</Button>
- *
- * @param {Props['onClick']} [onClick] - onClick handler
- * @param {Props['children']} children - Content to inset
- * @param {Props['disabled']} [disabled] - Button type
- * @param {Props['status']} status - Type of button (primary | danger | warning)
- * @param {Props['type']} [type] - Button type
- * @param {Props['url']} [url] - url if linking
- *
- */
 function Button({ children, disabled, onClick, status, type, url }: Props) {
   const buttonProps = {
     disabled,

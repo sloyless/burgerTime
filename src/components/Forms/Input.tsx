@@ -1,9 +1,11 @@
 /* eslint-disable react/display-name */
 import {
   ChangeEventHandler,
+  ForwardedRef,
   forwardRef,
-  MutableRefObject,
   ReactNode,
+  useEffect,
+  useState,
 } from 'react';
 
 type Props = {
@@ -22,7 +24,7 @@ type Props = {
 };
 
 const Input = forwardRef(
-  (props: Props, ref: MutableRefObject<HTMLInputElement>) => {
+  (props: Props, ref: ForwardedRef<HTMLInputElement>) => {
     const {
       children,
       disabled,
@@ -47,13 +49,23 @@ const Input = forwardRef(
       onChange,
       pattern,
       placeholder,
-      ref,
       required,
+      ref,
       type,
     };
-    const hasValue = !!ref.current?.value;
-    const isValid = ref.current?.validity.valid;
-    const isRequired = ref.current?.required;
+    const [hasValue, setHasValue] = useState<boolean | undefined>(false);
+    const [isValid, setIsValid] = useState<boolean | undefined>(false);
+    const [isRequired, setIsRequired] = useState<boolean | undefined>(false);
+
+    useEffect(() => {
+      if (!!ref && typeof ref !== 'function') {
+        setHasValue(!!ref?.current?.value);
+        setIsValid(ref.current?.validity.valid);
+        setIsRequired(ref.current?.required);
+      }
+    }, [ref]);
+
+    console.log(ref);
 
     return (
       <div className="w-full md:w-2/3">

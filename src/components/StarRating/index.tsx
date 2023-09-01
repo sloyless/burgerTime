@@ -7,7 +7,7 @@ type Props = {
   children: ReactNode;
   id: string;
   rating?: number;
-  updateRating: (value: number) => any;
+  updateRating: (value: number) => unknown;
 };
 
 function StarRating({ children, id, rating = 0, updateRating }: Props) {

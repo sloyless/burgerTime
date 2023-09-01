@@ -18,9 +18,7 @@ function Loader({ message }: Props) {
   return (
     <div className="mx-auto mt-10 w-[300px] text-center">
       <Spinner />
-      <p className="heading-font mt-3 text-center font-bold">
-        {message || 'Loading...'}
-      </p>
+      <p className="mt-3 text-center font-bold">{message || 'Loading...'}</p>
     </div>
   );
 }

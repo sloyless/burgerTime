@@ -2,7 +2,13 @@ import { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import Image from 'next/image';
 import Head from 'next/head';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import {
+  collection,
+  orderBy,
+  onSnapshot,
+  query,
+  where,
+} from 'firebase/firestore';
 
 import { Layout } from 'layout';
 import { useAuth } from 'context/AuthContext';
@@ -23,12 +29,12 @@ const Dashboard: NextPage = () => {
   useEffect(() => {
     setLoading(true);
 
-    if (!!user) {
-      console.log('firing');
+    if (user) {
       // Get real-time data to monitor collection changes
       const dbInstance = query(
         collection(database, 'burgers'),
-        where('userId', '==', user.uid)
+        where('userId', '==', user.uid),
+        orderBy('timestamp', 'desc')
       );
       const unsub = onSnapshot(dbInstance, (docs) => {
         const matchedItems: Burger[] = [];
@@ -45,10 +51,43 @@ const Dashboard: NextPage = () => {
       });
 
       return () => {
-        unsub;
+        unsub();
       };
     }
   }, [user]);
+
+  let content;
+  if (loading) {
+    content = <div>Loading...</div>;
+  } else if (!loading && items?.length) {
+    content = (
+      <section className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {items?.map((item) => {
+          if (!item) return null;
+
+          return (
+            <Card burger={item} key={item.id} url={`/burger/${item.id}`} />
+          );
+        })}
+      </section>
+    );
+  } else {
+    content = (
+      <div className="mx-auto text-center">
+        <Image
+          className="mx-auto my-5"
+          width={120}
+          src={logo}
+          alt=""
+          priority
+        />
+        <EmptyState message="Rate some burgers!" title="No Burgers Found" />
+        <Button url="/add" status="primary">
+          Add Burgers!
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <Layout>
@@ -58,40 +97,7 @@ const Dashboard: NextPage = () => {
       <main className="p-4">
         <div className="container mx-auto flex flex-col">
           <h1 className="text-3xl">Your Dashboard</h1>
-          {loading ? (
-            <div>Loading...</div>
-          ) : !loading && items?.length ? (
-            <section className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {items?.map((item) => {
-                if (!item) return;
-
-                return (
-                  <Card
-                    burger={item}
-                    key={item.id}
-                    url={`/burger/${item.id}`}
-                  />
-                );
-              })}
-            </section>
-          ) : (
-            <div className="mx-auto text-center">
-              <Image
-                className="mx-auto my-5"
-                width={120}
-                src={logo}
-                alt=""
-                priority
-              />
-              <EmptyState
-                message="Rate some burgers!"
-                title="No Burgers Found"
-              />
-              <Button url="/add" status="primary">
-                Add Burgers!
-              </Button>
-            </div>
-          )}
+          {content}
         </div>
       </main>
     </Layout>

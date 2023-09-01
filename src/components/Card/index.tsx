@@ -22,8 +22,10 @@ function Card({ burger, url }: Props) {
   const score = calculateScore(burger) || 100;
   const color = calculateScoreColor(score);
 
-  const timestampDate = burger.timestamp
-    ? new Date(burger.timestamp?.seconds * 1000)
+  const timestampDate = burger?.timestamp
+    ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      new Date(burger?.timestamp?.seconds * 1000)
     : null;
   const timestampISO = timestampDate?.toISOString();
 
@@ -32,7 +34,7 @@ function Card({ burger, url }: Props) {
       className="box-shadow relative block overflow-hidden rounded-lg bg-orange-600 text-white"
       href={url}
     >
-      <div className="flex flex-row">
+      <div className="flex h-full flex-row">
         <div className="relative w-1/3 bg-white">
           <Image src={burgerholder} alt="Burger" fill />
         </div>

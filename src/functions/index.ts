@@ -32,6 +32,7 @@ export function calculateScore(item: Burger) {
     sauce: 2,
   };
 
+  // Burger math!
   let total = 0;
   const appearance = (item.appearance ?? 1) * burgerMult.appearance;
   const bun = (item.bun ?? 3) * burgerMult.bun;

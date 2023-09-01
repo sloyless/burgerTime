@@ -7,7 +7,7 @@
     "start": "next start",
     "lint": "next lint",
     "deploy": "next build && firebase deploy --only hosting",
-    "validate": "npm run format && yarn tsc && yarn lint",
+    "validate": "yarn format && yarn tsc && yarn lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,scss,md,json}' --config ./prettier.config.js",
     "tsc": "npx tsc --noEmit"
@@ -21,7 +21,7 @@
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "eslint-plugin-tailwindcss": "^3.13.0",
-    "firebase": "^10.3.1",
+    "firebase": "^9.9.0",
     "next": "13.4.19",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

@@ -6,15 +6,28 @@ import { Burger } from 'utils/types';
  * @example getFormattedDate('1996-09-01');
  * @return {string} SEP 1996
  */
-export function getFormattedDate(date: Date): string | undefined {
+export function getFormattedDate(
+  date: Date,
+  expanded?: boolean
+): string | undefined {
   if (!date) return;
 
   const d: Date = new Date(date);
-  const options: Intl.DateTimeFormatOptions = {
+  let options: Intl.DateTimeFormatOptions = {
     month: 'short',
     timeZone: 'UTC',
     year: 'numeric',
   };
+
+  if (expanded) {
+    options = {
+      month: 'long',
+      day: 'numeric',
+      timeZone: 'UTC',
+      year: 'numeric',
+    };
+  }
+
   const formattedDate: string = d.toLocaleDateString('en-us', options);
 
   return formattedDate;
@@ -57,4 +70,9 @@ export function calculateScoreColor(score: number) {
   if (score < 20) return 'bg-red-900';
 
   return 'bg-green-900';
+}
+
+export function calculateTimestamp(timestamp: number) {
+  if (!timestamp) return;
+  return new Date(timestamp * 1000);
 }

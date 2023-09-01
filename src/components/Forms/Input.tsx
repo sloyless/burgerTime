@@ -65,8 +65,6 @@ const Input = forwardRef(
       }
     }, [ref]);
 
-    console.log(ref);
-
     return (
       <div className="w-full md:w-2/3">
         <input

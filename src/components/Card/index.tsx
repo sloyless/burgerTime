@@ -6,27 +6,24 @@ import { faGlobe } from '@fortawesome/free-solid-svg-icons';
 import {
   calculateScore,
   calculateScoreColor,
+  calculateTimestamp,
   getFormattedDate,
 } from 'functions';
-import { Burger } from 'utils/types';
 
 import burgerholder from './assets/burgerholder.jpg';
+import { DocumentData } from 'firebase/firestore';
 
 type Props = {
-  burger: Burger;
+  burger: DocumentData;
   url: string;
 };
 
 function Card({ burger, url }: Props) {
   if (!burger) return;
   const score = calculateScore(burger) || 100;
-  const color = calculateScoreColor(score);
+  const color = calculateScoreColor(burger.total || score);
 
-  const timestampDate = burger?.timestamp
-    ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      new Date(burger?.timestamp?.seconds * 1000)
-    : null;
+  const timestampDate = calculateTimestamp(burger?.timestamp?.seconds);
   const timestampISO = timestampDate?.toISOString();
 
   return (
@@ -38,7 +35,7 @@ function Card({ burger, url }: Props) {
         <div className="relative w-1/3 bg-white">
           <Image src={burgerholder} alt="Burger" fill />
         </div>
-        <div className="w-2/3 p-3">
+        <div className="relative w-2/3 p-3 pb-[95px]">
           <h2 className="text-2xl">{burger.venue}</h2>
           <hr className="my-1 w-full" />
           <div className="line-clamp-1 text-xs">
@@ -49,10 +46,10 @@ function Card({ burger, url }: Props) {
             />{' '}
             {burger.address}
           </div>
-          <div className="mt-4 flex flex-row items-end">
+          <div className="absolute bottom-3 mt-4 flex h-[95px] w-full flex-row items-end pe-5">
             <div className="w-2/3">
               <p className="mb-1 line-clamp-2 pe-4 text-sm italic">
-                {burger.notes}
+                {burger.burgerName}
               </p>
               <span className="text-xs">
                 <time dateTime={timestampISO}>

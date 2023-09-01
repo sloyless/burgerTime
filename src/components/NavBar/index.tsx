@@ -79,14 +79,7 @@ function NavBar() {
   ];
 
   // Dropdown/profile navigation
-  const subNavLinks = [
-    {
-      title: 'Settings',
-      path: '/settings',
-      icon: faCog,
-      active: router.asPath === '/settings',
-    },
-  ];
+  // const subNavLinks = [];
 
   return (
     <nav
@@ -156,7 +149,7 @@ function NavBar() {
                 dropdown ? 'opacity-100' : 'opacity-0'
               }`}
             >
-              {subNavLinks.map((item, i) => {
+              {/* {subNavLinks.map((item, i) => {
                 let rounded = '';
 
                 if (i + 1 === subNavLinks.length) {
@@ -177,7 +170,7 @@ function NavBar() {
                     <span className="ml-2">{item.title}</span>
                   </Link>
                 );
-              })}
+              })} */}
               <button
                 type="button"
                 className="flex items-center rounded-b-md px-4 py-2 text-left hover:bg-amber-300"

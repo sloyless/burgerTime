@@ -75,7 +75,7 @@ const Add: NextPage = () => {
     const notes = notesInputRef?.current?.value;
     const cookType = cookInputRef?.current?.value;
 
-    if (!venue || !address || burgerName) return;
+    if (!venue || !address || !burgerName) return;
 
     const timestamp = serverTimestamp();
     const newBurger: Burger = {

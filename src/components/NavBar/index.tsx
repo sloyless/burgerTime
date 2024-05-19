@@ -7,7 +7,6 @@ import {
   faBurger,
   faCaretDown,
   faCaretUp,
-  faCog,
   faGauge,
   faRightFromBracket,
   faUtensils,
@@ -59,18 +58,6 @@ function NavBar() {
   // Main navigation
   const navLinks = [
     {
-      title: 'Dashboard',
-      path: '/dashboard',
-      icon: faGauge,
-      active: router.asPath === '/dashboard',
-    },
-    {
-      title: 'Add Burger',
-      path: '/add',
-      icon: faBurger,
-      active: router.asPath === '/add',
-    },
-    {
       title: 'About',
       path: '/about',
       icon: faUtensils,
@@ -78,39 +65,53 @@ function NavBar() {
     },
   ];
 
-  // Dropdown/profile navigation
-  // const subNavLinks = [];
+  // Admin only
+  if (user?.uid === 'HN7f9PmeCgg3nd8WRFb6EhJVPnl2') {
+    navLinks.push(
+      {
+        title: 'Dashboard',
+        path: '/dashboard',
+        icon: faGauge,
+        active: router.asPath === '/dashboard',
+      },
+      {
+        title: 'Add Burger',
+        path: '/add',
+        icon: faBurger,
+        active: router.asPath === '/add',
+      }
+    );
+  }
 
   return (
     <nav
-      className="flex h-[72px] flex-wrap items-center bg-orange-600 px-4 py-2 text-white
-      transition-[height] md:px-8"
+      className="font-serif flex flex-wrap items-center bg-orange-600 px-4 py-2
+      text-white transition-[height] md:px-8"
     >
       <Link
         href={user ? '/dashboard' : '/'}
         className="flex flex-wrap items-center gap-4 md:mr-6"
       >
-        <Image width={60} src={logo} alt="" priority />
+        <Image width={30} src={logo} alt="" priority />
         <h1 className="hidden text-xl lg:inline">BurgerTime</h1>
       </Link>
       <div className="flex grow justify-around">
-        <div className="ml-5 mt-1 flex w-auto items-center justify-around gap-8">
+        <div className="ml-5 flex w-auto items-center justify-around gap-8">
           {user &&
             navLinks.map((item) => {
               return (
                 <Link
                   className={`${styles.link} ${
                     item.active ? 'text-amber-300' : 'text-white'
-                  } items-center text-center transition-colors duration-300 hover:text-amber-400`}
+                  } flex-row items-center text-center transition-colors duration-300 hover:text-amber-400`}
                   href={item.path}
                   key={uuidv4()}
                 >
                   <FontAwesomeIcon
                     icon={item.icon}
-                    size="xl"
-                    className="mx-auto w-[24px]"
+                    className="mx-auto w-[24px] text-amber-200"
                   />
-                  <span className="mt-1 hidden md:block">{item.title}</span>
+                  <span className="ml-2">{item.title}</span>
                 </Link>
               );
             })}

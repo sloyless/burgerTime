@@ -11,7 +11,12 @@ type Props = {
   updateRating?: (value: number) => unknown;
 };
 
-function StarRating({ children, id, rating = 0, updateRating }: Props) {
+function StarRating({
+  children,
+  id,
+  rating = 0,
+  updateRating,
+}: Readonly<Props>) {
   const [currentValue, setCurrentValue] = useState<number>(0);
 
   useEffect(() => {
@@ -44,7 +49,6 @@ function StarRating({ children, id, rating = 0, updateRating }: Props) {
             <button
               key={uuidv4()}
               onClick={(e) => rateHandler(e, i + 1)}
-              role="button"
               title={`${i + 1} star${i > 0 ? 's' : ''}`}
               className={`${starColor} me-4 w-[25px] hover:text-orange-300 disabled:hover:text-white`}
               disabled={!updateRating}

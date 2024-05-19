@@ -33,7 +33,6 @@ const Dashboard: NextPage = () => {
       // Get real-time data to monitor collection changes
       const dbInstance = query(
         collection(database, 'burgers'),
-        where('userId', '==', user.uid),
         orderBy('timestamp', 'desc')
       );
       const unsub = onSnapshot(dbInstance, (docs) => {
@@ -79,7 +78,10 @@ const Dashboard: NextPage = () => {
           width={120}
           src={logo}
           alt=""
-          priority
+          style={{
+            maxWidth: '100%',
+            height: 'auto',
+          }}
         />
         <EmptyState message="Rate some burgers!" title="No Burgers Found" />
         <Button url="/add" status="primary">
@@ -94,11 +96,12 @@ const Dashboard: NextPage = () => {
       <Head>
         <title>Your Dashboard :: BurgerTime</title>
       </Head>
-      <main className="p-4">
-        <div className="container mx-auto flex flex-col">
+      <main className="flex-row">
+        <div className="container mx-auto flex flex-initial flex-col">
           <h1 className="text-3xl">Your Dashboard</h1>
           {content}
         </div>
+        <aside>Sidebar</aside>
       </main>
     </Layout>
   );

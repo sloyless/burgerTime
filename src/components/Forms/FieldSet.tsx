@@ -2,7 +2,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-function FieldSet({ children }: Props) {
+function FieldSet({ children }: Readonly<Props>) {
   return (
     <fieldset className="border border-slate-400 bg-slate-300 px-6 py-4 md:flex md:content-center md:justify-between md:gap-5">
       {children}

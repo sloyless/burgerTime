@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 
 const BurgerRules: NextPage = () => {
   return (
-    <aside className="w-full bg-slate-500 p-4 text-white md:w-1/4">
+    <aside className="w-full bg-slate-500 p-4 text-white md:w-[320px]">
       <h2 className="mb-3 text-xl">How does the scoring work?</h2>
       <ul>
         <li className="mb-3 flex gap-1">

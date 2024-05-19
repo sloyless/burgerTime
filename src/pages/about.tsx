@@ -43,7 +43,10 @@ const About: NextPage = () => {
               alt="Burger Time Arcade Game"
               width={300}
               height={300}
-              priority
+              style={{
+                maxWidth: '100%',
+                height: 'auto',
+              }}
             />
             <p>Yep.</p>
           </div>

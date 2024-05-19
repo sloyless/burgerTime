@@ -7,7 +7,6 @@ import {
   faBurger,
   faCaretDown,
   faCaretUp,
-  faCog,
   faGauge,
   faRightFromBracket,
   faUtensils,
@@ -20,6 +19,7 @@ import defaultAvatar from './assets/favicon.png';
 
 import styles from './NavBar.module.css';
 import Button from 'components/Button';
+import { ADMINUID } from 'functions';
 
 function NavBar() {
   const { login, logout, user } = useAuth();
@@ -59,18 +59,6 @@ function NavBar() {
   // Main navigation
   const navLinks = [
     {
-      title: 'Dashboard',
-      path: '/dashboard',
-      icon: faGauge,
-      active: router.asPath === '/dashboard',
-    },
-    {
-      title: 'Add Burger',
-      path: '/add',
-      icon: faBurger,
-      active: router.asPath === '/add',
-    },
-    {
       title: 'About',
       path: '/about',
       icon: faUtensils,
@@ -78,112 +66,115 @@ function NavBar() {
     },
   ];
 
-  // Dropdown/profile navigation
-  // const subNavLinks = [];
+  // Admin only
+  if (user && user?.uid === ADMINUID) {
+    navLinks.push(
+      {
+        title: 'Dashboard',
+        path: '/dashboard',
+        icon: faGauge,
+        active: router.asPath === '/dashboard',
+      },
+      {
+        title: 'Add Burger',
+        path: '/add',
+        icon: faBurger,
+        active: router.asPath === '/add',
+      }
+    );
+  }
 
   return (
     <nav
-      className="flex h-[72px] flex-wrap items-center bg-orange-600 px-4 py-2 text-white
-      transition-[height] md:px-8"
+      className="font-serif border-b border-orange-300 bg-gradient-to-b from-orange-400 to-orange-100
+      px-4 py-2 text-slate-900 shadow-md transition-[height] md:px-8"
     >
-      <Link
-        href={user ? '/dashboard' : '/'}
-        className="flex flex-wrap items-center gap-4 md:mr-6"
-      >
-        <Image width={60} src={logo} alt="" priority />
-        <h1 className="hidden text-xl lg:inline">BurgerTime</h1>
-      </Link>
-      <div className="flex grow justify-around">
-        <div className="ml-5 mt-1 flex w-auto items-center justify-around gap-8">
-          {user &&
-            navLinks.map((item) => {
+      <div className="container mx-auto flex flex-wrap items-center">
+        <Link href="/" className="flex flex-wrap items-center gap-4 md:mr-6 ">
+          <Image
+            width={30}
+            src={logo}
+            alt=""
+            style={{
+              maxWidth: '100%',
+              height: 'auto',
+            }}
+          />
+          <h1 className="font-serif text-xl font-extrabold lg:text-2xl">
+            BurgerTime
+          </h1>
+        </Link>
+        <div className="flex grow justify-end">
+          <div className="relative flex flex-row items-end justify-around lg:ml-auto lg:inline-flex lg:h-auto lg:w-auto lg:flex-row lg:items-center">
+            {navLinks.map((item) => {
               return (
                 <Link
                   className={`${styles.link} ${
-                    item.active ? 'text-amber-300' : 'text-white'
-                  } items-center text-center transition-colors duration-300 hover:text-amber-400`}
+                    item.active ? 'text-orange-500' : 'text-orange-900'
+                  } mr-4 flex-row items-center text-center transition-colors duration-300 hover:text-orange-500 lg:mr-8`}
                   href={item.path}
                   key={uuidv4()}
+                  title={item.title}
                 >
                   <FontAwesomeIcon
                     icon={item.icon}
-                    size="xl"
+                    size="2x"
                     className="mx-auto w-[24px]"
                   />
-                  <span className="mt-1 hidden md:block">{item.title}</span>
                 </Link>
               );
             })}
-        </div>
-        <div className="relative flex flex-row items-end justify-around lg:ml-auto lg:inline-flex lg:h-auto lg:w-auto lg:flex-row lg:items-center">
-          {user ? (
-            <button
-              className="flex items-center text-white"
-              type="button"
-              onClick={(e) => showDropdown(e)}
-            >
-              <Image
-                className="mr-3 rounded-full"
-                src={user.photoURL ?? defaultAvatar}
-                width={40}
-                height={40}
-                alt=""
-              />
-              <small className="mr-2 hidden md:block">
-                {user?.displayName}
-              </small>
-              <FontAwesomeIcon
-                icon={dropdown ? faCaretUp : faCaretDown}
-                size="sm"
-                className="mx-auto w-[9px]"
-              />
-            </button>
-          ) : (
-            <Button onClick={loginUser} status="primary">
-              Login
-            </Button>
-          )}
-          {dropdown ? (
-            <div
-              className={`absolute right-0 top-full z-50 mt-3 flex w-40 flex-col rounded-md bg-white text-slate-800 shadow-md transition duration-300 ease-in-out ${
-                dropdown ? 'opacity-100' : 'opacity-0'
-              }`}
-            >
-              {/* {subNavLinks.map((item, i) => {
-                let rounded = '';
-
-                if (i + 1 === subNavLinks.length) {
-                  rounded = 'rounded-b-md';
-                } else if (i === 0) {
-                  rounded = 'rounded-t-md';
-                }
-
-                return (
-                  <Link
-                    className={`${
-                      item.active ? 'bg-amber-300' : ''
-                    } ${rounded} flex items-center px-4 py-2 hover:bg-amber-300`}
-                    href={item.path}
-                    key={uuidv4()}
-                  >
-                    <FontAwesomeIcon icon={item.icon} className="w-[16px]" />
-                    <span className="ml-2">{item.title}</span>
-                  </Link>
-                );
-              })} */}
+            {user ? (
               <button
+                className="flex items-center text-slate-800"
                 type="button"
-                className="flex items-center rounded-b-md px-4 py-2 text-left hover:bg-amber-300"
-                onClick={() => logoutUser()}
+                onClick={(e) => showDropdown(e)}
               >
-                <FontAwesomeIcon
-                  icon={faRightFromBracket}
-                  className="w-[16px]"
+                <Image
+                  className="mr-3 rounded-full"
+                  src={user.photoURL ?? defaultAvatar}
+                  width={25}
+                  height={25}
+                  alt=""
+                  style={{
+                    maxWidth: '100%',
+                    height: 'auto',
+                  }}
                 />
-                <span className="ml-2">Logout</span>
+                <small className="mr-2 hidden font-sans md:block">
+                  {user?.displayName}
+                </small>
+                <FontAwesomeIcon
+                  icon={dropdown ? faCaretUp : faCaretDown}
+                  size="sm"
+                  className="mx-auto w-[9px]"
+                />
               </button>
-            </div>
-          ) : null}
+            ) : (
+              <Button onClick={loginUser} status="primary">
+                Login
+              </Button>
+            )}
+            {dropdown ? (
+              <div
+                className={`absolute right-0 top-full z-50 mt-3 flex w-40 flex-col rounded-md bg-white text-slate-800 shadow-md transition duration-300 ease-in-out ${
+                  dropdown ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                <button
+                  type="button"
+                  className="flex items-center rounded-b-md px-4 py-2 text-left hover:bg-amber-300"
+                  onClick={() => logoutUser()}
+                >
+                  <FontAwesomeIcon
+                    icon={faRightFromBracket}
+                    className="w-[16px]"
+                  />
+                  <span className="ml-2">Logout</span>
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </nav>

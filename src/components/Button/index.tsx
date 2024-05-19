@@ -10,7 +10,14 @@ type Props = {
   url?: string;
 };
 
-function Button({ children, disabled, onClick, status, type, url }: Props) {
+function Button({
+  children,
+  disabled,
+  onClick,
+  status,
+  type,
+  url,
+}: Readonly<Props>) {
   const buttonProps = {
     disabled,
     onClick,
@@ -20,10 +27,6 @@ function Button({ children, disabled, onClick, status, type, url }: Props) {
     'bg-orange-600 hover:bg-orange-800 text-slate-50 disabled:bg-orange-800/30';
 
   switch (status) {
-    case 'primary':
-      bg =
-        'bg-orange-600 hover:bg-orange-800 text-slate-50 disabled:bg-orange-800/30';
-      break;
     case 'danger':
       bg = 'bg-red-800 hover:bg-red-900 text-slate-50';
       break;
@@ -33,8 +36,11 @@ function Button({ children, disabled, onClick, status, type, url }: Props) {
     case 'link':
       bg = 'text-red-600 hover:text-red-800';
       break;
+    default:
   }
-  const classes = `inline-block transition-colors py-2 px-5 my-2 rounded ${bg}`;
+
+  const classes = `inline-block transition-colors py-1 px-5 rounded ${bg}`;
+
   if (url)
     return (
       <Link href={url} className={classes}>

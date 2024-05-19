@@ -1,15 +1,29 @@
 import { ReactNode } from 'react';
 import NavBar from 'components/NavBar';
+import Divider from 'components/Divider';
 
 interface LayoutProps {
   children: ReactNode;
+  padding?: boolean;
 }
 
-export const Layout = ({ children }: LayoutProps) => {
+export const Layout = ({ children, padding = true }: LayoutProps) => {
   return (
     <>
       <NavBar />
-      <div>{children}</div>
+      <div
+        className={`font-serif container mx-auto ${padding ? 'px-3' : 'px-0'}`}
+      >
+        {children}
+      </div>
+      <div className="container mx-auto my-5 px-3">
+        <Divider />
+        <div className="font-serif text-center">
+          All photos, content, and development &copy;{' '}
+          {new Date().toLocaleDateString('en-US', { year: 'numeric' })} Sean
+          Loyless
+        </div>
+      </div>
     </>
   );
 };

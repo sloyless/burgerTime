@@ -17,7 +17,7 @@ const config: Config = {
     },
     fontFamily: {
       sans: ['Roboto', ...defaultTheme.fontFamily.sans],
-      serif: ['Bitter', ...defaultTheme.fontFamily.serif],
+      serif: ['EB Garamond', ...defaultTheme.fontFamily.serif],
     },
   },
   plugins: [require('@tailwindcss/typography')],

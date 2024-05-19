@@ -1,5 +1,7 @@
 import { Burger } from 'utils/types';
 
+export const ADMINUID = 'HN7f9PmeCgg3nd8WRFb6EhJVPnl2';
+
 /**
  * Returns the publisher image for the selected string in comic date format MMM YYYY
  * @param {string} date - Datestamp for the issue

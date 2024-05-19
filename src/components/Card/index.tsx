@@ -1,7 +1,7 @@
-import Image from "next/image";
+import Image from 'next/image';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faGlobe, faStar } from '@fortawesome/free-solid-svg-icons';
 
 import {
   calculateScore,
@@ -10,73 +10,112 @@ import {
   getFormattedDate,
 } from 'functions';
 
-import burgerholder from './assets/burgerholder.jpg';
+import burgerholder from './assets/newburger.jpg';
 import { DocumentData } from 'firebase/firestore';
 
 type Props = {
   burger: DocumentData;
+  featured?: boolean;
   url: string;
 };
 
-function Card({ burger, url }: Readonly<Props>) {
+function Card({ burger, featured = false, url }: Readonly<Props>) {
   if (!burger) return;
   const score = calculateScore(burger) || 100;
   const color = calculateScoreColor(burger.total || score);
 
   const timestampDate = calculateTimestamp(burger?.timestamp?.seconds);
   const timestampISO = timestampDate?.toISOString();
+  const googleMapsUrl = encodeURIComponent(
+    `${burger.venue}, ${burger.address}`
+  );
 
   return (
-    <Link
-      className="box-shadow relative block overflow-hidden rounded-lg bg-orange-600 text-white"
-      href={url}
-    >
-      <div className="flex h-full flex-row">
-        <div className="relative w-1/3 bg-white">
+    <article className="relative lg:my-5">
+      <div className={!featured ? 'lg:flex lg:flex-row' : ''}>
+        <Link
+          className={`relative bg-white ${!featured ? 'lg:flex-1' : ''}`}
+          href={url}
+          title={`${burger.burgerName} at ${burger.venue}`}
+        >
           <Image
             src={burgerholder}
-            alt="Burger"
-            fill
+            alt={burger.burgerName}
             style={{
-              maxWidth: "100%",
-              height: "auto"
-            }} />
-        </div>
-        <div className="relative w-2/3 p-3 pb-[95px]">
-          <h2 className="text-2xl">{burger.venue}</h2>
-          <hr className="my-1 w-full" />
-          <div className="line-clamp-1 text-xs">
-            <FontAwesomeIcon
-              icon={faGlobe}
-              size="sm"
-              className="mx-auto me-1 inline-block w-[12px] align-bottom"
-            />{' '}
-            {burger.address}
+              maxWidth: '100%',
+              height: 'auto',
+            }}
+          />
+        </Link>
+        <div
+          className={!featured ? 'mt-3 lg:mt-0 lg:flex-[2] lg:pl-5' : 'mt-3'}
+        >
+          <div className="flex flex-row">
+            <div className="flex-1 pr-5">
+              <div className="flex flex-row items-end justify-between">
+                <Link
+                  className="text-orange-600 hover:text-orange-500"
+                  href={`/burger/${burger.id}`}
+                >
+                  <h3
+                    className={`${featured ? 'text-3xl' : 'text-2xl'} font-bold`}
+                  >
+                    {burger.venue}
+                    {burger.total > 94 && (
+                      <span className="inline-block pb-2 pl-1">
+                        <FontAwesomeIcon
+                          icon={faStar}
+                          size="sm"
+                          className="w-[12px] text-amber-500"
+                        />
+                      </span>
+                    )}
+                  </h3>
+                </Link>
+                <span className="hidden pb-1 pl-3 text-xs lg:block">
+                  <time dateTime={timestampISO}>
+                    {timestampDate && getFormattedDate(timestampDate)}
+                  </time>
+                </span>
+              </div>
+              <hr className="my-1 w-full" />
+              <Link
+                className="line-clamp-1"
+                href={`https://www.google.com/maps/search/?api=1&query=${googleMapsUrl}`}
+                target="_blank"
+                rel="nofollow"
+              >
+                <FontAwesomeIcon
+                  icon={faGlobe}
+                  size="sm"
+                  className="mb-1 me-1 inline-block w-[12px]"
+                />{' '}
+                {burger.address}
+              </Link>
+            </div>
+            <div className="w-[90px]">
+              <div
+                className={`rounded-xl border border-white text-white ${color} box-shadow p-1 text-center`}
+              >
+                <strong className="text-[10px] uppercase tracking-wide">
+                  Score
+                </strong>
+                <br />
+                <span className="text-4xl leading-5">
+                  {calculateScore(burger)}
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="absolute bottom-3 mt-4 flex h-[95px] w-full flex-row items-end pe-5">
-            <div className="w-2/3">
-              <p className="mb-1 line-clamp-2 pe-4 text-sm italic">
-                {burger.burgerName}
-              </p>
-              <span className="text-xs">
-                <time dateTime={timestampISO}>
-                  {timestampDate && getFormattedDate(timestampDate)}
-                </time>
-              </span>
-            </div>
-            <div
-              className={`w-1/3 rounded-xl border border-white ${color} box-shadow p-1 text-center `}
-            >
-              <strong className="text-[10px] uppercase tracking-widest">
-                Score
-              </strong>
-              <br />
-              <span className="text-3xl">{score}</span>
-            </div>
+          <div
+            className={`mt-3 line-clamp-2 inline-block ${featured ? 'text-lg' : 'text-sm'}`}
+          >
+            <span className="font-bold italic">{burger.burgerName}</span>
+            {burger?.notes && <span>: {burger.notes}</span>}
           </div>
         </div>
       </div>
-    </Link>
+    </article>
   );
 }
 

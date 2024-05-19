@@ -19,6 +19,8 @@ import BurgerRules from 'components/BurgerRules';
 import FieldSet from 'components/Forms/FieldSet';
 import Label from 'components/Forms/Label';
 import StarRating from 'components/StarRating';
+import Link from 'next/link';
+import Divider from 'components/Divider';
 // App Store
 
 const BurgerPage: NextPage = () => {
@@ -53,62 +55,77 @@ const BurgerPage: NextPage = () => {
   const timestampISO = timestampDate?.toISOString();
   const score = burger ? calculateScore(burger) : 100;
   const color = calculateScoreColor(burger?.total || score);
+  const googleMapsUrl =
+    burger && encodeURIComponent(`${burger.venue}, ${burger.address}`);
 
   // Page <head> props
   const pageTitle = `${burger?.venue} - ${burger?.burgerName} :: BurgerTime`;
 
   return (
-    <Layout>
+    <Layout padding={false}>
       <Head>
         <title>{pageTitle} :: BurgerTime</title>
       </Head>
-      <main className="md:flex md:gap-4">
-        <div className="container mx-auto my-5 px-8">
+      <main className="px-3 md:flex md:flex-row md:px-0 md:pl-3">
+        <div className="my-5 md:mr-8">
           {burger ? (
             <>
-              <div className="mb-2 flex w-full justify-between gap-4 pb-2">
-                <div className="mt-auto">
-                  <h1 className="text-4xl">{burger.venue}</h1>
-                  <div className="line-clamp-1 text-xs">
+              <div className="flex flex-row">
+                <div className="flex-1 pr-5">
+                  <div className="flex flex-row items-end justify-between">
+                    <Link
+                      className="text-orange-600 hover:text-orange-500"
+                      href={`/burger/${burger.id}`}
+                    >
+                      <h3 className="text-3xl font-extrabold">
+                        {burger.venue}
+                      </h3>
+                    </Link>
+                    <span className="hidden pb-1 pl-3 lg:block">
+                      <time dateTime={timestampISO}>
+                        {timestampDate && getFormattedDate(timestampDate)}
+                      </time>
+                    </span>
+                  </div>
+                  <hr className="my-1 w-full" />
+                  <Link
+                    className="line-clamp-1"
+                    href={`https://www.google.com/maps/search/?api=1&query=${googleMapsUrl}`}
+                    target="_blank"
+                    rel="nofollow"
+                  >
                     <FontAwesomeIcon
                       icon={faGlobe}
                       size="sm"
                       className="mx-auto me-1 inline-block w-[12px] align-bottom"
                     />{' '}
                     {burger.address}
-                  </div>
+                  </Link>
                 </div>
-                <div className="w-1/5 md:w-1/6">
+                <div className="w-[90px]">
                   <div
-                    className={`rounded-xl border border-white ${color} box-shadow p-1 text-center text-white `}
+                    className={`rounded-xl border border-white text-white ${color} box-shadow p-1 text-center`}
                   >
-                    <strong className="text-[10px] uppercase tracking-widest">
+                    <strong className="text-[10px] uppercase tracking-wide">
                       Score
                     </strong>
                     <br />
-                    <span className="text-3xl">{score}</span>
+                    <span className="text-4xl leading-5">
+                      {calculateScore(burger)}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <hr className="my-3 w-full" />
-
               <div className="mt-4">
-                <h2 className="text-2xl">{burger.burgerName}</h2>
-                <div className="mb-3 text-sm">
-                  <strong>Visited: </strong>
-                  <time dateTime={timestampISO}>
-                    {timestampDate && getFormattedDate(timestampDate, true)}
-                  </time>
-                </div>
+                <h2 className="text-2xl font-bold italic">
+                  {burger.burgerName}
+                </h2>
                 {burger.notes ? (
-                  <p className="mb-4 line-clamp-2 pe-4 text-sm">
-                    <strong>Notes:</strong>{' '}
-                    <span className="italic">{burger.notes}</span>
-                  </p>
+                  <p className="my-4 pe-4 text-lg">{burger.notes}</p>
                 ) : null}
-
-                <h2 className="mb-1 text-xl">Rating</h2>
+                <Divider />
+                <h2 className="mb-1 text-2xl font-extrabold">Rating</h2>
                 <FieldSet>
                   <div className="md:flex md:w-1/2">
                     <Label id="appearance">Appearance</Label>

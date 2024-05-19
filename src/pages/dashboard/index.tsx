@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
-import Image from 'next/image';
+import Image from "next/legacy/image";
 import Head from 'next/head';
 import {
   collection,

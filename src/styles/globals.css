@@ -13,6 +13,8 @@ body {
 }
 
 @layer base {
+  @import url('https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,400;0,700;1,100;1,400;1,700&display=swap');
+
   .box-shadow {
     box-shadow:
       rgba(0, 0, 0, 0.5) 0px 6px 8px -2px,

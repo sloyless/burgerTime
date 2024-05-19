@@ -14,7 +14,7 @@ type Props = {
  *  * @param {string} [message] - Message to override default loading message
  *  * @param {string} [title] - Heading title of the state
  */
-function EmptyState({ message, title }: Props) {
+function EmptyState({ message, title }: Readonly<Props>) {
   return (
     <div className="mx-auto mt-10 w-[300px] text-center">
       <h2 className="text-2xl font-bold text-red-600">{title || 'Error'}</h2>

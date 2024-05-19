@@ -10,7 +10,14 @@ type Props = {
   url?: string;
 };
 
-function Button({ children, disabled, onClick, status, type, url }: Props) {
+function Button({
+  children,
+  disabled,
+  onClick,
+  status,
+  type,
+  url,
+}: Readonly<Props>) {
   const buttonProps = {
     disabled,
     onClick,

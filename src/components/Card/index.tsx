@@ -18,7 +18,7 @@ type Props = {
   url: string;
 };
 
-function Card({ burger, url }: Props) {
+function Card({ burger, url }: Readonly<Props>) {
   if (!burger) return;
   const score = calculateScore(burger) || 100;
   const color = calculateScoreColor(burger.total || score);

@@ -1,4 +1,4 @@
-import Image from "next/legacy/image";
+import Image from "next/image";
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGlobe } from '@fortawesome/free-solid-svg-icons';
@@ -33,7 +33,14 @@ function Card({ burger, url }: Readonly<Props>) {
     >
       <div className="flex h-full flex-row">
         <div className="relative w-1/3 bg-white">
-          <Image src={burgerholder} alt="Burger" fill />
+          <Image
+            src={burgerholder}
+            alt="Burger"
+            fill
+            style={{
+              maxWidth: "100%",
+              height: "auto"
+            }} />
         </div>
         <div className="relative w-2/3 p-3 pb-[95px]">
           <h2 className="text-2xl">{burger.venue}</h2>

@@ -1,5 +1,5 @@
 import { MouseEvent, useEffect, useState } from 'react';
-import Image from "next/legacy/image";
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -92,7 +92,16 @@ function NavBar() {
         href={user ? '/dashboard' : '/'}
         className="flex flex-wrap items-center gap-4 md:mr-6"
       >
-        <Image width={30} src={logo} alt="" priority />
+        <Image
+          width={30}
+          src={logo}
+          alt=""
+          priority
+          style={{
+            maxWidth: '100%',
+            height: 'auto',
+          }}
+        />
         <h1 className="hidden text-xl lg:inline">BurgerTime</h1>
       </Link>
       <div className="flex grow justify-around">
@@ -129,6 +138,10 @@ function NavBar() {
                 width={40}
                 height={40}
                 alt=""
+                style={{
+                  maxWidth: '100%',
+                  height: 'auto',
+                }}
               />
               <small className="mr-2 hidden md:block">
                 {user?.displayName}

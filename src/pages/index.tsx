@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import Image from "next/legacy/image";
+import Image from "next/image";
 
 import { Layout } from 'layout';
 
@@ -18,8 +18,11 @@ const Home: NextPage = () => {
                 alt="Many burgers"
                 fill
                 priority
-                objectFit="cover"
-              />
+                style={{
+                  maxWidth: "100%",
+                  height: "auto",
+                  objectFit: "cover"
+                }} />
             </div>
             <div className="w-full md:w-3/4 md:px-3">
               <h2 className="mb-3 text-xl font-bold">

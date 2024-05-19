@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import Image from "next/legacy/image";
+import Image from "next/image";
 import Head from 'next/head';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -44,7 +44,10 @@ const About: NextPage = () => {
               width={300}
               height={300}
               priority
-            />
+              style={{
+                maxWidth: "100%",
+                height: "auto"
+              }} />
             <p>Yep.</p>
           </div>
           <div className="mb-5">

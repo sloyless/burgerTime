@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
-import Image from "next/legacy/image";
+import Image from "next/image";
 import Head from 'next/head';
 import {
   collection,
@@ -80,7 +80,10 @@ const Dashboard: NextPage = () => {
           src={logo}
           alt=""
           priority
-        />
+          style={{
+            maxWidth: "100%",
+            height: "auto"
+          }} />
         <EmptyState message="Rate some burgers!" title="No Burgers Found" />
         <Button url="/add" status="primary">
           Add Burgers!

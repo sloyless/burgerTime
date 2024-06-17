@@ -10,6 +10,7 @@ import {
 
 type Props = {
   children?: ReactNode;
+  border?: boolean;
   disabled?: boolean;
   errorMessage?: string;
   id: string;
@@ -27,6 +28,7 @@ const Input = forwardRef(
   (props: Props, ref: ForwardedRef<HTMLInputElement>) => {
     const {
       children,
+      border = true,
       disabled,
       errorMessage,
       id,
@@ -65,13 +67,19 @@ const Input = forwardRef(
       }
     }, [ref]);
 
+    const getBorderClasses = () => {
+      if (border) {
+        return `border border-slate-400 ${
+          hasValue ? 'invalid:border-red-600' : ''
+        }`;
+      }
+    };
+
     return (
-      <div className="w-full md:w-2/3">
+      <div className="w-full">
         <input
           aria-describedby={children ? `${id}Help` : ''}
-          className={`w-full border border-slate-400 px-3 py-2 text-slate-700 ${
-            hasValue ? 'invalid:border-red-600' : null
-          } disabled:bg-slate-400 disabled:text-slate-700`}
+          className={`w-full px-3 py-2 text-slate-700 ${getBorderClasses()} disabled:bg-slate-400 disabled:text-slate-700`}
           defaultValue={value}
           {...inputProps}
         />

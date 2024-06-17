@@ -112,7 +112,7 @@ const Home: NextPage = () => {
                   <li key={burger.id} className="my-2 ml-7 w-full">
                     <Link
                       href={`/burger/${burger.id}`}
-                      className="text-orange-600 hover:text-orange-500"
+                      className="block text-orange-600 hover:text-orange-500"
                     >
                       <h3 className="font-bold leading-4">{burger.venue}</h3>
                       <small className="line-clamp-1 text-black">

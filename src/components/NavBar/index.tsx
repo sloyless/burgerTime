@@ -7,7 +7,6 @@ import {
   faBurger,
   faCaretDown,
   faCaretUp,
-  faGauge,
   faRightFromBracket,
   faUtensils,
 } from '@fortawesome/free-solid-svg-icons';
@@ -36,7 +35,6 @@ function NavBar() {
   async function loginUser() {
     try {
       await login();
-      await router.push('/dashboard');
     } catch (error) {
       console.log(error);
     }
@@ -68,32 +66,22 @@ function NavBar() {
 
   // Admin only
   if (user && user?.uid === ADMINUID) {
-    navLinks.push(
-      {
-        title: 'Dashboard',
-        path: '/dashboard',
-        icon: faGauge,
-        active: router.asPath === '/dashboard',
-      },
-      {
-        title: 'Add Burger',
-        path: '/add',
-        icon: faBurger,
-        active: router.asPath === '/add',
-      }
-    );
+    navLinks.push({
+      title: 'Add Burger',
+      path: '/add',
+      icon: faBurger,
+      active: router.asPath === '/add',
+    });
   }
 
   return (
-    <nav
-      className="font-serif border-b border-orange-300 bg-gradient-to-b from-orange-400 to-orange-100
-      px-4 py-2 text-slate-900 shadow-md transition-[height] md:px-8"
-    >
+    <nav className="border-b border-orange-300 bg-gradient-to-b from-orange-400 to-orange-100 px-4 py-2 font-serif text-slate-900 shadow-md transition-[height] md:px-8">
       <div className="container mx-auto flex flex-wrap items-center">
-        <Link href="/" className="flex flex-wrap items-center gap-4 md:mr-6 ">
+        <Link href="/" className="flex flex-wrap items-center gap-4 md:mr-6">
           <Image
             width={30}
             src={logo}
+            priority
             alt=""
             style={{
               maxWidth: '100%',

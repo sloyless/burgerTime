@@ -3,8 +3,10 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import Image from 'next/image';
 
 // Functions
+import { getFile, uploadFile } from 'libs/storage';
 import { useAuth } from 'context/AuthContext';
 import { calculateScore } from 'functions';
 import { database } from 'utils/firebase';
@@ -19,6 +21,8 @@ import Label from 'components/Forms/Label';
 import StarRating from 'components/StarRating';
 import { Burger } from 'utils/types';
 import BurgerRules from 'components/BurgerRules';
+import Loader from 'components/Loader';
+import Spinner from 'components/Loader/Spinner';
 
 const Add: NextPage = () => {
   const { user } = useAuth();
@@ -32,6 +36,10 @@ const Add: NextPage = () => {
   const [sauce, setSauce] = useState(0);
   const [score, setScore] = useState(0);
   const [veg, setVeg] = useState(0);
+  const [selectedFile, setSelectedFile] = useState<File | undefined>();
+  const [uploadedFile, setUploadedFile] = useState<string>();
+  const [isUploading, setIsUploading] = useState(false);
+  const [isUploaded, setIsUploaded] = useState(false);
 
   // Form Fields
   const venueInputRef = useRef<HTMLInputElement>(null);
@@ -39,6 +47,7 @@ const Add: NextPage = () => {
   const burgerNameInputRef = useRef<HTMLInputElement>(null);
   const notesInputRef = useRef<HTMLInputElement>(null);
   const cookInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function updateScoreHandler() {
     const newBurger = {
@@ -48,6 +57,7 @@ const Add: NextPage = () => {
       meat,
       sauce,
       veg,
+      image: uploadedFile,
     };
     setScore(calculateScore(newBurger));
   }
@@ -55,6 +65,16 @@ const Add: NextPage = () => {
   useEffect(() => {
     updateScoreHandler();
   }, [appearance, bun, cheese, meat, sauce, veg]);
+
+  const handleUpload = async () => {
+    setIsUploading(true);
+    const folder = 'burgers/';
+    const imagePath = await uploadFile(selectedFile, folder);
+    const imageUrl = await getFile(imagePath);
+    setIsUploading(false);
+    setIsUploaded(true);
+    setUploadedFile(imageUrl);
+  };
 
   async function submitHandler(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -74,6 +94,7 @@ const Add: NextPage = () => {
     const burgerName = burgerNameInputRef?.current?.value;
     const notes = notesInputRef?.current?.value;
     const cookType = cookInputRef?.current?.value;
+    const image = uploadedFile;
 
     if (!venue || !address || !burgerName) return;
 
@@ -85,6 +106,7 @@ const Add: NextPage = () => {
       burgerName,
       cheese,
       cookType,
+      image,
       meat,
       notes,
       price,
@@ -101,7 +123,7 @@ const Add: NextPage = () => {
     const dbInstance = collection(database, 'burgers'); // connect to Firestore
     try {
       const docRef = await addDoc(dbInstance, newBurger);
-      router.push(`/dashboard`);
+      router.push(`/`);
       setLoading(false);
       return docRef?.id;
     } catch (error) {
@@ -121,7 +143,7 @@ const Add: NextPage = () => {
           <section>
             <form onSubmit={submitHandler} className="my-5">
               <FieldSet>
-                <div className="md:flex md:w-1/2">
+                <div className="md:flex-1 md:flex-row">
                   <Label id="venue">Venue Name</Label>
                   <Input
                     errorMessage="Please enter a venue."
@@ -135,7 +157,7 @@ const Add: NextPage = () => {
                     event, or venue.
                   </Input>
                 </div>
-                <div className="mt-3 md:mt-0 md:flex md:w-1/2">
+                <div className="mt-3 md:mt-0 md:flex-1 md:flex-row">
                   <Label id="address">Location</Label>
                   <Input
                     id="address"
@@ -149,17 +171,65 @@ const Add: NextPage = () => {
                 </div>
               </FieldSet>
               <FieldSet>
-                <Label id="burgerName">Burger Name</Label>
-                <Input
-                  errorMessage="Please enter the name of the burger you ordered."
-                  id="burgerName"
-                  ref={burgerNameInputRef}
-                  type="text"
-                  placeholder="Shackburger"
-                  required
-                >
-                  Enter the name of the burger you ordered.
-                </Input>
+                <div className="w-full">
+                  <Label id="burgerName">Burger Name</Label>
+                  <Input
+                    errorMessage="Please enter the name of the burger you ordered."
+                    id="burgerName"
+                    ref={burgerNameInputRef}
+                    type="text"
+                    placeholder="Shackburger"
+                    required
+                  >
+                    Enter the name of the burger you ordered.
+                  </Input>
+                </div>
+              </FieldSet>
+              <FieldSet>
+                <div className="md:flex md:flex-1">
+                  <div className="w-full">
+                    <Label id="venue">Upload Image</Label>
+                    <Input
+                      disabled={isUploading}
+                      errorMessage="Please upload an image"
+                      id="venue"
+                      ref={fileInputRef}
+                      type="file"
+                      border={false}
+                      onChange={(e) => {
+                        setSelectedFile(e?.target?.files?.[0]);
+                      }}
+                    >
+                      <div className="mt-3">
+                        <Button
+                          status={'primary'}
+                          onClick={handleUpload}
+                          disabled={isUploading}
+                        >
+                          Upload File
+                        </Button>
+                      </div>
+                    </Input>
+                  </div>
+                </div>
+                <div className="relative mt-3 lg:mt-0 xl:flex xl:flex-1">
+                  {isUploading && <Spinner />}
+                  {isUploaded && uploadedFile && (
+                    <>
+                      <Image
+                        width={320}
+                        height={120}
+                        src={uploadedFile}
+                        alt=""
+                        style={{
+                          maxWidth: '100%',
+                          height: 'auto',
+                        }}
+                      />
+                      {uploadedFile}
+                    </>
+                  )}
+                </div>
               </FieldSet>
               <h2 className="mt-5 text-2xl font-bold">Rating</h2>
               <div className="flex items-end justify-between">
@@ -171,8 +241,10 @@ const Add: NextPage = () => {
               </div>
 
               <FieldSet>
-                <div className="md:flex md:w-1/2">
-                  <Label id="appearance">Appearance</Label>
+                <div className="lg:w-1/2 xl:flex">
+                  <div className="w-full md:mt-2 xl:w-[90px]">
+                    <Label id="appearance">Appearance</Label>
+                  </div>
                   <StarRating
                     id="appearance"
                     rating={appearance}
@@ -182,8 +254,11 @@ const Add: NextPage = () => {
                     Shoved into a fast food wrapper?
                   </StarRating>
                 </div>
-                <div className="mt-3 md:mt-0 md:flex md:w-1/2">
-                  <Label id="bun">Bun</Label>
+                <div className="mt-3 md:mt-0 lg:w-1/2 xl:flex">
+                  <div className="w-full md:mt-2 lg:w-[90px]">
+                    <Label id="bun">Bun</Label>
+                  </div>
+
                   <StarRating id="bun" rating={bun} updateRating={setBun}>
                     If a great burger is a classic painting, then the bun is the
                     frame. It&apos;s the handle. It&apos;s the rhythm section.
@@ -192,15 +267,20 @@ const Add: NextPage = () => {
                 </div>
               </FieldSet>
               <FieldSet>
-                <div className="md:flex md:w-1/2">
-                  <Label id="meat">Meat</Label>
+                <div className="lg:w-1/2 xl:flex">
+                  <div className="w-full md:mt-2 lg:w-[90px]">
+                    <Label id="meat">Meat</Label>
+                  </div>
+
                   <StarRating id="meat" rating={meat} updateRating={setMeat}>
                     The burger itself. This category covers flavor, texture,
                     juiciness, and done-ness.
                   </StarRating>
                 </div>
-                <div className="mt-3 md:mt-0 md:flex md:w-1/2">
-                  <Label id="cheese">Cheese</Label>
+                <div className="mt-3 md:mt-0 lg:w-1/2 xl:flex">
+                  <div className="w-full md:mt-2 lg:w-[90px]">
+                    <Label id="cheese">Cheese</Label>
+                  </div>
                   <StarRating
                     id="cheese"
                     rating={cheese}
@@ -211,16 +291,20 @@ const Add: NextPage = () => {
                 </div>
               </FieldSet>
               <FieldSet>
-                <div className="md:flex md:w-1/2">
-                  <Label id="veg">Vegetables</Label>
+                <div className="lg:w-1/2 xl:flex">
+                  <div className="w-full lg:mt-2 lg:w-[90px]">
+                    <Label id="veg">Vegetables</Label>
+                  </div>
                   <StarRating id="veg" rating={veg} updateRating={setVeg}>
                     This covers lettuce, onion, tomato, pickle, peppers, kimchi,
                     and anything else that might be used to dress up the burger
                     in question.
                   </StarRating>
                 </div>
-                <div className="mt-3 md:mt-0 md:flex md:w-1/2">
-                  <Label id="sauce">Sauces</Label>
+                <div className="mt-3 md:mt-0 lg:w-1/2 xl:flex">
+                  <div className="w-full lg:mt-2 lg:w-[90px]">
+                    <Label id="sauce">Sauces</Label>
+                  </div>
                   <StarRating id="sauce" rating={sauce} updateRating={setSauce}>
                     Ketchup, mustard, aoli, peanut butter, special sauce, or
                     anything spreadable on the burger.
@@ -232,8 +316,10 @@ const Add: NextPage = () => {
                 Other optional details you may want to enter.
               </p>
               <FieldSet>
-                <div className="md:flex md:w-1/2">
-                  <Label id="venue">Cook Type</Label>
+                <div className="lg:w-1/2 xl:flex">
+                  <div className="w-full lg:w-[90px] lg:pr-3 xl:mt-2">
+                    <Label id="venue">Cook Type</Label>
+                  </div>
                   <Input
                     id="cookType"
                     ref={cookInputRef}
@@ -244,7 +330,7 @@ const Add: NextPage = () => {
                     Grill? Campfire?
                   </Input>
                 </div>
-                <div className="mt-3 md:mt-0 md:flex md:w-1/2">
+                <div className="mt-3 lg:mt-0 lg:w-1/2 xl:flex">
                   <Label id="address">Price</Label>
                   <StarRating id="price" rating={price} updateRating={setPrice}>
                     Price level. Does not affect the rating.
@@ -252,16 +338,18 @@ const Add: NextPage = () => {
                 </div>
               </FieldSet>
               <FieldSet>
-                <Label id="notes">Notes</Label>
+                <div className="w-full lg:mt-2 lg:w-[90px]">
+                  <Label id="notes">Notes</Label>
+                </div>
                 <Input id="notes" ref={notesInputRef} type="text">
                   Any additional information to share?
                 </Input>
               </FieldSet>
-              <div className="w-auto text-center">
+              <div className="mt-5 w-auto text-center">
                 <Button
                   type="button"
                   status="link"
-                  onClick={() => router.push('/dashboard')}
+                  onClick={() => router.push('/')}
                 >
                   Cancel
                 </Button>

@@ -19,7 +19,7 @@ const About: NextPage = () => {
         <div className="container mx-auto flex flex-col">
           <div className="my-5">
             <h1 className="text-3xl">What is this?</h1>
-            <p>It lets you rate the burgers you eat, duh.</p>
+            <p>It allows me to rate and review all of the burgers I eat.</p>
           </div>
           <div className="mb-5">
             <h1 className="text-3xl">Why did you make this?</h1>

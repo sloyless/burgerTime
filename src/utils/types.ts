@@ -8,6 +8,7 @@ export interface Burger {
   cheese?: number;
   cookType?: string;
   id?: string;
+  image?: string;
   meat?: number;
   notes?: string;
   price?: number;

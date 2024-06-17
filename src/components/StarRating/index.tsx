@@ -35,7 +35,7 @@ function StarRating({
   }
 
   return (
-    <div className="py-2 md:w-2/3">
+    <div className="py-2 xl:flex-1 xl:pl-3">
       {Array(count)
         .fill(1)
         .map((_value, i) => {

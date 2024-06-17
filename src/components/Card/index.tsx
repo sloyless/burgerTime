@@ -33,23 +33,25 @@ function Card({ burger, featured = false, url }: Readonly<Props>) {
   return (
     <article className="relative lg:my-5">
       <div className={!featured ? 'lg:flex lg:flex-row' : ''}>
-        <Link
-          className={`relative bg-white ${!featured ? 'lg:flex-1' : ''}`}
-          href={url}
-          title={`${burger.burgerName} at ${burger.venue}`}
-        >
-          <Image
-            src={burgerholder}
-            alt={burger.burgerName}
-            style={{
-              maxWidth: '100%',
-              height: 'auto',
-            }}
-          />
-        </Link>
-        <div
-          className={!featured ? 'mt-3 lg:mt-0 lg:flex-[2] lg:pl-5' : 'mt-3'}
-        >
+        {burger.image && (
+          <Link
+            className={`relative bg-white ${!featured ? 'lg:flex-1 lg:pr-5' : 'h-[300px] w-full'}`}
+            href={url}
+            title={`${burger.burgerName} at ${burger.venue}`}
+          >
+            <Image
+              src={burger.image}
+              alt={burger.burgerName}
+              width={500}
+              height={300}
+              style={{
+                width: '100%',
+                height: 'auto',
+              }}
+            />
+          </Link>
+        )}
+        <div className={!featured ? 'mt-3 lg:mt-0 lg:flex-[2]' : 'mt-3'}>
           <div className="flex flex-row">
             <div className="flex-1 pr-5">
               <div className="flex flex-row items-end justify-between">

@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import NavBar from 'components/NavBar';
 import Divider from 'components/Divider';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 interface LayoutProps {
   children: ReactNode;
@@ -24,6 +25,7 @@ export const Layout = ({ children, padding = true }: LayoutProps) => {
           Loyless
         </div>
       </div>
+      <GoogleAnalytics gaId="G-4H0QMV5XVK" />
     </>
   );
 };

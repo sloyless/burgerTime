@@ -23,6 +23,8 @@ import { Burger } from 'utils/types';
 import BurgerRules from 'components/BurgerRules';
 import Loader from 'components/Loader';
 import Spinner from 'components/Loader/Spinner';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDollarSign } from '@fortawesome/free-solid-svg-icons';
 
 const Add: NextPage = () => {
   const { user } = useAuth();
@@ -241,7 +243,7 @@ const Add: NextPage = () => {
               </div>
 
               <FieldSet>
-                <div className="lg:w-1/2 xl:flex">
+                <div className="lg:w-1/2">
                   <div className="w-full md:mt-2 xl:w-[90px]">
                     <Label id="appearance">Appearance</Label>
                   </div>
@@ -249,17 +251,23 @@ const Add: NextPage = () => {
                     id="appearance"
                     rating={appearance}
                     updateRating={setAppearance}
+                    isEdit
                   >
                     How was the presentation of the burger? Perfectly crafted?
                     Shoved into a fast food wrapper?
                   </StarRating>
                 </div>
-                <div className="mt-3 md:mt-0 lg:w-1/2 xl:flex">
+                <div className="mt-3 md:mt-0 lg:w-1/2">
                   <div className="w-full md:mt-2 lg:w-[90px]">
                     <Label id="bun">Bun</Label>
                   </div>
 
-                  <StarRating id="bun" rating={bun} updateRating={setBun}>
+                  <StarRating
+                    id="bun"
+                    rating={bun}
+                    updateRating={setBun}
+                    isEdit
+                  >
                     If a great burger is a classic painting, then the bun is the
                     frame. It&apos;s the handle. It&apos;s the rhythm section.
                     It&apos;s the wrapping that brings the whole thing together.
@@ -267,17 +275,22 @@ const Add: NextPage = () => {
                 </div>
               </FieldSet>
               <FieldSet>
-                <div className="lg:w-1/2 xl:flex">
+                <div className="lg:w-1/2">
                   <div className="w-full md:mt-2 lg:w-[90px]">
                     <Label id="meat">Meat</Label>
                   </div>
 
-                  <StarRating id="meat" rating={meat} updateRating={setMeat}>
+                  <StarRating
+                    id="meat"
+                    rating={meat}
+                    updateRating={setMeat}
+                    isEdit
+                  >
                     The burger itself. This category covers flavor, texture,
                     juiciness, and done-ness.
                   </StarRating>
                 </div>
-                <div className="mt-3 md:mt-0 lg:w-1/2 xl:flex">
+                <div className="mt-3 md:mt-0 lg:w-1/2">
                   <div className="w-full md:mt-2 lg:w-[90px]">
                     <Label id="cheese">Cheese</Label>
                   </div>
@@ -285,27 +298,38 @@ const Add: NextPage = () => {
                     id="cheese"
                     rating={cheese}
                     updateRating={setCheese}
+                    isEdit
                   >
                     How was the cheese? Meltiness, quality, quantity, etc.
                   </StarRating>
                 </div>
               </FieldSet>
               <FieldSet>
-                <div className="lg:w-1/2 xl:flex">
+                <div className="lg:w-1/2">
                   <div className="w-full lg:mt-2 lg:w-[90px]">
                     <Label id="veg">Vegetables</Label>
                   </div>
-                  <StarRating id="veg" rating={veg} updateRating={setVeg}>
+                  <StarRating
+                    id="veg"
+                    rating={veg}
+                    updateRating={setVeg}
+                    isEdit
+                  >
                     This covers lettuce, onion, tomato, pickle, peppers, kimchi,
                     and anything else that might be used to dress up the burger
                     in question.
                   </StarRating>
                 </div>
-                <div className="mt-3 md:mt-0 lg:w-1/2 xl:flex">
+                <div className="mt-3 md:mt-0 lg:w-1/2">
                   <div className="w-full lg:mt-2 lg:w-[90px]">
                     <Label id="sauce">Sauces</Label>
                   </div>
-                  <StarRating id="sauce" rating={sauce} updateRating={setSauce}>
+                  <StarRating
+                    id="sauce"
+                    rating={sauce}
+                    updateRating={setSauce}
+                    isEdit
+                  >
                     Ketchup, mustard, aoli, peanut butter, special sauce, or
                     anything spreadable on the burger.
                   </StarRating>
@@ -316,7 +340,7 @@ const Add: NextPage = () => {
                 Other optional details you may want to enter.
               </p>
               <FieldSet>
-                <div className="lg:w-1/2 xl:flex">
+                <div className="lg:w-1/2">
                   <div className="w-full lg:w-[90px] lg:pr-3 xl:mt-2">
                     <Label id="venue">Cook Type</Label>
                   </div>
@@ -330,10 +354,58 @@ const Add: NextPage = () => {
                     Grill? Campfire?
                   </Input>
                 </div>
-                <div className="mt-3 lg:mt-0 lg:w-1/2 xl:flex">
+                <div className="mt-3 lg:mt-0 lg:w-1/2">
                   <Label id="address">Price</Label>
-                  <StarRating id="price" rating={price} updateRating={setPrice}>
+                  <StarRating
+                    id="price"
+                    rating={price}
+                    updateRating={setPrice}
+                    isEdit
+                    isValue
+                  >
                     Price level. Does not affect the rating.
+                    <ul>
+                      <li className="flex items-center">
+                        <div className="mr-2 text-orange-500">
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                        </div>
+                        <span>$1-5</span>
+                      </li>
+                      <li className="flex items-center">
+                        <div className="mr-2 text-orange-500">
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                        </div>
+                        <span>$5-12</span>
+                      </li>
+                      <li className="flex items-center">
+                        <div className="mr-2 text-orange-500">
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                        </div>
+                        <span>$12-20</span>
+                      </li>
+                      <li className="flex items-center">
+                        <div className="mr-2 text-orange-500">
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                        </div>
+                        <span>$20-40</span>
+                      </li>
+                      <li className="flex items-center">
+                        <div className="mr-2 text-orange-500">
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                        </div>
+                        <span>&gt; $40</span>
+                      </li>
+                    </ul>
                   </StarRating>
                 </div>
               </FieldSet>

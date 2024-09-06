@@ -4,7 +4,7 @@ type Props = {
 
 function FieldSet({ children }: Readonly<Props>) {
   return (
-    <fieldset className="border border-slate-400 bg-slate-300 px-6 py-4 lg:flex lg:content-center lg:justify-between lg:gap-5">
+    <fieldset className="bg-slate-300 px-6 pt-4 md:flex md:justify-between md:gap-5 md:border md:border-slate-400 md:pb-4 lg:content-center">
       {children}
     </fieldset>
   );

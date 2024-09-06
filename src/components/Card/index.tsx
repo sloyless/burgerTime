@@ -12,6 +12,7 @@ import {
 
 import burgerholder from './assets/newburger.jpg';
 import { DocumentData } from 'firebase/firestore';
+import LocationLink from 'components/LocationLink';
 
 type Props = {
   burger: DocumentData;
@@ -81,19 +82,7 @@ function Card({ burger, featured = false, url }: Readonly<Props>) {
                 </span>
               </div>
               <hr className="my-1 w-full" />
-              <Link
-                className="line-clamp-1"
-                href={`https://www.google.com/maps/search/?api=1&query=${googleMapsUrl}`}
-                target="_blank"
-                rel="nofollow"
-              >
-                <FontAwesomeIcon
-                  icon={faGlobe}
-                  size="sm"
-                  className="mb-1 me-1 inline-block w-[12px]"
-                />{' '}
-                {burger.address}
-              </Link>
+              <LocationLink burger={burger} />
             </div>
             <div className="w-[90px]">
               <div

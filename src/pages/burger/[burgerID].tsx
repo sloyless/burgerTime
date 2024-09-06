@@ -5,7 +5,7 @@ import Head from 'next/head';
 import { doc, onSnapshot, DocumentData } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faDollarSign } from '@fortawesome/free-solid-svg-icons';
 
 import { Layout } from 'layout';
 import { database } from 'utils/firebase';
@@ -19,8 +19,8 @@ import BurgerRules from 'components/BurgerRules';
 import FieldSet from 'components/Forms/FieldSet';
 import Label from 'components/Forms/Label';
 import StarRating from 'components/StarRating';
-import Link from 'next/link';
 import Divider from 'components/Divider';
+import LocationLink from 'components/LocationLink';
 
 const BurgerPage: NextPage = () => {
   // Import in Router and Auth
@@ -37,7 +37,6 @@ const BurgerPage: NextPage = () => {
     setLoading(true);
 
     if (burgerID) {
-      console.log(burgerID);
       // Get real-time data to monitor changes
       const dbInstance = doc(database, 'burgers', burgerID.toString());
       const unsub = onSnapshot(dbInstance, (docData) => {
@@ -55,8 +54,6 @@ const BurgerPage: NextPage = () => {
   const timestampISO = timestampDate?.toISOString();
   const score = burger ? calculateScore(burger) : 100;
   const color = calculateScoreColor(burger?.total || score);
-  const googleMapsUrl =
-    burger && encodeURIComponent(`${burger.venue}, ${burger.address}`);
 
   // Page <head> props
   const pageTitle = `${burger?.venue} - ${burger?.burgerName} :: BurgerTime`;
@@ -83,19 +80,7 @@ const BurgerPage: NextPage = () => {
                     </span>
                   </div>
                   <hr className="my-1 w-full" />
-                  <Link
-                    className="line-clamp-1"
-                    href={`https://www.google.com/maps/search/?api=1&query=${googleMapsUrl}`}
-                    target="_blank"
-                    rel="nofollow"
-                  >
-                    <FontAwesomeIcon
-                      icon={faGlobe}
-                      size="sm"
-                      className="mx-auto me-1 inline-block w-[12px] align-bottom"
-                    />{' '}
-                    {burger.address}
-                  </Link>
+                  <LocationLink burger={burger} />
                 </div>
                 <div className="w-[90px]">
                   <div
@@ -137,14 +122,14 @@ const BurgerPage: NextPage = () => {
                 <Divider />
                 <h2 className="mb-1 text-2xl font-extrabold">Rating</h2>
                 <FieldSet>
-                  <div className="md:w-1/2 xl:flex">
+                  <div className="md:w-1/2">
                     <Label id="appearance">Appearance</Label>
                     <StarRating id="appearance" rating={burger.appearance}>
                       How was the presentation of the burger? Perfectly crafted?
                       Shoved into a fast food wrapper?
                     </StarRating>
                   </div>
-                  <div className="mt-3 md:mt-0 md:w-1/2 xl:flex">
+                  <div className="mt-3 md:mt-0 md:w-1/2">
                     <Label id="bun">Bun</Label>
                     <StarRating id="bun" rating={burger.appearance}>
                       If a great burger is a classic painting, then the bun is
@@ -155,14 +140,14 @@ const BurgerPage: NextPage = () => {
                   </div>
                 </FieldSet>
                 <FieldSet>
-                  <div className="md:w-1/2 xl:flex">
+                  <div className="md:w-1/2">
                     <Label id="meat">Meat</Label>
                     <StarRating id="meat" rating={burger.meat}>
                       The burger itself. This category covers flavor, texture,
                       juiciness, and done-ness.
                     </StarRating>
                   </div>
-                  <div className="mt-3 md:mt-0 md:w-1/2 xl:flex">
+                  <div className="mt-3 md:mt-0 md:w-1/2">
                     <Label id="cheese">Cheese</Label>
                     <StarRating id="cheese" rating={burger.cheese}>
                       How was the cheese? Meltiness, quality, quantity, etc.
@@ -170,7 +155,7 @@ const BurgerPage: NextPage = () => {
                   </div>
                 </FieldSet>
                 <FieldSet>
-                  <div className="md:w-1/2 xl:flex">
+                  <div className="md:w-1/2">
                     <Label id="veg">Vegetables</Label>
                     <StarRating id="veg" rating={burger.veg}>
                       This covers lettuce, onion, tomato, pickle, peppers,
@@ -178,7 +163,7 @@ const BurgerPage: NextPage = () => {
                       the burger in question.
                     </StarRating>
                   </div>
-                  <div className="mt-3 md:mt-0 md:w-1/2 xl:flex">
+                  <div className="my-4 md:mt-0 md:w-1/2">
                     <Label id="sauce">Sauces</Label>
                     <StarRating id="sauce" rating={burger.sauce}>
                       Ketchup, mustard, aoli, peanut butter, special sauce, or
@@ -188,14 +173,56 @@ const BurgerPage: NextPage = () => {
                 </FieldSet>
                 <h2 className="mt-5 text-2xl font-bold">Miscellaneous</h2>
                 <FieldSet>
-                  <div className="md:w-1/2 xl:flex">
+                  <div className="md:w-1/2">
                     <Label id="venue">Cook Type</Label>
                     <p className="py-2">{burger.cookType || 'Unknown'}</p>
                   </div>
-                  <div className="mt-3 md:mt-0 md:w-1/2 xl:flex">
+                  <div className="mt-4 md:mt-0 md:w-1/2">
                     <Label id="address">Price</Label>
-                    <StarRating id="price" rating={burger.price}>
-                      Price level. Does not affect the rating.
+                    <StarRating id="price" rating={burger.price} isValue>
+                      <p>Price level. Does not affect the rating.</p>
+                      <ul className="lg:flex lg:gap-4">
+                        <li className="flex items-center">
+                          <div className="mr-2 mt-1 text-orange-500">
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          </div>
+                          <span>$1-5</span>
+                        </li>
+                        <li className="flex items-center">
+                          <div className="mr-2 text-orange-500">
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          </div>
+                          <span>$5-12</span>
+                        </li>
+                        <li className="flex items-center">
+                          <div className="mr-2 text-orange-500">
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          </div>
+                          <span>$12-20</span>
+                        </li>
+                        <li className="flex items-center">
+                          <div className="mr-2 text-orange-500">
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          </div>
+                          <span>$20-40</span>
+                        </li>
+                        <li className="flex items-center">
+                          <div className="mr-2 text-orange-500">
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                            <FontAwesomeIcon icon={faDollarSign} size="sm" />
+                          </div>
+                          <span>&gt; $40</span>
+                        </li>
+                      </ul>
                     </StarRating>
                   </div>
                 </FieldSet>

@@ -77,11 +77,10 @@ const Home: NextPage = () => {
               if (!item) return null; // skip most recent review
 
               return (
-                <>
+                <div key={item.id}>
                   <Card
                     featured={i === 0}
                     burger={item}
-                    key={item.id}
                     url={`/burger/${item.id}`}
                   />
                   {(i === 0 || i < items.length - 1) && (
@@ -89,7 +88,7 @@ const Home: NextPage = () => {
                       <Divider />
                     </div>
                   )}
-                </>
+                </div>
               );
             })}
           </section>
@@ -104,7 +103,7 @@ const Home: NextPage = () => {
                   className="w-[16px] text-amber-500"
                 />
               </span>
-              Top 10 All-Time
+              <span>Top 10 All-Time</span>
             </h3>
             <ol className="list-decimal">
               {topTenBurgers.map((burger) => {

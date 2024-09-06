@@ -1,12 +1,17 @@
 import { MouseEvent, ReactNode, useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
+import {
+  faDollarSign,
+  faStar as faStarSolid,
+} from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarReg } from '@fortawesome/free-regular-svg-icons';
 import { v4 as uuidv4 } from 'uuid';
 
 type Props = {
   children: ReactNode;
   id: string;
+  isEdit?: boolean;
+  isValue?: boolean;
   rating?: number;
   updateRating?: (value: number) => unknown;
 };
@@ -14,6 +19,8 @@ type Props = {
 function StarRating({
   children,
   id,
+  isEdit,
+  isValue,
   rating = 0,
   updateRating,
 }: Readonly<Props>) {
@@ -35,25 +42,27 @@ function StarRating({
   }
 
   return (
-    <div className="py-2 xl:flex-1 xl:pl-3">
+    <div className="py-2">
       {Array(count)
         .fill(1)
         .map((_value, i) => {
           const isActive = currentValue >= i + 1;
           const starIcon = isActive ? faStarSolid : faStarReg;
-          const starColor = isActive
-            ? 'text-orange-400 disabled:hover:text-orange-400'
-            : 'text-white';
+          const starColor = isActive ? 'text-orange-400' : 'text-white';
 
           return (
             <button
               key={uuidv4()}
               onClick={(e) => rateHandler(e, i + 1)}
               title={`${i + 1} star${i > 0 ? 's' : ''}`}
-              className={`${starColor} me-4 w-[25px] hover:text-orange-300 disabled:hover:text-white`}
+              className={`${starColor} me-4 w-[25px] ${isEdit ? 'hover:text-orange-300' : ''}`}
               disabled={!updateRating}
             >
-              <FontAwesomeIcon icon={starIcon} size="xl" />
+              <FontAwesomeIcon
+                icon={isValue ? faDollarSign : starIcon}
+                size="xl"
+                fixedWidth
+              />
             </button>
           );
         })}

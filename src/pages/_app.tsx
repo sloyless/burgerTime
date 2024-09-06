@@ -7,17 +7,19 @@ import ProtectedRoute from 'components/ProtectedRoute';
 
 const protectedRoutes = ['/add'];
 
-function MyApp({ Component, pageProps }: AppProps) {
+function BurgerApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
   return (
     <AuthProvider>
       <Head>
         <meta charSet="utf-8" />
-        <title>BurgerTime - Rate and review your favorite burgers!</title>
+        <title>
+          BurgerTime - One man's journey to eat every cheeseburger in the world.
+        </title>
         <meta
           name="description"
-          content="Rate and review your favorite burgers"
+          content="One man's journey to eat every cheeseburger in the world"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -35,4 +37,4 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
 }
 
-export default MyApp;
+export default BurgerApp;

@@ -56,7 +56,7 @@ const BurgerPage: NextPage = () => {
   const color = calculateScoreColor(burger?.total || score);
 
   // Page <head> props
-  const pageTitle = `${burger?.venue} - ${burger?.burgerName} :: BurgerTime`;
+  const pageTitle = `${burger?.venue ?? ''} - ${burger?.burgerName ?? ''} :: BurgerTime`;
 
   return (
     <Layout padding={false}>

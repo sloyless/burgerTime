@@ -3,7 +3,6 @@ import NavBar from 'components/NavBar';
 import Divider from 'components/Divider';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { config } from '@fortawesome/fontawesome-svg-core';
-import '@fortawesome/fontawesome-svg-core/styles.css';
 config.autoAddCss = false;
 
 interface LayoutProps {

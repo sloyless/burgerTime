@@ -21,7 +21,6 @@ import Label from 'components/Forms/Label';
 import StarRating from 'components/StarRating';
 import { Burger } from 'utils/types';
 import BurgerRules from 'components/BurgerRules';
-import Loader from 'components/Loader';
 import Spinner from 'components/Loader/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDollarSign } from '@fortawesome/free-solid-svg-icons';
@@ -235,7 +234,7 @@ const Add: NextPage = () => {
               </FieldSet>
               <h2 className="mt-5 text-2xl font-bold">Rating</h2>
               <div className="flex items-end justify-between">
-                <p className="mb-3 me-5 w-4/5 text-sm md:text-base">
+                <p className="me-5 mb-3 w-4/5 text-sm md:text-base">
                   For the following fields, rate the quality of each category on
                   a 5-star scale.
                 </p>

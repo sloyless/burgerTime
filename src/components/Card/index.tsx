@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGlobe, faStar } from '@fortawesome/free-solid-svg-icons';
+import { faStar } from '@fortawesome/free-solid-svg-icons';
 
 import {
   calculateScore,
@@ -10,7 +10,6 @@ import {
   getFormattedDate,
 } from 'functions';
 
-import burgerholder from './assets/newburger.jpg';
 import { DocumentData } from 'firebase/firestore';
 import LocationLink from 'components/LocationLink';
 
@@ -27,9 +26,6 @@ function Card({ burger, featured = false, url }: Readonly<Props>) {
 
   const timestampDate = calculateTimestamp(burger?.timestamp?.seconds);
   const timestampISO = timestampDate?.toISOString();
-  const googleMapsUrl = encodeURIComponent(
-    `${burger.venue}, ${burger.address}`
-  );
 
   return (
     <article className="relative lg:my-5">
@@ -88,7 +84,7 @@ function Card({ burger, featured = false, url }: Readonly<Props>) {
               <div
                 className={`rounded-xl border border-white text-white ${color} box-shadow p-1 text-center`}
               >
-                <strong className="text-[10px] uppercase tracking-wide">
+                <strong className="text-[10px] tracking-wide uppercase">
                   Score
                 </strong>
                 <br />

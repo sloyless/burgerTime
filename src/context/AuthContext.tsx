@@ -4,6 +4,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useMemo,
 } from 'react';
 import {
   GoogleAuthProvider,
@@ -56,9 +57,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return await signOut(auth);
   };
+  const value = useMemo(
+    () => ({ loading, user, login, logout }),
+    [loading, user, login, logout]
+  );
 
   return (
-    <AuthContext.Provider value={{ loading, user, login, logout }}>
+    <AuthContext.Provider value={value}>
       {loading ? null : children}
     </AuthContext.Provider>
   );

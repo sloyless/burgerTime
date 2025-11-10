@@ -52,7 +52,7 @@ function Card({ burger, featured = false, url }: Readonly<Props>) {
             />
           </Link>
         )}
-        <div className={!featured ? 'mt-3 lg:mt-0 lg:flex-[2]' : 'mt-3'}>
+        <div className={!featured ? 'mt-3 lg:mt-0 lg:flex-2' : 'mt-3'}>
           <div className="flex flex-row">
             <div className="flex-1 pr-5">
               <div className="flex flex-row items-end justify-between">

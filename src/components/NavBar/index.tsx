@@ -75,7 +75,7 @@ function NavBar() {
   }
 
   return (
-    <nav className="border-b border-orange-300 bg-gradient-to-b from-orange-400 to-orange-100 px-4 py-2 font-serif text-slate-900 shadow-md transition-[height] md:px-8">
+    <nav className="border-b border-orange-300 bg-linear-to-b from-orange-400 to-orange-100 px-4 py-2 font-serif text-slate-900 shadow-md transition-[height] md:px-8">
       <div className="container mx-auto flex flex-wrap items-center">
         <Link href="/" className="flex flex-wrap items-center gap-4 md:mr-6">
           <Image

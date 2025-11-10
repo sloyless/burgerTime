@@ -64,11 +64,11 @@ const Home: NextPage = () => {
 
     content = (
       <>
-        <div className="mx-auto lg:flex lg:flex-[9] lg:flex-col lg:pr-8">
+        <div className="mx-auto lg:flex lg:flex-9 lg:flex-col lg:pr-8">
           <section>
             <div className="mb-5 flex flex-row items-center">
               <div className="flex-1 border-b-2 border-orange-600 pr-7" />
-              <h2 className="px-3 text-center text-2xl font-extrabold lg:flex-[2] lg:text-4xl">
+              <h2 className="px-3 text-center text-2xl font-extrabold lg:flex-2 lg:text-4xl">
                 Latest Reviews
               </h2>
               <div className="flex-1 border-b-2 border-orange-600 pr-7" />
@@ -93,7 +93,7 @@ const Home: NextPage = () => {
             })}
           </section>
         </div>
-        <aside className="mt-2 lg:flex lg:flex-[3]">
+        <aside className="mt-2 lg:flex lg:flex-3">
           <div className="block">
             <h3 className="text-xl font-extrabold">
               <span className="inline-block pr-1">

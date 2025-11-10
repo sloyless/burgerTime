@@ -79,7 +79,7 @@ const Input = forwardRef(
       <div className="w-full">
         <input
           aria-describedby={children ? `${id}Help` : ''}
-          className={`w-full px-3 py-2 text-slate-700 ${getBorderClasses()} disabled:bg-slate-400 disabled:text-slate-700`}
+          className={`w-full ${type === 'text' && 'bg-white'} px-3 py-2 text-slate-700 ${getBorderClasses()} file:rounded file:bg-orange-600 file:px-5 file:py-1 file:text-slate-50 disabled:bg-slate-400 disabled:text-slate-700`}
           defaultValue={value}
           {...inputProps}
         />

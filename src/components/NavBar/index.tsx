@@ -145,7 +145,7 @@ function NavBar() {
             )}
             {dropdown ? (
               <div
-                className={`absolute right-0 top-full z-50 mt-3 flex w-40 flex-col rounded-md bg-white text-slate-800 shadow-md transition duration-300 ease-in-out ${
+                className={`absolute top-full right-0 z-50 mt-3 flex w-40 flex-col rounded-md bg-white text-slate-800 shadow-md transition duration-300 ease-in-out ${
                   dropdown ? 'opacity-100' : 'opacity-0'
                 }`}
               >

@@ -46,7 +46,7 @@ const Add: NextPage = () => {
   const venueInputRef = useRef<HTMLInputElement>(null);
   const locationInputRef = useRef<HTMLInputElement>(null);
   const burgerNameInputRef = useRef<HTMLInputElement>(null);
-  const notesInputRef = useRef<HTMLInputElement>(null);
+  const notesInputRef = useRef<HTMLTextAreaElement>(null);
   const cookInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -140,7 +140,7 @@ const Add: NextPage = () => {
       </Head>
       <main className="md:flex md:gap-4">
         <div className="container mx-auto mt-5 px-8">
-          <h1 className="text-3xl">Add a Burger</h1>
+          <h1 className="text-2xl">Add a Burger</h1>
           <section>
             <form onSubmit={submitHandler} className="my-5">
               <FieldSet>
@@ -216,19 +216,16 @@ const Add: NextPage = () => {
                 <div className="relative mt-3 lg:mt-0 xl:flex xl:flex-1">
                   {isUploading && <Spinner />}
                   {isUploaded && uploadedFile && (
-                    <>
-                      <Image
-                        width={320}
-                        height={120}
-                        src={uploadedFile}
-                        alt=""
-                        style={{
-                          maxWidth: '100%',
-                          height: 'auto',
-                        }}
-                      />
-                      {uploadedFile}
-                    </>
+                    <Image
+                      width={320}
+                      height={120}
+                      src={uploadedFile}
+                      alt=""
+                      style={{
+                        maxWidth: '100%',
+                        height: 'auto',
+                      }}
+                    />
                   )}
                 </div>
               </FieldSet>
@@ -340,7 +337,7 @@ const Add: NextPage = () => {
               </p>
               <FieldSet>
                 <div className="lg:w-1/2">
-                  <div className="w-full lg:w-[90px] lg:pr-3 xl:mt-2">
+                  <div className="w-full lg:pr-3 xl:mt-2">
                     <Label id="venue">Cook Type</Label>
                   </div>
                   <Input
@@ -412,9 +409,13 @@ const Add: NextPage = () => {
                 <div className="w-full lg:mt-2 lg:w-[90px]">
                   <Label id="notes">Notes</Label>
                 </div>
-                <Input id="notes" ref={notesInputRef} type="text">
+                <textarea
+                  ref={notesInputRef}
+                  id="notes"
+                  className="h-24 w-full border border-slate-400 bg-white p-2 text-slate-700"
+                >
                   Any additional information to share?
-                </Input>
+                </textarea>
               </FieldSet>
               <div className="mt-5 w-auto text-center">
                 <Button

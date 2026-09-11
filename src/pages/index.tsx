@@ -104,6 +104,9 @@ const Home: NextPage = () => {
         </div>
         <aside className="mt-2 lg:flex lg:flex-3">
           <div className="block">
+            <div className="lg:hidden">
+              <Divider />
+            </div>
             <h3 className="text-xl font-extrabold">
               <span className="inline-block pr-1">
                 <FontAwesomeIcon
@@ -114,10 +117,10 @@ const Home: NextPage = () => {
               </span>
               <span>Top 10 All-Time</span>
             </h3>
-            <ol className="list-decimal">
+            <ol className="list-decimal ps-7">
               {topTenBurgers.map((burger) => {
                 return (
-                  <li key={burger.id} className="my-2 ml-7 w-full">
+                  <li key={burger.id} className="my-2">
                     <Link
                       href={`/burger/${burger.id}`}
                       className="block text-orange-600 hover:text-orange-500"
@@ -172,7 +175,7 @@ const Home: NextPage = () => {
         </Link>
       </header>
       <Divider />
-      <main className="pt-6 lg:flex lg:flex-row">{content}</main>
+      <main className="min-w-0 pt-6 lg:flex lg:flex-row">{content}</main>
     </Layout>
   );
 };

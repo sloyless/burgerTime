@@ -4,14 +4,14 @@ on:
   workflow_call:
     inputs:
       channelId:
-        description: 'Hosting channel (e.g. live). Omit for PR preview channels.'
+        description: 'Hosting channel (e.g. live).'
         required: false
         type: string
       disableComment:
-        description: 'Disable PR preview URL comments'
+        description: 'Disable deploy comments on commits'
         required: false
         type: boolean
-        default: false
+        default: true
 
 jobs:
   deploy:
@@ -19,7 +19,6 @@ jobs:
     timeout-minutes: 25
     permissions:
       contents: read
-      pull-requests: write
     env:
       FIREBASE_CLI_EXPERIMENTS: webframeworks
       NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}

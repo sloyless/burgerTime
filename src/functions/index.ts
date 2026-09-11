@@ -78,3 +78,21 @@ export function calculateTimestamp(timestamp: number) {
   if (!timestamp) return;
   return new Date(timestamp * 1000);
 }
+
+/** Firestore timestamp → `YYYY-MM-DD` for a day-only date picker (UTC calendar day). */
+export function timestampToDateInputValue(timestamp?: {
+  seconds?: number;
+}): string {
+  if (timestamp?.seconds == null) return '';
+  const date = calculateTimestamp(timestamp.seconds);
+  if (!date) return '';
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/** `YYYY-MM-DD` from a date picker → Date at noon UTC (no time-of-day stored). */
+export function dateInputValueToUtcDate(value: string): Date {
+  return new Date(`${value}T12:00:00.000Z`);
+}

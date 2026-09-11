@@ -39,11 +39,13 @@ function Button({
     default:
   }
 
-  const classes = `inline-block transition-colors py-1 px-5 rounded ${bg}`;
+  const classes = `inline-block rounded py-1 px-5 transition-colors ${bg} ${
+    disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+  }`;
 
   if (url)
     return (
-      <Link href={url} className={classes}>
+      <Link href={url} className={`${classes} cursor-pointer`}>
         {children}
       </Link>
     );

@@ -19,11 +19,13 @@ const LOGO_SRC = '/logo.png';
 const DEFAULT_AVATAR_SRC = '/favicon.png';
 import Button from 'components/Button';
 import { ADMINUID } from 'functions';
+import { getGoogleSignInHelpMessage } from 'utils/googleSignIn';
 
 function NavBar() {
   const { login, logout, user } = useAuth();
   const router = useRouter();
   const [dropdown, setDropdown] = useState(false);
+  const [loginPending, setLoginPending] = useState(false);
 
   useEffect(() => {
     // Allows user to close dropdown menu by clicking outside the menu/document
@@ -32,7 +34,13 @@ function NavBar() {
     });
   });
 
-  async function loginUser() {
+  async function loginUser(e: MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
+    if (loginPending) {
+      return;
+    }
+
+    setLoginPending(true);
     try {
       await login();
     } catch (error) {
@@ -41,6 +49,9 @@ function NavBar() {
           ? String(error.code)
           : 'unknown';
       console.error('Google sign-in failed:', code, error);
+      window.alert(getGoogleSignInHelpMessage(error));
+    } finally {
+      setLoginPending(false);
     }
   }
 
@@ -144,8 +155,13 @@ function NavBar() {
                 />
               </button>
             ) : (
-              <Button onClick={loginUser} status="primary">
-                Login
+              <Button
+                type="button"
+                onClick={loginUser}
+                status="primary"
+                disabled={loginPending}
+              >
+                {loginPending ? 'Signing in…' : 'Login'}
               </Button>
             )}
             {dropdown ? (

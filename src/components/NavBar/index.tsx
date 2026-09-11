@@ -36,7 +36,11 @@ function NavBar() {
     try {
       await login();
     } catch (error) {
-      console.log(error);
+      const code =
+        error && typeof error === 'object' && 'code' in error
+          ? String(error.code)
+          : 'unknown';
+      console.error('Google sign-in failed:', code, error);
     }
   }
 
@@ -93,7 +97,7 @@ function NavBar() {
           </h1>
         </Link>
         <div className="flex grow justify-end">
-          <div className="relative flex flex-row items-end justify-around lg:ml-auto lg:inline-flex lg:h-auto lg:w-auto lg:flex-row lg:items-center">
+          <div className="relative flex flex-row items-end justify-around lg:ml-auto lg:inline-flex lg:size-auto lg:flex-row lg:items-center">
             {navLinks.map((item) => {
               return (
                 <Link
@@ -107,7 +111,7 @@ function NavBar() {
                   <FontAwesomeIcon
                     icon={item.icon}
                     size="2x"
-                    className="mx-auto w-[24px]"
+                    className="mx-auto w-6"
                   />
                 </Link>
               );
@@ -156,7 +160,7 @@ function NavBar() {
                 >
                   <FontAwesomeIcon
                     icon={faRightFromBracket}
-                    className="w-[16px]"
+                    className="w-4"
                   />
                   <span className="ml-2">Logout</span>
                 </button>

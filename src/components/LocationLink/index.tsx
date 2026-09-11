@@ -19,7 +19,7 @@ function LocationLink({ burger }: Readonly<Props>) {
       rel="nofollow"
     >
       <div className="flex items-center">
-        <FontAwesomeIcon icon={faGlobe} size="sm" className="me-1 w-[12px]" />
+        <FontAwesomeIcon icon={faGlobe} size="sm" className="me-1 w-3" />
         <span>{burger.address}</span>
       </div>
     </Link>

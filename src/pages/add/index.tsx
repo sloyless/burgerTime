@@ -68,6 +68,10 @@ const Add: NextPage = () => {
   }, [appearance, bun, cheese, meat, sauce, veg]);
 
   const handleUpload = async () => {
+    if (!selectedFile) {
+      return;
+    }
+
     setIsUploading(true);
     const folder = 'burgers/';
     const imagePath = await uploadFile(selectedFile, folder);

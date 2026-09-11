@@ -16,7 +16,7 @@ type Props = {
  */
 function EmptyState({ message, title }: Readonly<Props>) {
   return (
-    <div className="mx-auto mt-10 w-[300px] text-center">
+    <div className="mx-auto mt-10 w-75 text-center">
       <h2 className="text-2xl font-bold text-red-600">{title || 'Error'}</h2>
       <p className="my-3 text-center font-bold">
         {message || 'Encountered an error.'}

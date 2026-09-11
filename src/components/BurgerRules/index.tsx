@@ -6,7 +6,7 @@ const BurgerRules: NextPage = () => {
       <h2 className="mb-3 text-lg">How does the scoring work?</h2>
       <ul>
         <li className="mb-3 flex gap-1">
-          <div className="h-[40px] w-[60px] bg-green-900 py-3 text-center text-xs text-white">
+          <div className="h-10 w-15 bg-green-900 py-3 text-center text-xs text-white">
             95-100
           </div>
           <span className="ms-1 w-2/3 text-xs leading-none">
@@ -14,7 +14,7 @@ const BurgerRules: NextPage = () => {
           </span>
         </li>
         <li className="mb-3 flex gap-1">
-          <div className="h-[40px] w-[60px] bg-green-600 py-3 text-center text-xs text-white">
+          <div className="h-10 w-15 bg-green-600 py-3 text-center text-xs text-white">
             80-95
           </div>
           <span className="ms-1 w-2/3 text-xs leading-none">
@@ -22,7 +22,7 @@ const BurgerRules: NextPage = () => {
           </span>
         </li>
         <li className="mb-3 flex gap-1">
-          <div className="h-[40px] w-[60px] bg-yellow-500 py-3 text-center text-xs text-white">
+          <div className="h-10 w-15 bg-yellow-500 py-3 text-center text-xs text-white">
             50-80
           </div>
           <span className="ms-1 w-2/3 text-xs leading-none">
@@ -30,7 +30,7 @@ const BurgerRules: NextPage = () => {
           </span>
         </li>
         <li className="mb-3 flex gap-1">
-          <div className="h-[40px] w-[60px] bg-orange-500 py-3 text-center text-xs text-white">
+          <div className="h-10 w-15 bg-orange-500 py-3 text-center text-xs text-white">
             20-50
           </div>
           <span className="ms-1 w-2/3 text-xs leading-none">
@@ -39,7 +39,7 @@ const BurgerRules: NextPage = () => {
           </span>
         </li>
         <li className="mb-3 flex gap-1">
-          <div className="h-[40px] w-[60px] bg-red-900 py-3 text-center text-xs text-white">
+          <div className="h-10 w-15 bg-red-900 py-3 text-center text-xs text-white">
             &lt; 20
           </div>
           <span className="ms-1 w-2/3 text-xs leading-none">

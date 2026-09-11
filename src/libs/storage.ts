@@ -2,7 +2,7 @@ import { storage } from '../utils/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { nanoid } from 'nanoid';
 
-export const uploadFile = async (file: any, folder: string) => {
+export const uploadFile = async (file: File, folder: string) => {
   try {
     const filename = nanoid();
     const storageRef = ref(

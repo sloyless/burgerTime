@@ -100,7 +100,7 @@ const Home: NextPage = () => {
                 <FontAwesomeIcon
                   icon={faStar}
                   size="sm"
-                  className="w-[16px] text-amber-500"
+                  className="w-4 text-amber-500"
                 />
               </span>
               <span>Top 10 All-Time</span>
@@ -113,7 +113,7 @@ const Home: NextPage = () => {
                       href={`/burger/${burger.id}`}
                       className="block text-orange-600 hover:text-orange-500"
                     >
-                      <h3 className="font-bold leading-4">{burger.venue}</h3>
+                      <h3 className="leading-4 font-bold">{burger.venue}</h3>
                       <small className="line-clamp-1 text-black">
                         {burger.address}
                       </small>
@@ -148,7 +148,7 @@ const Home: NextPage = () => {
   return (
     <Layout>
       <header className="pt-8 text-center">
-        <h1 className="mb-4 text-3xl font-extrabold leading-none tracking-tight text-orange-600 md:text-4xl lg:text-5xl">
+        <h1 className="mb-4 text-3xl leading-none font-extrabold tracking-tight text-orange-600 md:text-4xl lg:text-5xl">
           Welcome to BurgerTime
         </h1>
         <p className="mb-3 text-lg sm:px-16 lg:px-48 lg:text-xl">

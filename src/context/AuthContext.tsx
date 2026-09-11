@@ -13,7 +13,7 @@ import {
   signOut,
   UserCredential,
   User,
-} from '@firebase/auth';
+} from 'firebase/auth';
 import { auth } from 'utils/firebase';
 
 const provider = new GoogleAuthProvider();

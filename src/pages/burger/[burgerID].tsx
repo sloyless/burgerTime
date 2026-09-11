@@ -86,7 +86,7 @@ const BurgerPage: NextPage = () => {
                   <div
                     className={`rounded-xl border border-white text-white ${color} box-shadow p-1 text-center`}
                   >
-                    <strong className="text-[10px] uppercase tracking-wide">
+                    <strong className="text-[10px] tracking-wide uppercase">
                       Score
                     </strong>
                     <br />
@@ -183,7 +183,7 @@ const BurgerPage: NextPage = () => {
                       <p>Price level. Does not affect the rating.</p>
                       <ul className="lg:flex lg:gap-4">
                         <li className="flex items-center">
-                          <div className="mr-2 mt-1 text-orange-500">
+                          <div className="mt-1 mr-2 text-orange-500">
                             <FontAwesomeIcon icon={faDollarSign} size="sm" />
                           </div>
                           <span>$1-5</span>

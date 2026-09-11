@@ -32,7 +32,7 @@ function Card({ burger, featured = false, url }: Readonly<Props>) {
       <div className={!featured ? 'lg:flex lg:flex-row' : ''}>
         {burger.image && (
           <Link
-            className={`relative bg-white ${!featured ? 'lg:flex-1 lg:pr-5' : 'h-[300px] w-full'}`}
+            className={`relative bg-white ${!featured ? 'lg:flex-1 lg:pr-5' : 'h-75 w-full'}`}
             href={url}
             title={`${burger.burgerName} at ${burger.venue}`}
           >
@@ -65,7 +65,7 @@ function Card({ burger, featured = false, url }: Readonly<Props>) {
                         <FontAwesomeIcon
                           icon={faStar}
                           size="sm"
-                          className="w-[12px] text-amber-500"
+                          className="w-3 text-amber-500"
                         />
                       </span>
                     )}

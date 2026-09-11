@@ -38,6 +38,18 @@ const BurgerPage: NextPage = () => {
   const isAdmin = user?.uid === ADMINUID;
 
   useEffect(() => {
+    setIsEditing(false);
+  }, [urlSegment]);
+
+  function handleEditSaved(slug: string) {
+    setIsEditing(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (slug && urlSegment !== slug) {
+      void router.replace(`/burger/${slug}`, undefined, { shallow: false });
+    }
+  }
+
+  useEffect(() => {
     if (!urlSegment) return;
 
     let unsub: (() => void) | undefined;
@@ -226,7 +238,7 @@ const BurgerPage: NextPage = () => {
                   burgerId={documentId}
                   initial={burgerRecord}
                   onCancel={() => setIsEditing(false)}
-                  onSaved={() => setIsEditing(false)}
+                  onSaved={handleEditSaved}
                 />
               ) : (
                 <BurgerDetailView burger={burgerRecord} score={score} />

@@ -1,15 +1,74 @@
+import { Form, FormInstance } from 'antd';
+import { useMemo } from 'react';
+
 import { BurgerFormValues } from './types';
 
+function hasText(value: string | undefined): boolean {
+  return Boolean(value?.trim());
+}
+
+function hasRating(value: number | undefined): boolean {
+  return typeof value === 'number' && value > 0;
+}
+
+/** True when all required form fields pass the same rules as submit validation. */
 export function isBurgerFormComplete(values: BurgerFormValues): boolean {
-  return Boolean(
-    values.venue &&
-    values.address &&
-    values.burgerName &&
-    values.appearance &&
-    values.bun &&
-    values.cheese &&
-    values.meat &&
-    values.sauce &&
-    values.veg
+  return (
+    hasText(values.venue) &&
+    hasText(values.address) &&
+    hasText(values.burgerName) &&
+    hasText(values.reviewDate) &&
+    hasRating(values.appearance) &&
+    hasRating(values.bun) &&
+    hasRating(values.meat) &&
+    hasRating(values.cheese) &&
+    hasRating(values.veg) &&
+    hasRating(values.sauce)
+  );
+}
+
+export function useBurgerFormComplete(
+  form: FormInstance<BurgerFormValues>
+): boolean {
+  const venue = Form.useWatch('venue', form);
+  const address = Form.useWatch('address', form);
+  const burgerName = Form.useWatch('burgerName', form);
+  const reviewDate = Form.useWatch('reviewDate', form);
+  const appearance = Form.useWatch('appearance', form);
+  const bun = Form.useWatch('bun', form);
+  const meat = Form.useWatch('meat', form);
+  const cheese = Form.useWatch('cheese', form);
+  const veg = Form.useWatch('veg', form);
+  const sauce = Form.useWatch('sauce', form);
+
+  return useMemo(
+    () =>
+      isBurgerFormComplete({
+        venue: venue ?? '',
+        address: address ?? '',
+        burgerName: burgerName ?? '',
+        reviewDate: reviewDate ?? '',
+        appearance: appearance ?? 0,
+        bun: bun ?? 0,
+        meat: meat ?? 0,
+        cheese: cheese ?? 0,
+        veg: veg ?? 0,
+        sauce: sauce ?? 0,
+        notes: '',
+        cookType: '',
+        price: 0,
+      }),
+    [
+      venue,
+      address,
+      burgerName,
+      reviewDate,
+      appearance,
+      bun,
+      meat,
+      cheese,
+      veg,
+      sauce,
+    ]
   );
 }

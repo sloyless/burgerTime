@@ -53,6 +53,37 @@ export function burgerDocumentToFormValues(
   };
 }
 
+const BURGER_FORM_VALUE_KEYS: (keyof BurgerFormValues)[] = [
+  'venue',
+  'address',
+  'burgerName',
+  'notes',
+  'cookType',
+  'reviewDate',
+  'appearance',
+  'bun',
+  'meat',
+  'cheese',
+  'veg',
+  'sauce',
+  'price',
+  'image',
+];
+
+export function areBurgerFormValuesEqual(
+  a: BurgerFormValues,
+  b: BurgerFormValues
+): boolean {
+  return BURGER_FORM_VALUE_KEYS.every((key) => {
+    const left = a[key];
+    const right = b[key];
+    if (typeof left === 'number' || typeof right === 'number') {
+      return (left ?? 0) === (right ?? 0);
+    }
+    return (left ?? '') === (right ?? '');
+  });
+}
+
 export function burgerFormValuesToScoreInput(values: BurgerFormValues): Burger {
   return {
     appearance: values.appearance,

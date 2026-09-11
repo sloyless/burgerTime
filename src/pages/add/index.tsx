@@ -17,6 +17,7 @@ import {
   BurgerFormContainer,
   emptyBurgerFormValues,
   BurgerFormValues,
+  useBurgerFormComplete,
 } from 'components/BurgerForm';
 import { Burger } from 'utils/types';
 import { allocateBurgerSlug, getBurgerPath } from 'utils/burgerSlug';
@@ -32,6 +33,7 @@ const Add: NextPage = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   const imageUrl = Form.useWatch('image', form);
+  const isFormComplete = useBurgerFormComplete(form);
 
   const uploadImage = async () => {
     if (!selectedFile) return;
@@ -116,7 +118,7 @@ const Add: NextPage = () => {
                 type="button"
                 status="primary"
                 loading={loading}
-                disabled={loading}
+                disabled={loading || !isFormComplete}
                 onClick={() => form.submit()}
               >
                 Submit review

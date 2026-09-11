@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { doc, DocumentData, Timestamp, updateDoc } from 'firebase/firestore';
 import { Form } from 'antd';
 
 import Button from 'components/Button';
 import {
+  areBurgerFormValuesEqual,
   BurgerFormContainer,
   burgerDocumentToFormValues,
   burgerFormValuesToScoreInput,
   BurgerFormValues,
+  useBurgerFormComplete,
 } from 'components/BurgerForm';
 import {
   calculateScore,
@@ -23,7 +25,7 @@ type Props = {
   burgerId: string;
   initial: DocumentData;
   onCancel: () => void;
-  onSaved: () => void;
+  onSaved: (slug: string) => void;
 };
 
 function BurgerEditForm({
@@ -33,6 +35,7 @@ function BurgerEditForm({
   onSaved,
 }: Readonly<Props>) {
   const [saving, setSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
   const [form] = Form.useForm<BurgerFormValues>();
   const [selectedFile, setSelectedFile] = useState<File | undefined>();
   const [isUploading, setIsUploading] = useState(false);
@@ -42,11 +45,24 @@ function BurgerEditForm({
     [initial]
   );
 
-  const imageUrl = Form.useWatch('image', form);
+  const imageUrl = Form.useWatch('image', form) ?? initialValues.image;
+  const isFormComplete = useBurgerFormComplete(form);
+
+  const syncDirtyState = useCallback(() => {
+    const current = form.getFieldsValue(true) as BurgerFormValues;
+    const hasFormChanges = !areBurgerFormValuesEqual(current, initialValues);
+    setIsDirty(hasFormChanges || Boolean(selectedFile));
+  }, [form, initialValues, selectedFile]);
 
   useEffect(() => {
     form.setFieldsValue(initialValues);
+    setSelectedFile(undefined);
+    setIsDirty(false);
   }, [form, initialValues]);
+
+  useEffect(() => {
+    syncDirtyState();
+  }, [selectedFile, syncDirtyState]);
 
   const uploadImage = async () => {
     if (!selectedFile) return;
@@ -56,6 +72,8 @@ function BurgerEditForm({
       const imagePath = await uploadFile(selectedFile, 'burgers/');
       const url = await getFile(imagePath);
       form.setFieldValue('image', url);
+      setSelectedFile(undefined);
+      syncDirtyState();
     } catch (error) {
       console.error('Image upload failed:', error);
     } finally {
@@ -105,7 +123,7 @@ function BurgerEditForm({
         veg: values.veg,
         venue: values.venue,
       });
-      onSaved();
+      onSaved(slug);
     } catch (error) {
       console.error('Failed to update burger:', error);
     } finally {
@@ -124,6 +142,7 @@ function BurgerEditForm({
       onSelectImage={setSelectedFile}
       onUploadImage={uploadImage}
       onFinish={handleFinish}
+      onValuesChange={syncDirtyState}
     >
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Button type="button" status="link" onClick={onCancel}>
@@ -133,7 +152,7 @@ function BurgerEditForm({
           type="button"
           status="primary"
           loading={saving}
-          disabled={saving}
+          disabled={saving || !isDirty || !isFormComplete}
           onClick={() => form.submit()}
         >
           Save changes

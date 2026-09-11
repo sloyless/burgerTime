@@ -14,6 +14,7 @@ type Props = {
   initialValues?: BurgerFormValues;
   isUploading: boolean;
   onFinish: (values: BurgerFormValues) => void;
+  onValuesChange?: () => void;
   onSelectImage: (file: File | undefined) => void;
   onUploadImage: () => void;
   selectedFile?: File;
@@ -28,6 +29,7 @@ function BurgerFormContainer({
   initialValues,
   isUploading,
   onFinish,
+  onValuesChange,
   onSelectImage,
   onUploadImage,
   selectedFile,
@@ -41,6 +43,7 @@ function BurgerFormContainer({
       layout="vertical"
       initialValues={initialValues}
       onFinish={onFinish}
+      onValuesChange={onValuesChange}
       requiredMark="optional"
       scrollToFirstError
       className="max-w-full min-w-0"

@@ -159,10 +159,7 @@ function NavBar() {
                   className="flex items-center rounded-b-md px-4 py-2 text-left hover:bg-amber-300"
                   onClick={() => logoutUser()}
                 >
-                  <FontAwesomeIcon
-                    icon={faRightFromBracket}
-                    className="w-4"
-                  />
+                  <FontAwesomeIcon icon={faRightFromBracket} className="w-4" />
                   <span className="ml-2">Logout</span>
                 </button>
               </div>

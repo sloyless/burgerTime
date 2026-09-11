@@ -5,6 +5,10 @@ const authDomain =
 
 const nextConfig = {
   reactStrictMode: true,
+  transpilePackages: ['antd'],
+  experimental: {
+    optimizePackageImports: ['antd', '@fortawesome/free-solid-svg-icons'],
+  },
   async rewrites() {
     return {
       beforeFiles: [

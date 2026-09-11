@@ -1,44 +1,33 @@
-import { MouseEvent, useEffect, useState } from 'react';
+import { MouseEvent, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { App, Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBurger,
-  faCaretDown,
-  faCaretUp,
   faRightFromBracket,
   faUtensils,
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from 'context/AuthContext';
-import { v4 as uuidv4 } from 'uuid';
 
-import styles from './NavBar.module.css';
-
-const LOGO_SRC = '/logo.png';
-const DEFAULT_AVATAR_SRC = '/favicon.png';
 import Button from 'components/Button';
 import { ADMINUID } from 'functions';
 import { getGoogleSignInHelpMessage } from 'utils/googleSignIn';
 
+const LOGO_SRC = '/logo.png';
+const DEFAULT_AVATAR_SRC = '/favicon.png';
+
 function NavBar() {
+  const { message } = App.useApp();
   const { login, logout, user } = useAuth();
   const router = useRouter();
-  const [dropdown, setDropdown] = useState(false);
   const [loginPending, setLoginPending] = useState(false);
-
-  useEffect(() => {
-    // Allows user to close dropdown menu by clicking outside the menu/document
-    document.body.addEventListener('click', () => {
-      setDropdown(false);
-    });
-  });
 
   async function loginUser(e: MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
-    if (loginPending) {
-      return;
-    }
+    if (loginPending) return;
 
     setLoginPending(true);
     try {
@@ -49,7 +38,7 @@ function NavBar() {
           ? String(error.code)
           : 'unknown';
       console.error('Google sign-in failed:', code, error);
-      window.alert(getGoogleSignInHelpMessage(error));
+      message.error(getGoogleSignInHelpMessage(error), 8);
     } finally {
       setLoginPending(false);
     }
@@ -60,16 +49,10 @@ function NavBar() {
       await logout();
       await router.push('/');
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 
-  const showDropdown = (e: MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    setDropdown(!dropdown);
-  };
-
-  // Main navigation
   const navLinks = [
     {
       title: 'About',
@@ -79,111 +62,91 @@ function NavBar() {
     },
   ];
 
-  // Admin only
   if (user && user?.uid === ADMINUID) {
     navLinks.push({
-      title: 'Add Burger',
+      title: 'Add review',
       path: '/add',
       icon: faBurger,
       active: router.asPath === '/add',
     });
   }
 
+  const userMenuItems: MenuProps['items'] = [
+    {
+      key: 'logout',
+      label: 'Logout',
+      icon: <FontAwesomeIcon icon={faRightFromBracket} className="h-4 w-4" />,
+      onClick: () => logoutUser(),
+    },
+  ];
+
   return (
-    <nav className="border-b border-orange-300 bg-linear-to-b from-orange-400 to-orange-100 px-4 py-2 font-serif text-slate-900 shadow-md transition-[height] md:px-8">
-      <div className="container mx-auto flex flex-wrap items-center">
-        <Link href="/" className="flex flex-wrap items-center gap-4 md:mr-6">
+    <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/85 backdrop-blur-md">
+      <nav className="mx-auto flex max-w-screen-2xl flex-wrap items-center gap-3 px-4 py-2 sm:px-6 lg:px-8">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-stone-900 hover:text-brand-700"
+        >
           <Image
-            width={30}
-            height={24}
+            width={36}
+            height={30}
             src={LOGO_SRC}
             priority
             alt="BurgerTime"
-            style={{
-              maxWidth: '100%',
-              height: 'auto',
-            }}
+            style={{ maxWidth: '100%', height: 'auto' }}
           />
-          <h1 className="font-serif text-xl font-extrabold lg:text-2xl">
-            BurgerTime
-          </h1>
+          <span className="font-venue text-xl">BurgerTime</span>
         </Link>
-        <div className="flex grow justify-end">
-          <div className="relative flex flex-row items-end justify-around lg:ml-auto lg:inline-flex lg:size-auto lg:flex-row lg:items-center">
-            {navLinks.map((item) => {
-              return (
-                <Link
-                  className={`${styles.link} ${
-                    item.active ? 'text-orange-500' : 'text-orange-900'
-                  } mr-4 flex-row items-center text-center transition-colors duration-300 hover:text-orange-500 lg:mr-8`}
-                  href={item.path}
-                  key={uuidv4()}
-                  title={item.title}
-                >
-                  <FontAwesomeIcon
-                    icon={item.icon}
-                    size="2x"
-                    className="mx-auto w-6"
-                  />
-                </Link>
-              );
-            })}
-            {user ? (
+
+        <div className="ml-auto flex items-center gap-2 sm:gap-4">
+          {navLinks.map((item) => (
+            <Link
+              key={item.path}
+              href={item.path}
+              title={item.title}
+              className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-sans font-medium transition-colors ${
+                item.active
+                  ? 'bg-brand-50 text-brand-700'
+                  : 'text-stone-600 hover:bg-stone-100 hover:text-brand-700'
+              }`}
+            >
+              <FontAwesomeIcon icon={item.icon} className="h-4 w-4" />
+              <span className="hidden sm:inline">{item.title}</span>
+            </Link>
+          ))}
+
+          {user ? (
+            <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
               <button
-                className="flex items-center text-slate-800"
+                className="flex cursor-pointer items-center gap-2 rounded-full border border-stone-200 bg-white px-2 py-1 pl-1 shadow-sm"
                 type="button"
-                onClick={(e) => showDropdown(e)}
               >
                 <Image
-                  className="mr-3 rounded-full"
+                  className="rounded-full"
                   src={user.photoURL ?? DEFAULT_AVATAR_SRC}
-                  width={25}
-                  height={25}
+                  width={28}
+                  height={28}
                   alt=""
-                  style={{
-                    maxWidth: '100%',
-                    height: 'auto',
-                  }}
                 />
-                <small className="mr-2 hidden font-sans md:block">
-                  {user?.displayName}
-                </small>
-                <FontAwesomeIcon
-                  icon={dropdown ? faCaretUp : faCaretDown}
-                  size="sm"
-                  className="mx-auto w-[9px]"
-                />
+                <span className="hidden max-w-28 truncate font-sans text-sm text-stone-700 md:inline">
+                  {user.displayName}
+                </span>
               </button>
-            ) : (
-              <Button
-                type="button"
-                onClick={loginUser}
-                status="primary"
-                disabled={loginPending}
-              >
-                {loginPending ? 'Signing in…' : 'Login'}
-              </Button>
-            )}
-            {dropdown ? (
-              <div
-                className={`absolute top-full right-0 z-50 mt-3 flex w-40 flex-col rounded-md bg-white text-slate-800 shadow-md transition duration-300 ease-in-out ${
-                  dropdown ? 'opacity-100' : 'opacity-0'
-                }`}
-              >
-                <button
-                  type="button"
-                  className="flex items-center rounded-b-md px-4 py-2 text-left hover:bg-amber-300"
-                  onClick={() => logoutUser()}
-                >
-                  <FontAwesomeIcon icon={faRightFromBracket} className="w-4" />
-                  <span className="ml-2">Logout</span>
-                </button>
-              </div>
-            ) : null}
-          </div>
+            </Dropdown>
+          ) : (
+            <Button
+              type="button"
+              onClick={loginUser}
+              status="primary"
+              disabled={loginPending}
+              loading={loginPending}
+            >
+              Login
+            </Button>
+          )}
         </div>
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 }
 

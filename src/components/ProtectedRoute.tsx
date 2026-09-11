@@ -1,5 +1,6 @@
-import React, { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { Spin } from 'antd';
 import { useAuth } from 'context/AuthContext';
 
 interface ProtectedRouteProps {
@@ -17,10 +18,22 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }, [loading, router, user]);
 
   if (loading) {
-    return null;
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <Spin size="large" description="Checking sign-in…" />
+      </div>
+    );
   }
 
-  return <>{user ? children : null}</>;
+  if (!user) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <Spin description="Redirecting…" />
+      </div>
+    );
+  }
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

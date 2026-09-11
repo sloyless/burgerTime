@@ -1,26 +1,30 @@
+import { Empty } from 'antd';
+
 type Props = {
   message?: string;
   title?: string;
 };
 
-/**
- * EmptyState
- * - Displays a stylized container displaying an error message
- *
- * @component
- * @example
- * <EmptyState message="Error loading collection" />
- *
- *  * @param {string} [message] - Message to override default loading message
- *  * @param {string} [title] - Heading title of the state
- */
 function EmptyState({ message, title }: Readonly<Props>) {
   return (
-    <div className="mx-auto mt-10 w-75 text-center">
-      <h2 className="text-2xl font-bold text-red-600">{title || 'Error'}</h2>
-      <p className="my-3 text-center font-bold">
-        {message || 'Encountered an error.'}
-      </p>
+    <div className="rounded-2xl border border-dashed border-stone-300 bg-white/80 px-4 py-8">
+      <Empty
+        image={Empty.PRESENTED_IMAGE_SIMPLE}
+        description={
+          <span className="font-sans text-stone-600">
+            {title ? (
+              <>
+                <span className="block font-serif text-lg font-bold text-stone-800">
+                  {title}
+                </span>
+                {message}
+              </>
+            ) : (
+              message || 'Nothing here yet.'
+            )}
+          </span>
+        }
+      />
     </div>
   );
 }

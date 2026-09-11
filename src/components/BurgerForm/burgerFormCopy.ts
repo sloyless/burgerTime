@@ -35,3 +35,29 @@ export const BURGER_RATING_FIELDS = [
       'Ketchup, mustard, aoli, peanut butter, special sauce, or anything spreadable on the burger.',
   },
 ];
+
+export const COOK_TYPE_OPTIONS = [
+  'Grill',
+  'Griddle',
+  'Flat top',
+  'Broiler',
+  'Smoker',
+] as const;
+
+export function cookTypeSelectOptions(current?: string) {
+  const options: { value: string; label: string }[] = COOK_TYPE_OPTIONS.map(
+    (value) => ({
+      value,
+      label: value,
+    })
+  );
+
+  if (
+    current &&
+    !COOK_TYPE_OPTIONS.includes(current as (typeof COOK_TYPE_OPTIONS)[number])
+  ) {
+    options.push({ value: current, label: current });
+  }
+
+  return options;
+}

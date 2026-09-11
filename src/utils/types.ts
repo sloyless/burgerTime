@@ -13,6 +13,7 @@ export interface Burger {
   notes?: string;
   price?: number;
   sauce?: number;
+  slug?: string;
   timestamp?: FieldValue;
   total?: number;
   userId?: string;

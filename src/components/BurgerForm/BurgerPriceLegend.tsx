@@ -1,6 +1,3 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDollarSign } from '@fortawesome/free-solid-svg-icons';
-
 const PRICE_TIERS = [
   { count: 1, label: '$1-5' },
   { count: 2, label: '$5-12' },
@@ -11,15 +8,13 @@ const PRICE_TIERS = [
 
 function BurgerPriceLegend() {
   return (
-    <ul className="lg:flex lg:gap-4">
+    <ul className="flex flex-col gap-1">
       {PRICE_TIERS.map((tier) => (
-        <li key={tier.label} className="flex items-center">
-          <div className="mr-2 text-orange-500">
-            {Array.from({ length: tier.count }, (_, index) => (
-              <FontAwesomeIcon key={index} icon={faDollarSign} size="sm" />
-            ))}
-          </div>
-          <span>{tier.label}</span>
+        <li key={tier.label}>
+          <span className="font-medium text-brand-600">
+            {'$'.repeat(tier.count)}
+          </span>
+          <span className="text-stone-600"> - {tier.label}</span>
         </li>
       ))}
     </ul>

@@ -1,20 +1,23 @@
-import { FormEvent, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { doc, DocumentData, Timestamp, updateDoc } from 'firebase/firestore';
+import { Form } from 'antd';
 
 import Button from 'components/Button';
 import {
-  BurgerForm,
+  BurgerFormContainer,
   burgerDocumentToFormValues,
   burgerFormValuesToScoreInput,
-  isBurgerFormComplete,
-  useBurgerForm,
+  BurgerFormValues,
 } from 'components/BurgerForm';
 import {
   calculateScore,
   calculateTimestamp,
   dateInputValueToUtcDate,
+  timestampToDateInputValue,
 } from 'functions';
+import { getFile, uploadFile } from 'libs/storage';
 import { database } from 'utils/firebase';
+import { allocateBurgerSlug } from 'utils/burgerSlug';
 
 type Props = {
   burgerId: string;
@@ -25,24 +28,37 @@ type Props = {
 
 function BurgerEditForm({ burgerId, initial, onCancel, onSaved }: Readonly<Props>) {
   const [saving, setSaving] = useState(false);
-  const {
-    values,
-    setField,
-    setRating,
-    score,
-    selectedFile,
-    setSelectedFile,
-    isUploading,
-    uploadImage,
-  } = useBurgerForm({ initial: burgerDocumentToFormValues(initial) });
+  const [form] = Form.useForm<BurgerFormValues>();
+  const [selectedFile, setSelectedFile] = useState<File | undefined>();
+  const [isUploading, setIsUploading] = useState(false);
 
-  async function submitHandler(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const initialValues = useMemo(
+    () => burgerDocumentToFormValues(initial),
+    [initial]
+  );
 
-    if (!isBurgerFormComplete(values)) {
-      return;
+  const imageUrl = Form.useWatch('image', form);
+
+  useEffect(() => {
+    form.setFieldsValue(initialValues);
+  }, [form, initialValues]);
+
+  const uploadImage = async () => {
+    if (!selectedFile) return;
+
+    setIsUploading(true);
+    try {
+      const imagePath = await uploadFile(selectedFile, 'burgers/');
+      const url = await getFile(imagePath);
+      form.setFieldValue('image', url);
+    } catch (error) {
+      console.error('Image upload failed:', error);
+    } finally {
+      setIsUploading(false);
     }
+  };
 
+  async function handleFinish(values: BurgerFormValues) {
     const fallbackDate =
       initial.timestamp?.seconds != null
         ? calculateTimestamp(initial.timestamp.seconds)
@@ -55,6 +71,17 @@ function BurgerEditForm({ burgerId, initial, onCancel, onSaved }: Readonly<Props
 
     setSaving(true);
     try {
+      const reviewDateYmd =
+        values.reviewDate ||
+        timestampToDateInputValue(initial.timestamp) ||
+        new Date().toISOString().slice(0, 10);
+      const slug = await allocateBurgerSlug(
+        values.venue,
+        values.burgerName,
+        reviewDateYmd,
+        burgerId
+      );
+
       await updateDoc(doc(database, 'burgers', burgerId), {
         address: values.address,
         appearance: values.appearance,
@@ -67,6 +94,7 @@ function BurgerEditForm({ burgerId, initial, onCancel, onSaved }: Readonly<Props
         notes: values.notes,
         price: values.price,
         sauce: values.sauce,
+        slug,
         timestamp: Timestamp.fromDate(parsedDate),
         total: calculateScore(draft),
         veg: values.veg,
@@ -81,28 +109,32 @@ function BurgerEditForm({ burgerId, initial, onCancel, onSaved }: Readonly<Props
   }
 
   return (
-    <form onSubmit={submitHandler} className="min-w-0 max-w-full">
-      <BurgerForm
-        idPrefix="edit-"
-        formClassName="min-w-0 max-w-full"
-        values={values}
-        setField={setField}
-        setRating={setRating}
-        score={score}
-        selectedFile={selectedFile}
-        isUploading={isUploading}
-        onSelectImage={setSelectedFile}
-        onUploadImage={uploadImage}
-      />
-      <div className="mt-5 text-center">
+    <BurgerFormContainer
+      form={form}
+      idPrefix="edit-"
+      initialValues={initialValues}
+      imageUrl={imageUrl}
+      isUploading={isUploading}
+      selectedFile={selectedFile}
+      onSelectImage={setSelectedFile}
+      onUploadImage={uploadImage}
+      onFinish={handleFinish}
+    >
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Button type="button" status="link" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" status="primary" disabled={saving}>
-          {saving ? 'Saving...' : 'Save'}
+        <Button
+          type="button"
+          status="primary"
+          loading={saving}
+          disabled={saving}
+          onClick={() => form.submit()}
+        >
+          Save changes
         </Button>
       </div>
-    </form>
+    </BurgerFormContainer>
   );
 }
 

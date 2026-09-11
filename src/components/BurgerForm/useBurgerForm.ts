@@ -1,11 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
 import { DocumentData } from 'firebase/firestore';
 
-import { calculateScore, timestampToDateInputValue } from 'functions';
-import { getFile, uploadFile } from 'libs/storage';
+import { timestampToDateInputValue } from 'functions';
 import { Burger } from 'utils/types';
 
-import { BurgerFormValues, BurgerRatingKey } from './types';
+import { BurgerFormValues } from './types';
 
 function defaultReviewDate(): string {
   const now = new Date();
@@ -62,67 +60,5 @@ export function burgerFormValuesToScoreInput(values: BurgerFormValues): Burger {
     sauce: values.sauce,
     veg: values.veg,
     image: values.image,
-  };
-}
-
-type Options = {
-  initial?: BurgerFormValues;
-};
-
-export function useBurgerForm(options: Options = {}) {
-  const [values, setValues] = useState<BurgerFormValues>(
-    options.initial ?? emptyBurgerFormValues()
-  );
-  const [score, setScore] = useState(0);
-  const [selectedFile, setSelectedFile] = useState<File | undefined>();
-  const [isUploading, setIsUploading] = useState(false);
-
-  useEffect(() => {
-    setScore(calculateScore(burgerFormValuesToScoreInput(values)));
-  }, [
-    values.appearance,
-    values.bun,
-    values.cheese,
-    values.meat,
-    values.sauce,
-    values.veg,
-    values.image,
-  ]);
-
-  const setField = useCallback(
-    <K extends keyof BurgerFormValues>(key: K, value: BurgerFormValues[K]) => {
-      setValues((prev) => ({ ...prev, [key]: value }));
-    },
-    []
-  );
-
-  const setRating = useCallback((key: BurgerRatingKey, rating: number) => {
-    setValues((prev) => ({ ...prev, [key]: rating }));
-  }, []);
-
-  const uploadImage = useCallback(async () => {
-    if (!selectedFile) return;
-
-    setIsUploading(true);
-    try {
-      const imagePath = await uploadFile(selectedFile, 'burgers/');
-      const imageUrl = await getFile(imagePath);
-      setField('image', imageUrl);
-    } catch (error) {
-      console.error('Image upload failed:', error);
-    } finally {
-      setIsUploading(false);
-    }
-  }, [selectedFile, setField]);
-
-  return {
-    values,
-    setField,
-    setRating,
-    score,
-    selectedFile,
-    setSelectedFile,
-    isUploading,
-    uploadImage,
   };
 }

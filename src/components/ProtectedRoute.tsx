@@ -2,20 +2,28 @@ import { ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Spin } from 'antd';
 import { useAuth } from 'context/AuthContext';
+import { ADMINUID } from 'functions';
 
 interface ProtectedRouteProps {
   children: ReactNode;
+  requireAdmin?: boolean;
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+const ProtectedRoute = ({
+  children,
+  requireAdmin = false,
+}: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
   const router = useRouter();
 
+  const allowed =
+    Boolean(user) && (!requireAdmin || user?.uid === ADMINUID);
+
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/');
+    if (!loading && !allowed) {
+      void router.replace('/');
     }
-  }, [loading, router, user]);
+  }, [allowed, loading, router]);
 
   if (loading) {
     return (
@@ -25,7 +33,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  if (!user) {
+  if (!allowed) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <Spin description="Redirecting…" />

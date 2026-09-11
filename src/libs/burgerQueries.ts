@@ -215,10 +215,12 @@ export async function resolveBurgerDocumentId(
     return null;
   }
 
+  /** Legacy docs without `slug` — prefer backfill; cap scan for safety. */
+  const LEGACY_SLUG_SCAN_LIMIT = 300;
   const recentQuery = query(
     collection(database, BURGERS_COLLECTION),
     orderBy('timestamp', 'desc'),
-    limit(500)
+    limit(LEGACY_SLUG_SCAN_LIMIT)
   );
   const recentSnap = await getDocs(recentQuery);
   for (const docSnap of recentSnap.docs) {

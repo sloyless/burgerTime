@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { App, ConfigProvider } from 'antd';
 import 'styles/globals.css';
 import { AuthProvider } from 'context/AuthContext';
+import ErrorBoundary from 'components/ErrorBoundary';
 import ProtectedRoute from 'components/ProtectedRoute';
 import { antdTheme } from 'theme/antd';
 
@@ -26,13 +27,15 @@ function BurgerApp({ Component, pageProps }: AppProps) {
             <link rel="apple-touch-icon" href="/logo.png" />
             <meta name="theme-color" content="#1c1917" />
           </Head>
-          {protectedRoutes.includes(router.pathname) ? (
-            <ProtectedRoute>
+          <ErrorBoundary>
+            {protectedRoutes.includes(router.pathname) ? (
+              <ProtectedRoute requireAdmin>
+                <Component {...pageProps} />
+              </ProtectedRoute>
+            ) : (
               <Component {...pageProps} />
-            </ProtectedRoute>
-          ) : (
-            <Component {...pageProps} />
-          )}
+            )}
+          </ErrorBoundary>
         </AuthProvider>
       </App>
     </ConfigProvider>

@@ -3,7 +3,7 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import PageMeta from 'components/PageMeta';
 import { collection, doc, setDoc, Timestamp } from 'firebase/firestore';
-import { Form } from 'antd';
+import { App, Form } from 'antd';
 
 import { useAuth } from 'context/AuthContext';
 import { calculateScore, dateInputValueToUtcDate } from 'functions';
@@ -25,6 +25,7 @@ import BurgerRules from 'components/BurgerRules';
 import { BURGER_WITH_RULES_MAIN_CLASSNAME } from 'theme/layout';
 
 const Add: NextPage = () => {
+  const { message } = App.useApp();
   const { user } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -82,6 +83,10 @@ const Add: NextPage = () => {
       await router.push(getBurgerPath({ ...newBurger, id: ref.id, slug }));
     } catch (error) {
       console.error(error);
+      message.error(
+        'Could not save this review. Check your connection and try again.',
+        6
+      );
     } finally {
       setLoading(false);
     }

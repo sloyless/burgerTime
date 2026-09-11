@@ -48,20 +48,28 @@ export function getCanonicalBurgerSlug(burger: Burger): string {
 
 export function getBurgerPath(burger: Burger): string {
   if (!burger.id) return '/';
+
   if (burger.slug) {
     return `/burger/${burger.slug}`;
   }
+
   const reviewDateYmd = timestampToDateInputValue(
     burger.timestamp as { seconds?: number }
   );
-  if (reviewDateYmd) {
-    return `/burger/${generateBurgerSlugBase(
-      burger.venue,
-      burger.burgerName,
-      reviewDateYmd
-    )}`;
+  if (!reviewDateYmd) {
+    return `/burger/${burger.id}`;
   }
-  return `/burger/${burger.id}`;
+
+  return `/burger/${getCanonicalBurgerSlug(burger)}`;
+}
+
+/** URL path segment validation (SSR + client). */
+export function isValidBurgerUrlSegment(segment: string): boolean {
+  if (!segment || segment.length > 220) {
+    return false;
+  }
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(segment)
+    || looksLikeFirestoreDocumentId(segment);
 }
 
 /** Legacy URLs that ended with a Firestore document id. */

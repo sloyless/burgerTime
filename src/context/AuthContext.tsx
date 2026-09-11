@@ -19,17 +19,14 @@ import { signInWithGoogle } from 'utils/googleSignIn';
 
 const AUTH_INIT_TIMEOUT_MS = 12_000;
 
-const AuthContext = createContext<{
+type AuthContextValue = {
   user: User | null;
   loading: boolean;
   login: () => Promise<UserCredential | void>;
   logout: () => Promise<void>;
-}>({
-  user: null,
-  loading: true,
-  login: () => signInWithGoogle(),
-  logout: () => Promise.resolve(),
-});
+};
+
+const AuthContext = createContext<AuthContextValue | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
@@ -77,9 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  const login = useCallback(() => {
-    return signInWithGoogle();
-  }, []);
+  const login = useCallback(() => signInWithGoogle(), []);
 
   const logout = useCallback(async () => {
     setUser(null);
@@ -94,10 +89,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextValue => {
   const context = useContext(AuthContext);
 
-  if (context === undefined) {
+  if (context === null) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
 

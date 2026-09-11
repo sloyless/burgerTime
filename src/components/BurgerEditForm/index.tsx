@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { doc, DocumentData, Timestamp, updateDoc } from 'firebase/firestore';
-import { Form } from 'antd';
+import { App, Form } from 'antd';
 
 import Button from 'components/Button';
 import {
@@ -34,6 +34,7 @@ function BurgerEditForm({
   onCancel,
   onSaved,
 }: Readonly<Props>) {
+  const { message } = App.useApp();
   const [saving, setSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [form] = Form.useForm<BurgerFormValues>();
@@ -126,6 +127,10 @@ function BurgerEditForm({
       onSaved(slug);
     } catch (error) {
       console.error('Failed to update burger:', error);
+      message.error(
+        'Could not save changes. You may not have permission or the network failed.',
+        6
+      );
     } finally {
       setSaving(false);
     }

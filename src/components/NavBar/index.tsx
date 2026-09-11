@@ -75,7 +75,7 @@ function NavBar() {
     {
       key: 'logout',
       label: 'Logout',
-      icon: <FontAwesomeIcon icon={faRightFromBracket} className="h-4 w-4" />,
+      icon: <FontAwesomeIcon icon={faRightFromBracket} className="size-4" />,
       onClick: () => logoutUser(),
     },
   ];
@@ -104,13 +104,13 @@ function NavBar() {
               key={item.path}
               href={item.path}
               title={item.title}
-              className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-sans font-medium transition-colors ${
+              className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-sans text-sm font-medium transition-colors ${
                 item.active
                   ? 'bg-brand-50 text-brand-700'
                   : 'text-stone-600 hover:bg-stone-100 hover:text-brand-700'
               }`}
             >
-              <FontAwesomeIcon icon={item.icon} className="h-4 w-4" />
+              <FontAwesomeIcon icon={item.icon} className="size-4" />
               <span className="hidden sm:inline">{item.title}</span>
             </Link>
           ))}

@@ -23,7 +23,11 @@ function HomeReviewList({ listItems }: Readonly<Props>) {
       </div>
       <div className="hidden flex-col gap-8 lg:flex">
         {listItems.map((item) => (
-          <Card key={`full-${item.id}`} burger={item} url={getBurgerPath(item)} />
+          <Card
+            key={`full-${item.id}`}
+            burger={item}
+            url={getBurgerPath(item)}
+          />
         ))}
       </div>
     </>

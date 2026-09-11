@@ -1,10 +1,5 @@
 export type BurgerRatingKey =
-  | 'appearance'
-  | 'bun'
-  | 'meat'
-  | 'cheese'
-  | 'veg'
-  | 'sauce';
+  'appearance' | 'bun' | 'meat' | 'cheese' | 'veg' | 'sauce';
 
 export type BurgerFormValues = {
   venue: string;

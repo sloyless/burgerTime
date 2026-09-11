@@ -4,7 +4,10 @@ import type { FormInstance } from 'antd';
 
 import { calculateScore } from 'functions';
 
-import { burgerFormValuesToScoreInput, emptyBurgerFormValues } from './useBurgerForm';
+import {
+  burgerFormValuesToScoreInput,
+  emptyBurgerFormValues,
+} from './useBurgerForm';
 import { BurgerFormValues } from './types';
 
 export function useBurgerFormScore(form: FormInstance<BurgerFormValues>) {

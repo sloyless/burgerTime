@@ -5,7 +5,7 @@ type Props = {
 function Divider({ compact = false }: Readonly<Props>) {
   return (
     <div
-      className={`${compact ? 'my-4' : 'my-8'} h-px w-full bg-gradient-to-r from-transparent via-orange-300/80 to-transparent`}
+      className={`${compact ? 'my-4' : 'my-8'} h-px w-full bg-linear-to-r from-transparent via-orange-300/80 to-transparent`}
       role="separator"
     />
   );

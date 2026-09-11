@@ -37,15 +37,13 @@ function Card({
 
   if (compact) {
     return (
-      <article
-        className="flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition-shadow hover:shadow-md"
-      >
+      <article className="flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition-shadow hover:shadow-md">
         <Link
           href={url}
           className="flex min-h-0 flex-1 cursor-pointer flex-col"
           title={`${burger.burgerName} at ${burger.venue}`}
         >
-          <div className="relative aspect-[5/3] w-full shrink-0 bg-stone-100">
+          <div className="relative aspect-5/3 w-full shrink-0 bg-stone-100">
             {burger.image ? (
               <Image
                 src={burger.image}
@@ -55,7 +53,7 @@ function Card({
                 className="object-cover"
               />
             ) : null}
-            <div className="absolute bottom-2 right-2 z-10">
+            <div className="absolute right-2 bottom-2 z-10">
               <ScoreBadge compact score={displayScore} />
             </div>
           </div>
@@ -85,13 +83,13 @@ function Card({
           : 'border-stone-200'
       }`}
     >
-      <div className={featured ? '' : 'lg:flex lg:items-stretch lg:min-h-[12rem]'}>
+      <div className={featured ? '' : 'lg:flex lg:min-h-48 lg:items-stretch'}>
         {burger.image && (
           <Link
-            className={`relative block w-full cursor-pointer overflow-hidden bg-stone-100 aspect-[5/3] ${
+            className={`relative block aspect-5/3 w-full cursor-pointer overflow-hidden bg-stone-100 ${
               featured
                 ? ''
-                : 'lg:aspect-auto lg:h-full lg:min-h-[12rem] lg:w-2/5 lg:shrink-0'
+                : 'lg:aspect-auto lg:h-full lg:min-h-48 lg:w-2/5 lg:shrink-0'
             }`}
             href={url}
             title={`${burger.burgerName} at ${burger.venue}`}
@@ -105,7 +103,7 @@ function Card({
                   ? '(max-width: 1024px) 100vw, 66vw'
                   : '(max-width: 1024px) 100vw, 35vw'
               }
-              className="object-cover transition-transform duration-300 hover:scale-[1.02]"
+              className="hover:scale-1.02 object-cover transition-transform duration-300"
             />
           </Link>
         )}
@@ -147,7 +145,7 @@ function Card({
               featured ? 'text-lg' : 'text-sm'
             }`}
           >
-            <span className="font-bold italic text-stone-900">
+            <span className="font-bold text-stone-900 italic">
               {burger.burgerName}
             </span>
             {burger?.notes && <span>: {burger.notes}</span>}

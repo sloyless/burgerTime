@@ -8,10 +8,7 @@ import { Layout } from 'layout';
 import { resolveBurgerDocumentId } from 'libs/burgerQueries';
 import { database } from 'utils/firebase';
 import { Burger } from 'utils/types';
-import {
-  allocateBurgerSlug,
-  getCanonicalBurgerSlug,
-} from 'utils/burgerSlug';
+import { allocateBurgerSlug, getCanonicalBurgerSlug } from 'utils/burgerSlug';
 import {
   ADMINUID,
   calculateTimestamp,
@@ -102,10 +99,17 @@ const BurgerPage: NextPage = () => {
 
   const burgerRecord = burger as Burger | undefined;
   const canonicalSlug =
-    burgerRecord?.slug ?? (burgerRecord ? getCanonicalBurgerSlug(burgerRecord) : undefined);
+    burgerRecord?.slug ??
+    (burgerRecord ? getCanonicalBurgerSlug(burgerRecord) : undefined);
 
   useEffect(() => {
-    if (!isAdmin || loading || !burgerRecord || !documentId || burgerRecord.slug) {
+    if (
+      !isAdmin ||
+      loading ||
+      !burgerRecord ||
+      !documentId ||
+      burgerRecord.slug
+    ) {
       return;
     }
 
@@ -119,9 +123,7 @@ const BurgerPage: NextPage = () => {
       burgerRecord.burgerName,
       reviewDateYmd,
       documentId
-    ).then((slug) =>
-      updateDoc(doc(database, 'burgers', documentId), { slug })
-    );
+    ).then((slug) => updateDoc(doc(database, 'burgers', documentId), { slug }));
   }, [isAdmin, loading, burgerRecord, documentId]);
 
   useEffect(() => {
@@ -165,29 +167,28 @@ const BurgerPage: NextPage = () => {
     burgerRecord && canonicalSlug
       ? getBurgerPath({ ...burgerRecord, slug: canonicalSlug })
       : undefined;
-  const jsonLd =
-    burgerRecord
-      ? {
-          '@context': 'https://schema.org',
-          '@type': 'Review',
-          name: burgerRecord.burgerName ?? 'Burger review',
-          reviewBody: burgerRecord.notes
-            ? String(burgerRecord.notes).slice(0, 5000)
-            : metaDescription,
-          datePublished: publishedTime,
-          itemReviewed: {
-            '@type': 'FoodEstablishment',
-            name: burgerRecord.venue ?? 'Restaurant',
-          },
-          reviewRating: {
-            '@type': 'Rating',
-            ratingValue: score,
-            bestRating: 100,
-            worstRating: 0,
-          },
-          ...(metaImage ? { image: metaImage } : {}),
-        }
-      : undefined;
+  const jsonLd = burgerRecord
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Review',
+        name: burgerRecord.burgerName ?? 'Burger review',
+        reviewBody: burgerRecord.notes
+          ? String(burgerRecord.notes).slice(0, 5000)
+          : metaDescription,
+        datePublished: publishedTime,
+        itemReviewed: {
+          '@type': 'FoodEstablishment',
+          name: burgerRecord.venue ?? 'Restaurant',
+        },
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: score,
+          bestRating: 100,
+          worstRating: 0,
+        },
+        ...(metaImage ? { image: metaImage } : {}),
+      }
+    : undefined;
 
   return (
     <Layout padding={false}>
@@ -206,7 +207,7 @@ const BurgerPage: NextPage = () => {
         jsonLd={jsonLd}
       />
       <main className={BURGER_WITH_RULES_MAIN_CLASSNAME}>
-        <div className="min-w-0 flex-1 max-w-full">
+        <div className="max-w-full min-w-0 flex-1">
           {burgerRecord && documentId ? (
             <>
               {isAdmin && !isEditing && (

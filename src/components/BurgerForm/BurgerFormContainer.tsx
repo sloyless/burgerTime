@@ -43,7 +43,7 @@ function BurgerFormContainer({
       onFinish={onFinish}
       requiredMark="optional"
       scrollToFirstError
-      className="min-w-0 max-w-full"
+      className="max-w-full min-w-0"
     >
       <BurgerFormFields
         form={form}

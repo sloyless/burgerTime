@@ -118,7 +118,7 @@ const Home: NextPage = () => {
   let content;
   if (loading) {
     content = (
-      <div className="min-w-0 w-full flex-1">
+      <div className="w-full min-w-0 flex-1">
         <PageLoading tip="Loading reviews…" />
       </div>
     );
@@ -127,7 +127,7 @@ const Home: NextPage = () => {
       <div className="flex w-full flex-1 justify-center py-12 font-sans">
         <Result
           status="error"
-          title="Couldn&apos;t load reviews"
+          title="Couldn't load reviews"
           subTitle="Check your connection and try again."
           extra={
             <Button type="button" status="primary" onClick={loadHome}>
@@ -191,7 +191,7 @@ const Home: NextPage = () => {
                       className="block hover:text-brand-700"
                     >
                       <span className="font-venue">{burger.venue}</span>
-                      <span className="mt-0.5 block line-clamp-1 text-stone-500">
+                      <span className="mt-0.5 line-clamp-1 block text-stone-500">
                         {burger.address}
                       </span>
                     </Link>
@@ -222,7 +222,7 @@ const Home: NextPage = () => {
   return (
     <Layout>
       <PageMeta title="BurgerTime" />
-      <header className="pb-2 pt-4 text-center md:pt-6">
+      <header className="pt-4 pb-2 text-center md:pt-6">
         <div className="mb-1 flex items-center justify-center gap-3">
           <Image
             width={40}

@@ -72,7 +72,11 @@ function BurgerFormFields({
   ] as const;
 
   return (
-    <Space orientation="vertical" size="large" className={STACK_SPACE_CLASSNAME}>
+    <Space
+      orientation="vertical"
+      size="large"
+      className={STACK_SPACE_CLASSNAME}
+    >
       <Card
         className="overflow-hidden shadow-sm"
         styles={{ body: { padding: 0 } }}
@@ -85,13 +89,13 @@ function BurgerFormFields({
                   name="venue"
                   label="Venue"
                   rules={[{ required: true, message: 'Enter a venue name.' }]}
-                  className="!mb-0 font-serif [&_.ant-form-item-label>label]:text-lg [&_.ant-form-item-label>label]:font-bold"
+                  className="mb-0! font-serif [&_.ant-form-item-label>label]:text-lg [&_.ant-form-item-label>label]:font-bold"
                 >
                   <Input
                     id={id('venue')}
                     placeholder="Shake Shack"
                     variant="borderless"
-                    className="font-venue !px-0 !text-2xl !text-orange-700 md:!text-3xl"
+                    className="font-venue px-0! text-2xl! text-orange-700! md:text-3xl!"
                   />
                 </Form.Item>
                 <Form.Item
@@ -99,7 +103,7 @@ function BurgerFormFields({
                   label="Review date"
                   rules={[{ required: true, message: 'Choose a date.' }]}
                   extra="Day you ate this burger (no time)."
-                  className="!mb-0 max-w-xs"
+                  className="mb-0! max-w-xs"
                   getValueFromEvent={(date: dayjs.Dayjs | null) =>
                     date ? date.format('YYYY-MM-DD') : ''
                   }
@@ -117,7 +121,7 @@ function BurgerFormFields({
                   name="address"
                   label="Location"
                   rules={[{ required: true, message: 'Enter a location.' }]}
-                  className="!mb-0"
+                  className="mb-0!"
                 >
                   <Input
                     id={id('address')}
@@ -189,7 +193,7 @@ function BurgerFormFields({
             id={id('burgerName')}
             placeholder="Shackburger"
             variant="borderless"
-            className="!px-0 !text-xl !font-bold !italic md:!text-2xl"
+            className="px-0! text-xl! font-bold! italic! md:text-2xl!"
           />
         </Form.Item>
         <Form.Item name="notes" label="Notes">
@@ -210,11 +214,11 @@ function BurgerFormFields({
           className={STACK_SPACE_CLASSNAME}
         >
           <div>
-            <Typography.Title level={3} className="!mt-0 !font-serif">
+            <Typography.Title level={3} className="mt-0! font-serif!">
               Rating
             </Typography.Title>
             {showRatingIntro ? (
-              <Typography.Paragraph type="secondary" className="!mb-0">
+              <Typography.Paragraph type="secondary" className="mb-0!">
                 Rate each category on a 5-star scale.
               </Typography.Paragraph>
             ) : null}
@@ -237,10 +241,10 @@ function BurgerFormFields({
             </Space>
           </div>
 
-          <Divider className="!my-0" />
+          <Divider className="my-0!" />
 
           <div>
-            <Typography.Title level={3} className="!mt-0 !font-serif">
+            <Typography.Title level={3} className="mt-0! font-serif!">
               Miscellaneous
             </Typography.Title>
             <Row gutter={[24, 16]}>
@@ -261,7 +265,7 @@ function BurgerFormFields({
                   className="[&_.ant-form-item-control]:max-w-none"
                 >
                   <BurgerRateField isValue>
-                    <p className="!mb-0">Does not affect the score.</p>
+                    <p className="mb-0!">Does not affect the score.</p>
                     <BurgerPriceLegend />
                   </BurgerRateField>
                 </Form.Item>

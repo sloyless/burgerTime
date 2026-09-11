@@ -40,14 +40,10 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
         <div className="p-6">
           <Row gutter={16} align="top" wrap={false}>
             <Col flex="auto" className="min-w-0">
-              <Space
-                orientation="vertical"
-                size="small"
-                className="w-full"
-              >
+              <Space orientation="vertical" size="small" className="w-full">
                 <Typography.Title
                   level={1}
-                  className="font-venue !mb-0 !text-brand-700"
+                  className="font-venue mb-0! text-brand-700!"
                 >
                   {burger.venue}
                 </Typography.Title>
@@ -59,7 +55,7 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
                     {getFormattedDate(timestampDate)}
                   </time>
                 ) : null}
-                <Divider className="!my-0" />
+                <Divider className="my-0!" />
                 <LocationLink burger={locationBurger} />
               </Space>
             </Col>
@@ -86,20 +82,20 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
           className={STACK_SPACE_CLASSNAME}
         >
           <div>
-            <Typography.Title level={3} className="!mt-0 !font-serif !italic">
+            <Typography.Title level={3} className="mt-0! font-serif! italic!">
               {burger.burgerName}
             </Typography.Title>
             {burger.notes ? (
-              <Typography.Paragraph className="!mb-0 text-lg text-stone-700">
+              <Typography.Paragraph className="mb-0! text-lg text-stone-700">
                 {burger.notes}
               </Typography.Paragraph>
             ) : null}
           </div>
 
-          <Divider className="!my-0" />
+          <Divider className="my-0!" />
 
           <div>
-            <Typography.Title level={3} className="!mt-0 !font-serif">
+            <Typography.Title level={3} className="mt-0! font-serif!">
               Rating
             </Typography.Title>
             <Space orientation="vertical" size="small" className="w-full">
@@ -121,14 +117,14 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
           </div>
 
           <div>
-            <Typography.Title level={3} className="!mt-0 !font-serif">
+            <Typography.Title level={3} className="mt-0! font-serif!">
               Miscellaneous
             </Typography.Title>
             <Row gutter={[24, 16]}>
               <Col xs={24} md={12}>
                 <Space orientation="vertical" size={4}>
                   <Typography.Text strong>Cook type</Typography.Text>
-                  <Typography.Paragraph className="!mb-0 text-stone-700">
+                  <Typography.Paragraph className="mb-0! text-stone-700">
                     {burger.cookType || 'Unknown'}
                   </Typography.Paragraph>
                 </Space>
@@ -137,7 +133,7 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
                 <Space orientation="vertical" size={4} className="w-full">
                   <Typography.Text strong>Price level</Typography.Text>
                   <BurgerRateField disabled isValue value={burger.price ?? 0}>
-                    <p className="!mb-0">Does not affect the rating.</p>
+                    <p className="mb-0!">Does not affect the rating.</p>
                     <BurgerPriceLegend />
                   </BurgerRateField>
                 </Space>

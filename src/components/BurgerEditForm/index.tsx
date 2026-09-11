@@ -26,7 +26,12 @@ type Props = {
   onSaved: () => void;
 };
 
-function BurgerEditForm({ burgerId, initial, onCancel, onSaved }: Readonly<Props>) {
+function BurgerEditForm({
+  burgerId,
+  initial,
+  onCancel,
+  onSaved,
+}: Readonly<Props>) {
   const [saving, setSaving] = useState(false);
   const [form] = Form.useForm<BurgerFormValues>();
   const [selectedFile, setSelectedFile] = useState<File | undefined>();
@@ -65,7 +70,7 @@ function BurgerEditForm({ burgerId, initial, onCancel, onSaved }: Readonly<Props
         : undefined;
     const parsedDate = values.reviewDate
       ? dateInputValueToUtcDate(values.reviewDate)
-      : fallbackDate ?? new Date();
+      : (fallbackDate ?? new Date());
 
     const draft = burgerFormValuesToScoreInput(values);
 

@@ -37,11 +37,13 @@ function BurgerRules() {
           {tiers.map((tier) => (
             <li key={tier.range} className="flex gap-3">
               <div
-                className={`flex h-10 w-16 shrink-0 items-center justify-center rounded-md text-center text-[10px] font-bold leading-tight text-white ${tier.className}`}
+                className={`flex h-10 w-16 shrink-0 items-center justify-center rounded-md text-center text-[10px] leading-tight font-bold text-white ${tier.className}`}
               >
                 {tier.range}
               </div>
-              <p className="text-xs leading-snug text-stone-300">{tier.blurb}</p>
+              <p className="text-xs leading-snug text-stone-300">
+                {tier.blurb}
+              </p>
             </li>
           ))}
         </ul>

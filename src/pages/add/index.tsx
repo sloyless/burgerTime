@@ -89,7 +89,7 @@ const Add: NextPage = () => {
     <Layout padding={false}>
       <PageMeta title="Add a review" noIndex />
       <main className={BURGER_WITH_RULES_MAIN_CLASSNAME}>
-        <div className="min-w-0 flex-1 max-w-full">
+        <div className="max-w-full min-w-0 flex-1">
           <h1 className="mb-6 font-serif text-3xl font-bold text-stone-900">
             Add a review
           </h1>
@@ -105,18 +105,22 @@ const Add: NextPage = () => {
             showRatingIntro
           >
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button type="button" status="link" onClick={() => router.push('/')}>
+              <Button
+                type="button"
+                status="link"
+                onClick={() => router.push('/')}
+              >
                 Cancel
               </Button>
-                <Button
-                  type="button"
-                  status="primary"
-                  loading={loading}
-                  disabled={loading}
-                  onClick={() => form.submit()}
-                >
-                  Submit review
-                </Button>
+              <Button
+                type="button"
+                status="primary"
+                loading={loading}
+                disabled={loading}
+                onClick={() => form.submit()}
+              >
+                Submit review
+              </Button>
             </div>
           </BurgerFormContainer>
         </div>

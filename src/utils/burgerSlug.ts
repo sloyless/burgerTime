@@ -1,10 +1,4 @@
-import {
-  collection,
-  getDocs,
-  limit,
-  query,
-  where,
-} from 'firebase/firestore';
+import { collection, getDocs, limit, query, where } from 'firebase/firestore';
 
 import { timestampToDateInputValue } from 'functions';
 import { database } from 'utils/firebase';
@@ -49,11 +43,7 @@ export function getCanonicalBurgerSlug(burger: Burger): string {
     return slugifyPart(burger.venue ?? 'burger-review') || 'burger-review';
   }
 
-  return generateBurgerSlugBase(
-    burger.venue,
-    burger.burgerName,
-    reviewDateYmd
-  );
+  return generateBurgerSlugBase(burger.venue, burger.burgerName, reviewDateYmd);
 }
 
 export function getBurgerPath(burger: Burger): string {
@@ -75,7 +65,9 @@ export function getBurgerPath(burger: Burger): string {
 }
 
 /** Legacy URLs that ended with a Firestore document id. */
-export function extractLegacyDocumentIdFromSlug(segment: string): string | null {
+export function extractLegacyDocumentIdFromSlug(
+  segment: string
+): string | null {
   if (looksLikeFirestoreDocumentId(segment)) {
     return segment;
   }

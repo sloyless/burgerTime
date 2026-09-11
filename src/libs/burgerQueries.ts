@@ -31,9 +31,7 @@ import {
 
 const BURGERS_COLLECTION = 'burgers';
 
-function docToBurger(
-  docSnap: QueryDocumentSnapshot<DocumentData>
-): Burger {
+function docToBurger(docSnap: QueryDocumentSnapshot<DocumentData>): Burger {
   return {
     ...(docSnap.data() as Burger),
     id: docSnap.id,
@@ -43,7 +41,8 @@ function docToBurger(
 function cursorFromSnapshot(
   docSnap: QueryDocumentSnapshot<DocumentData>
 ): ReviewPageCursor | null {
-  const timestamp = docSnap.data().timestamp as { seconds?: number } | undefined;
+  const timestamp = docSnap.data().timestamp as
+    { seconds?: number } | undefined;
   if (timestamp?.seconds == null) return null;
 
   return {
@@ -215,7 +214,10 @@ export async function resolveBurgerDocumentId(
   const allSnap = await getDocs(collection(database, BURGERS_COLLECTION));
   for (const docSnap of allSnap.docs) {
     const burger = docToBurger(docSnap);
-    if (burger.slug === urlSegment || getCanonicalBurgerSlug(burger) === urlSegment) {
+    if (
+      burger.slug === urlSegment ||
+      getCanonicalBurgerSlug(burger) === urlSegment
+    ) {
       return docSnap.id;
     }
   }

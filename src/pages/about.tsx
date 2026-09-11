@@ -16,7 +16,7 @@ const About: NextPage = () => {
         title="About BurgerTime"
         description="What BurgerTime is, why it exists, and who is eating all those burgers."
       />
-      <main className="prose prose-stone mx-auto max-w-3xl py-8 prose-headings:font-serif prose-headings:font-bold prose-a:text-brand-700 prose-a:no-underline hover:prose-a:text-brand-800">
+      <main className="mx-auto prose max-w-3xl py-8 prose-stone prose-headings:font-serif prose-headings:font-bold prose-a:text-brand-700 prose-a:no-underline hover:prose-a:text-brand-800">
         <h1>About BurgerTime</h1>
         <h2>What is this?</h2>
         <p>It allows me to rate and review all of the burgers I eat.</p>

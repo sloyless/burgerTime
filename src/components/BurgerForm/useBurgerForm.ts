@@ -32,7 +32,9 @@ export function emptyBurgerFormValues(): BurgerFormValues {
   };
 }
 
-export function burgerDocumentToFormValues(doc: DocumentData): BurgerFormValues {
+export function burgerDocumentToFormValues(
+  doc: DocumentData
+): BurgerFormValues {
   return {
     venue: doc.venue ?? '',
     address: doc.address ?? '',

@@ -13,7 +13,7 @@ function ScoreBadge({ compact = false, score }: Readonly<Props>) {
       <div
         className={`rounded-lg border border-white px-2 py-1 text-center text-white ${color} box-shadow`}
       >
-        <span className="text-lg font-bold leading-none tabular-nums">
+        <span className="text-lg leading-none font-bold tabular-nums">
           {score}
         </span>
       </div>

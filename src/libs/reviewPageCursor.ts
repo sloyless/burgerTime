@@ -7,9 +7,7 @@ export function encodeReviewPageCursor(cursor: ReviewPageCursor): string {
   return `${cursor.timestampSeconds}:${cursor.documentId}`;
 }
 
-export function decodeReviewPageCursor(
-  value: string
-): ReviewPageCursor | null {
+export function decodeReviewPageCursor(value: string): ReviewPageCursor | null {
   const colon = value.indexOf(':');
   if (colon < 0) return null;
 

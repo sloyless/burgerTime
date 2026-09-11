@@ -48,11 +48,7 @@ export async function signInWithGoogle(): Promise<UserCredential | void> {
   }
 
   try {
-    return await signInWithPopup(
-      auth,
-      provider,
-      browserPopupRedirectResolver
-    );
+    return await signInWithPopup(auth, provider, browserPopupRedirectResolver);
   } catch (error) {
     const code = getAuthErrorCode(error);
     if (code && POPUP_FALLBACK_CODES.has(code)) {

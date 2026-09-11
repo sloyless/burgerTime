@@ -47,7 +47,7 @@ function Button({
       loading={loading}
       htmlType={type}
       onClick={onClick}
-      className={status === 'link' ? '!px-2' : undefined}
+      className={status === 'link' ? 'px-2!' : undefined}
     >
       {children}
     </AntButton>

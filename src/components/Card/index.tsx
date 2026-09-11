@@ -28,7 +28,7 @@ function Card({ burger, featured = false, url }: Readonly<Props>) {
   const timestampISO = timestampDate?.toISOString();
 
   return (
-    <article className="relative lg:my-5">
+    <article className="relative max-w-full lg:my-5">
       <div className={!featured ? 'lg:flex lg:flex-row' : ''}>
         {burger.image && (
           <Link
@@ -49,8 +49,8 @@ function Card({ burger, featured = false, url }: Readonly<Props>) {
           </Link>
         )}
         <div className={!featured ? 'mt-3 lg:mt-0 lg:flex-2' : 'mt-3'}>
-          <div className="flex flex-row">
-            <div className="flex-1 pr-5">
+          <div className="flex min-w-0 flex-row">
+            <div className="min-w-0 flex-1 pr-5">
               <div className="flex flex-row items-end justify-between">
                 <Link
                   className="text-orange-600 hover:text-orange-500"
@@ -95,7 +95,7 @@ function Card({ burger, featured = false, url }: Readonly<Props>) {
             </div>
           </div>
           <div
-            className={`mt-3 line-clamp-2 inline-block ${featured ? 'text-lg' : 'text-sm'}`}
+            className={`mt-3 line-clamp-2 min-w-0 ${featured ? 'text-lg' : 'text-sm'}`}
           >
             <span className="font-bold italic">{burger.burgerName}</span>
             {burger?.notes && <span>: {burger.notes}</span>}

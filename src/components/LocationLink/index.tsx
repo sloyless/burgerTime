@@ -18,9 +18,9 @@ function LocationLink({ burger }: Readonly<Props>) {
       target="_blank"
       rel="nofollow"
     >
-      <div className="flex items-center">
-        <FontAwesomeIcon icon={faGlobe} size="sm" className="me-1 w-3" />
-        <span>{burger.address}</span>
+      <div className="flex min-w-0 items-center">
+        <FontAwesomeIcon icon={faGlobe} size="sm" className="me-1 w-3 shrink-0" />
+        <span className="truncate">{burger.address}</span>
       </div>
     </Link>
   );

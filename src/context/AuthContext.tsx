@@ -8,18 +8,14 @@ import {
   useState,
 } from 'react';
 import {
-  browserPopupRedirectResolver,
   getRedirectResult,
-  GoogleAuthProvider,
   onAuthStateChanged,
-  signInWithPopup,
   signOut,
   User,
   UserCredential,
 } from 'firebase/auth';
 import { auth } from 'utils/firebase';
-
-const provider = new GoogleAuthProvider();
+import { signInWithGoogle } from 'utils/googleSignIn';
 
 const AUTH_INIT_TIMEOUT_MS = 5000;
 
@@ -31,7 +27,7 @@ const AuthContext = createContext<{
 }>({
   user: null,
   loading: true,
-  login: () => signInWithPopup(auth, provider, browserPopupRedirectResolver),
+  login: () => signInWithGoogle() as Promise<UserCredential>,
   logout: () => Promise.resolve(),
 });
 
@@ -80,7 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = useCallback(() => {
-    return signInWithPopup(auth, provider, browserPopupRedirectResolver);
+    return signInWithGoogle() as Promise<UserCredential>;
   }, []);
 
   const logout = useCallback(async () => {

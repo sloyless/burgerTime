@@ -10,26 +10,34 @@ import { faDollarSign } from '@fortawesome/free-solid-svg-icons';
 import { Layout } from 'layout';
 import { database } from 'utils/firebase';
 import {
+  ADMINUID,
   calculateScore,
-  calculateScoreColor,
   calculateTimestamp,
   getFormattedDate,
 } from 'functions';
+import ScoreBadge from 'components/ScoreBadge';
 import BurgerRules from 'components/BurgerRules';
+import BurgerEditForm from 'components/BurgerEditForm';
+import Button from 'components/Button';
 import FieldSet from 'components/Forms/FieldSet';
 import Label from 'components/Forms/Label';
 import StarRating from 'components/StarRating';
 import Divider from 'components/Divider';
 import LocationLink from 'components/LocationLink';
+import { useAuth } from 'context/AuthContext';
 
 const BurgerPage: NextPage = () => {
   // Import in Router and Auth
   const router = useRouter();
   const { burgerID } = router.query;
+  const { user } = useAuth();
 
   // Initialize state
   const [loading, setLoading] = useState(true);
   const [burger, setBurger] = useState<DocumentData>();
+  const [isEditing, setIsEditing] = useState(false);
+
+  const isAdmin = user?.uid === ADMINUID;
 
   useEffect(() => {
     if (!burgerID || typeof burgerID !== 'string') {
@@ -67,8 +75,9 @@ const BurgerPage: NextPage = () => {
 
   const timestampDate = calculateTimestamp(burger?.timestamp?.seconds);
   const timestampISO = timestampDate?.toISOString();
-  const score = burger ? calculateScore(burger) : 100;
-  const color = calculateScoreColor(burger?.total || score);
+  const score = burger
+    ? burger.total ?? calculateScore(burger)
+    : 100;
 
   // Page <head> props
   const pageTitle = `${burger?.venue ?? ''} - ${burger?.burgerName ?? ''} :: BurgerTime`;
@@ -78,17 +87,37 @@ const BurgerPage: NextPage = () => {
       <Head>
         <title>{pageTitle} :: BurgerTime</title>
       </Head>
-      <main className="px-3 md:flex md:px-0 md:pl-3 xl:flex-row">
-        <div className="my-5 md:mr-8">
+      <main className="min-w-0 px-3 md:flex md:px-0 md:pl-3 xl:flex-row">
+        <div className="my-5 min-w-0 max-w-full md:mr-8">
           {burger ? (
             <>
-              <div className="flex flex-row">
-                <div className="flex-1 pr-5">
-                  <div className="flex flex-row items-end justify-between">
-                    <h3 className="text-3xl font-extrabold text-orange-600">
+              {isAdmin && !isEditing && (
+                <div className="mb-4 text-end">
+                  <Button
+                    type="button"
+                    status="primary"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    Edit
+                  </Button>
+                </div>
+              )}
+              {isEditing && typeof burgerID === 'string' ? (
+                <BurgerEditForm
+                  burgerId={burgerID}
+                  initial={burger}
+                  onCancel={() => setIsEditing(false)}
+                  onSaved={() => setIsEditing(false)}
+                />
+              ) : (
+                <>
+              <div className="flex min-w-0 flex-row">
+                <div className="min-w-0 flex-1 pr-5">
+                  <div className="flex min-w-0 flex-row items-end justify-between gap-2">
+                    <h3 className="min-w-0 text-3xl font-extrabold break-words text-orange-600">
                       {burger.venue}
                     </h3>
-                    <span className="hidden pb-1 pl-3 lg:block">
+                    <span className="hidden shrink-0 pb-1 pl-3 text-xs lg:block">
                       <time dateTime={timestampISO}>
                         {timestampDate && getFormattedDate(timestampDate)}
                       </time>
@@ -97,19 +126,7 @@ const BurgerPage: NextPage = () => {
                   <hr className="my-1 w-full" />
                   <LocationLink burger={burger} />
                 </div>
-                <div className="w-[90px]">
-                  <div
-                    className={`rounded-xl border border-white text-white ${color} box-shadow p-1 text-center`}
-                  >
-                    <strong className="text-[10px] tracking-wide uppercase">
-                      Score
-                    </strong>
-                    <br />
-                    <span className="text-4xl leading-5">
-                      {calculateScore(burger)}
-                    </span>
-                  </div>
-                </div>
+                <ScoreBadge score={score} />
               </div>
 
               {burger.image && (
@@ -146,7 +163,7 @@ const BurgerPage: NextPage = () => {
                   </div>
                   <div className="mt-3 md:mt-0 md:w-1/2">
                     <Label id="bun">Bun</Label>
-                    <StarRating id="bun" rating={burger.appearance}>
+                    <StarRating id="bun" rating={burger.bun}>
                       If a great burger is a classic painting, then the bun is
                       the frame. It&apos;s the handle. It&apos;s the rhythm
                       section. It&apos;s the wrapping that brings the whole
@@ -242,6 +259,8 @@ const BurgerPage: NextPage = () => {
                   </div>
                 </FieldSet>
               </div>
+                </>
+              )}
             </>
           ) : null}
         </div>

@@ -1,25 +1,17 @@
-import Spinner from './Spinner';
+import { Spin } from 'antd';
 
 type Props = {
   message?: string;
-  width?: string;
+  minHeight?: string;
 };
 
-/**
- * LoadingPage
- * - Displays an Loading Spinner and message
- *
- * @component
- * @example
- * <LoadingPage message="Loading users" />
- *
- *  * @param {string} [message] - Message to override default loading message
- */
-function Loader({ message, width = '300px' }: Props) {
+function Loader({ message, minHeight }: Readonly<Props>) {
   return (
-    <div className={`mx-auto mt-10 w-[${width}] text-center`}>
-      <Spinner />
-      <p className="mt-3 text-center font-bold">{message || 'Loading...'}</p>
+    <div
+      className="flex w-full items-center justify-center py-16"
+      style={minHeight ? { minHeight } : undefined}
+    >
+      <Spin size="large" description={message || 'Loading…'} />
     </div>
   );
 }

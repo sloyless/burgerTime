@@ -13,7 +13,7 @@ function LocationLink({ burger }: Readonly<Props>) {
 
   return (
     <Link
-      className="line-clamp-1"
+      className="line-clamp-1 font-sans text-sm text-stone-600 hover:text-brand-700"
       href={`https://www.google.com/maps/search/?api=1&query=${googleMapsUrl}`}
       target="_blank"
       rel="nofollow"

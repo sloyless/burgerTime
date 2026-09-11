@@ -1,109 +1,161 @@
+import { memo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 
 import {
-  calculateScore,
-  calculateScoreColor,
   calculateTimestamp,
+  getDisplayScore,
   getFormattedDate,
 } from 'functions';
 
 import { DocumentData } from 'firebase/firestore';
 import LocationLink from 'components/LocationLink';
+import ScoreBadge from 'components/ScoreBadge';
+import { Burger } from 'utils/types';
+import { getBurgerPath } from 'utils/burgerSlug';
 
 type Props = {
   burger: DocumentData;
+  compact?: boolean;
   featured?: boolean;
   url: string;
 };
 
-function Card({ burger, featured = false, url }: Readonly<Props>) {
+function Card({
+  burger,
+  compact = false,
+  featured = false,
+  url,
+}: Readonly<Props>) {
   if (!burger) return;
-  const score = calculateScore(burger) || 100;
-  const color = calculateScoreColor(burger.total || score);
 
+  const displayScore = getDisplayScore(burger as Burger);
   const timestampDate = calculateTimestamp(burger?.timestamp?.seconds);
   const timestampISO = timestampDate?.toISOString();
 
+  if (compact) {
+    return (
+      <article
+        className="flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+      >
+        <Link
+          href={url}
+          className="flex min-h-0 flex-1 cursor-pointer flex-col"
+          title={`${burger.burgerName} at ${burger.venue}`}
+        >
+          <div className="relative aspect-[5/3] w-full shrink-0 bg-stone-100">
+            {burger.image ? (
+              <Image
+                src={burger.image}
+                alt={burger.burgerName ?? burger.venue ?? 'Burger'}
+                fill
+                sizes="50vw"
+                className="object-cover"
+              />
+            ) : null}
+            <div className="absolute bottom-2 right-2 z-10">
+              <ScoreBadge compact score={displayScore} />
+            </div>
+          </div>
+          <div className="min-w-0 p-3">
+            <h3 className="font-venue line-clamp-2 text-base leading-snug text-brand-700">
+              {burger.venue}
+            </h3>
+            {timestampDate ? (
+              <time
+                className="mt-1 block font-sans text-xs text-stone-500"
+                dateTime={timestampISO}
+              >
+                {getFormattedDate(timestampDate)}
+              </time>
+            ) : null}
+          </div>
+        </Link>
+      </article>
+    );
+  }
+
   return (
-    <article className="relative max-w-full lg:my-5">
-      <div className={!featured ? 'lg:flex lg:flex-row' : ''}>
+    <article
+      className={`max-w-full overflow-hidden rounded-2xl border bg-white shadow-sm transition-shadow hover:shadow-md ${
+        featured
+          ? 'border-orange-200 ring-2 ring-orange-100'
+          : 'border-stone-200'
+      }`}
+    >
+      <div className={featured ? '' : 'lg:flex lg:items-stretch lg:min-h-[12rem]'}>
         {burger.image && (
           <Link
-            className={`relative bg-white ${!featured ? 'lg:flex-1 lg:pr-5' : 'h-75 w-full'}`}
+            className={`relative block w-full cursor-pointer overflow-hidden bg-stone-100 aspect-[5/3] ${
+              featured
+                ? ''
+                : 'lg:aspect-auto lg:h-full lg:min-h-[12rem] lg:w-2/5 lg:shrink-0'
+            }`}
             href={url}
             title={`${burger.burgerName} at ${burger.venue}`}
           >
             <Image
               src={burger.image}
               alt={burger.burgerName}
-              width={500}
-              height={300}
-              style={{
-                width: '100%',
-                height: 'auto',
-              }}
+              fill
+              sizes={
+                featured
+                  ? '(max-width: 1024px) 100vw, 66vw'
+                  : '(max-width: 1024px) 100vw, 35vw'
+              }
+              className="object-cover transition-transform duration-300 hover:scale-[1.02]"
             />
           </Link>
         )}
-        <div className={!featured ? 'mt-3 lg:mt-0 lg:flex-2' : 'mt-3'}>
-          <div className="flex min-w-0 flex-row">
-            <div className="min-w-0 flex-1 pr-5">
-              <div className="flex flex-row items-end justify-between">
-                <Link
-                  className="text-orange-600 hover:text-orange-500"
-                  href={`/burger/${burger.id}`}
+        <div className={`min-w-0 p-5 ${featured ? '' : 'lg:flex-1'}`}>
+          <div className="flex min-w-0 flex-row gap-4">
+            <div className="min-w-0 flex-1">
+              <Link
+                className="block cursor-pointer text-brand-700 hover:text-brand-800"
+                href={getBurgerPath(burger as Burger)}
+              >
+                <h3
+                  className={`font-venue leading-tight ${
+                    featured ? 'text-3xl' : 'text-2xl'
+                  }`}
                 >
-                  <h3
-                    className={`${featured ? 'text-3xl' : 'text-2xl'} font-bold`}
-                  >
-                    {burger.venue}
-                    {burger.total > 94 && (
-                      <span className="inline-block pb-2 pl-1">
-                        <FontAwesomeIcon
-                          icon={faStar}
-                          size="sm"
-                          className="w-3 text-amber-500"
-                        />
-                      </span>
-                    )}
-                  </h3>
-                </Link>
-                <span className="hidden pb-1 pl-3 text-xs lg:block">
-                  <time dateTime={timestampISO}>
-                    {timestampDate && getFormattedDate(timestampDate)}
-                  </time>
-                </span>
-              </div>
-              <hr className="my-1 w-full" />
+                  {burger.venue}
+                  {displayScore > 94 && (
+                    <span className="ml-1 inline-block text-amber-500">
+                      <FontAwesomeIcon icon={faStar} size="sm" />
+                    </span>
+                  )}
+                </h3>
+              </Link>
+              {timestampDate ? (
+                <time
+                  className="mt-1 block font-sans text-xs text-stone-500"
+                  dateTime={timestampISO}
+                >
+                  {getFormattedDate(timestampDate)}
+                </time>
+              ) : null}
+              <hr className="my-2 border-stone-200" />
               <LocationLink burger={burger} />
             </div>
-            <div className="w-[90px]">
-              <div
-                className={`rounded-xl border border-white text-white ${color} box-shadow p-1 text-center`}
-              >
-                <strong className="text-[10px] tracking-wide uppercase">
-                  Score
-                </strong>
-                <br />
-                <span className="text-4xl leading-5">
-                  {calculateScore(burger)}
-                </span>
-              </div>
-            </div>
+            <ScoreBadge score={displayScore} />
           </div>
-          <div
-            className={`mt-3 line-clamp-2 min-w-0 ${featured ? 'text-lg' : 'text-sm'}`}
+          <p
+            className={`mt-4 line-clamp-2 min-w-0 text-stone-700 ${
+              featured ? 'text-lg' : 'text-sm'
+            }`}
           >
-            <span className="font-bold italic">{burger.burgerName}</span>
+            <span className="font-bold italic text-stone-900">
+              {burger.burgerName}
+            </span>
             {burger?.notes && <span>: {burger.notes}</span>}
-          </div>
+          </p>
         </div>
       </div>
     </article>
   );
 }
 
-export default Card;
+export default memo(Card);

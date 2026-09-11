@@ -15,18 +15,18 @@ export const Layout = ({ children, padding = true }: LayoutProps) => {
     <>
       <NavBar />
       <div
-        className={`container mx-auto font-serif ${padding ? 'px-3' : 'px-0'}`}
+        className={`mx-auto w-full max-w-screen-2xl ${padding ? 'px-4 sm:px-6 lg:px-8' : 'px-0'}`}
       >
         {children}
       </div>
-      <div className="container mx-auto my-5 px-3">
+      <footer className="mx-auto mt-12 w-full max-w-screen-2xl px-4 pb-10 sm:px-6 lg:px-8">
         <Divider />
-        <div className="text-center font-serif">
+        <p className="text-center text-sm text-stone-500">
           All photos, content, and development &copy;{' '}
           {new Date().toLocaleDateString('en-US', { year: 'numeric' })} Sean
           Loyless
-        </div>
-      </div>
+        </p>
+      </footer>
       <GoogleAnalytics gaId="G-4H0QMV5XVK" />
     </>
   );

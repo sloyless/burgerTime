@@ -1,17 +1,13 @@
-/**
- * Divider
- * - Displays a divider
- *
- * @component
- * @example
- * <EmptyState message="Error loading collection" />
- *
- *  * @param {string} [message] - Message to override default loading message
- *  * @param {string} [title] - Heading title of the state
- */
-function Divider() {
+type Props = {
+  compact?: boolean;
+};
+
+function Divider({ compact = false }: Readonly<Props>) {
   return (
-    <div className="mx-auto my-5 h-2 w-full border-b-2 border-orange-500" />
+    <div
+      className={`${compact ? 'my-4' : 'my-8'} h-px w-full bg-gradient-to-r from-transparent via-orange-300/80 to-transparent`}
+      role="separator"
+    />
   );
 }
 

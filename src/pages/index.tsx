@@ -1,181 +1,249 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { NextPage } from 'next';
 import Image from 'next/image';
-import { collection, orderBy, onSnapshot, query } from 'firebase/firestore';
+import { useRouter } from 'next/router';
+import { Pagination, Result } from 'antd';
 import { Layout } from 'layout';
 import Divider from 'components/Divider';
-import { database } from 'utils/firebase';
+import SectionHeading from 'components/SectionHeading';
+import HomeReviewList from 'components/HomeReviewList';
+import PageMeta from 'components/PageMeta';
 import { Burger } from 'utils/types';
 import Card from 'components/Card';
 import EmptyState from 'components/EmptyState';
+import PageLoading from 'components/PageLoading';
+import Button from 'components/Button';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
+import { fetchHomePageData } from 'libs/burgerQueries';
+import { getBurgerPath } from 'utils/burgerSlug';
+
+const PAGE_SIZE = 25;
 
 const Home: NextPage = () => {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [items, setItems] = useState<Burger[]>();
+  const [loadError, setLoadError] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
+  const [pageItems, setPageItems] = useState<Burger[]>([]);
+  const [topTenBurgers, setTopTenBurgers] = useState<Burger[]>([]);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const pageCursorsRef = useRef<Map<number, string>>(new Map());
 
-  useEffect(() => {
-    const burgersQuery = query(
-      collection(database, 'burgers'),
-      orderBy('timestamp', 'desc')
-    );
+  const requestedPage = Number(router.query.page) || 1;
+  const afterParam =
+    typeof router.query.after === 'string' ? router.query.after : undefined;
+  const totalPages = Math.max(1, Math.ceil(totalReviews / PAGE_SIZE));
+  const currentPage = Math.min(Math.max(1, requestedPage), totalPages);
 
-    const timeoutId = window.setTimeout(() => {
-      setLoading(false);
-    }, 10000);
-
-    const unsub = onSnapshot(
-      burgersQuery,
-      (docs) => {
-        window.clearTimeout(timeoutId);
-        const matchedItems: Burger[] = [];
-        docs.forEach((docSnap) => {
-          matchedItems.push({
-            ...(docSnap.data() as Burger),
-            id: docSnap.id,
-          });
-        });
-        setItems(matchedItems);
-        setLoading(false);
-      },
-      (error) => {
-        window.clearTimeout(timeoutId);
-        console.error('Failed to load burgers:', error);
-        setItems([]);
-        setLoading(false);
-      }
-    );
-
-    return () => {
-      window.clearTimeout(timeoutId);
-      unsub();
-    };
+  const loadHome = useCallback(() => {
+    setReloadToken((token) => token + 1);
   }, []);
 
-  const getTopTenBurgers = (burgers: Burger[]) => {
-    const topTen: Burger[] = [...burgers].sort((a, b) => {
-      if (a.total && b.total) {
-        return b.total - a.total;
-      } else {
-        return 0;
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    let cancelled = false;
+    const page = Math.max(1, requestedPage);
+
+    setLoading(true);
+    setLoadError(false);
+
+    const timeoutId = window.setTimeout(() => {
+      if (!cancelled) {
+        setLoading(false);
+        setLoadError(true);
       }
-    });
-    return topTen.slice(0, 10);
-  };
+    }, 10000);
+
+    void (async () => {
+      try {
+        const data = await fetchHomePageData(page, PAGE_SIZE, afterParam);
+
+        if (cancelled) return;
+
+        if (data.count > 0 && page > data.totalPages) {
+          void router.replace(
+            data.totalPages === 1 ? '/' : `/?page=${data.totalPages}`,
+            undefined,
+            { shallow: true }
+          );
+          return;
+        }
+
+        if (data.nextPageCursorEncoded && page < data.totalPages) {
+          pageCursorsRef.current.set(page + 1, data.nextPageCursorEncoded);
+        }
+
+        setTotalReviews(data.count);
+        setTopTenBurgers(data.topTen);
+        setPageItems(data.count > 0 ? data.pageItems : []);
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Failed to load burgers:', error);
+          setLoadError(true);
+          setTotalReviews(0);
+          setTopTenBurgers([]);
+          setPageItems([]);
+        }
+      } finally {
+        window.clearTimeout(timeoutId);
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [router.isReady, requestedPage, afterParam, reloadToken, router]);
+
+  function goToPage(page: number) {
+    if (page === 1) {
+      void router.push('/', undefined, { shallow: true });
+    } else {
+      const after = pageCursorsRef.current.get(page);
+      const query: { page: string; after?: string } = { page: String(page) };
+      if (after) {
+        query.after = after;
+      }
+      void router.push({ pathname: '/', query }, undefined, { shallow: true });
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   let content;
   if (loading) {
-    content = <div>Loading...</div>;
-  } else if (!loading && items?.length) {
-    const topTenBurgers = getTopTenBurgers(items);
+    content = (
+      <div className="min-w-0 w-full flex-1">
+        <PageLoading tip="Loading reviews…" />
+      </div>
+    );
+  } else if (loadError) {
+    content = (
+      <div className="flex w-full flex-1 justify-center py-12 font-sans">
+        <Result
+          status="error"
+          title="Couldn&apos;t load reviews"
+          subTitle="Check your connection and try again."
+          extra={
+            <Button type="button" status="primary" onClick={loadHome}>
+              Try again
+            </Button>
+          }
+        />
+      </div>
+    );
+  } else if (totalReviews > 0) {
+    const featuredItem = currentPage === 1 ? pageItems[0] : undefined;
+    const listItems = currentPage === 1 ? pageItems.slice(1) : pageItems;
 
     content = (
       <>
-        <div className="mx-auto lg:flex lg:flex-9 lg:flex-col lg:pr-8">
-          <section>
-            <div className="mb-5 flex flex-row items-center">
-              <div className="flex-1 border-b-2 border-orange-600 pr-7" />
-              <h2 className="px-3 text-center text-2xl font-extrabold lg:flex-2 lg:text-4xl">
-                Latest Reviews
-              </h2>
-              <div className="flex-1 border-b-2 border-orange-600 pr-7" />
+        <div className="min-w-0 flex-1 space-y-8 lg:pr-10">
+          <SectionHeading>Latest reviews</SectionHeading>
+          {featuredItem ? (
+            <Card
+              key={featuredItem.id}
+              featured
+              burger={featuredItem}
+              url={getBurgerPath(featuredItem)}
+            />
+          ) : null}
+          <HomeReviewList listItems={listItems} />
+          {totalPages > 1 && (
+            <div className="flex justify-center pt-4 font-sans">
+              <Pagination
+                current={currentPage}
+                pageSize={PAGE_SIZE}
+                total={totalReviews}
+                onChange={goToPage}
+                showSizeChanger={false}
+                showTotal={(total, range) =>
+                  `${range[0]}–${range[1]} of ${total} reviews`
+                }
+              />
             </div>
-            {items?.map((item, i) => {
-              if (!item) return null; // skip most recent review
-
-              return (
-                <div key={item.id}>
-                  <Card
-                    featured={i === 0}
-                    burger={item}
-                    url={`/burger/${item.id}`}
-                  />
-                  {(i === 0 || i < items.length - 1) && (
-                    <div className="mb-6">
-                      <Divider />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </section>
+          )}
         </div>
-        <aside className="mt-2 lg:flex lg:flex-3">
-          <div className="block">
-            <div className="lg:hidden">
-              <Divider />
-            </div>
-            <h3 className="text-xl font-extrabold">
-              <span className="inline-block pr-1">
+        <aside className="mt-10 min-w-0 lg:mt-0 lg:w-80 lg:shrink-0">
+          <div className="lg:hidden">
+            <Divider />
+          </div>
+          <div className="lg:sticky lg:top-24">
+            <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+              <h3 className="mb-4 flex items-center gap-2 font-serif text-xl font-bold text-stone-900">
                 <FontAwesomeIcon
                   icon={faStar}
                   size="sm"
-                  className="w-4 text-amber-500"
+                  className="size-3.5 text-amber-500"
                 />
-              </span>
-              <span>Top 10 All-Time</span>
-            </h3>
-            <ol className="list-decimal ps-7">
-              {topTenBurgers.map((burger) => {
-                return (
-                  <li key={burger.id} className="my-2">
+                Top 10 all-time
+              </h3>
+              <ol className="list-decimal space-y-3 ps-5 font-sans text-sm">
+                {topTenBurgers.map((burger) => (
+                  <li key={burger.id} className="text-stone-800">
                     <Link
-                      href={`/burger/${burger.id}`}
-                      className="block text-orange-600 hover:text-orange-500"
+                      href={getBurgerPath(burger)}
+                      className="block hover:text-brand-700"
                     >
-                      <h3 className="leading-4 font-bold">{burger.venue}</h3>
-                      <small className="line-clamp-1 text-black">
+                      <span className="font-venue">{burger.venue}</span>
+                      <span className="mt-0.5 block line-clamp-1 text-stone-500">
                         {burger.address}
-                      </small>
+                      </span>
                     </Link>
                   </li>
-                );
-              })}
-            </ol>
-            <Divider />
+                ))}
+              </ol>
+            </div>
           </div>
         </aside>
       </>
     );
   } else {
     content = (
-      <div className="mx-auto text-center">
+      <div className="mx-auto max-w-md text-center">
         <Image
           className="mx-auto my-5"
           width={120}
           height={96}
           src="/logo.png"
           alt="BurgerTime"
-          style={{
-            maxWidth: '100%',
-            height: 'auto',
-          }}
+          style={{ maxWidth: '100%', height: 'auto' }}
         />
-        <EmptyState message="Rate some burgers!" title="No Burgers Found" />
+        <EmptyState message="Rate some burgers!" title="No burgers yet" />
       </div>
     );
   }
 
   return (
     <Layout>
-      <header className="pt-8 text-center">
-        <h1 className="mb-4 text-3xl leading-none font-extrabold tracking-tight text-orange-600 md:text-4xl lg:text-5xl">
-          Welcome to BurgerTime
-        </h1>
-        <p className="mb-3 text-lg sm:px-16 lg:px-48 lg:text-xl">
+      <PageMeta title="BurgerTime" />
+      <header className="pb-2 pt-4 text-center md:pt-6">
+        <div className="mb-1 flex items-center justify-center gap-3">
+          <Image
+            width={40}
+            height={33}
+            src="/logo.png"
+            priority
+            alt=""
+            aria-hidden
+            style={{ maxWidth: '100%', height: 'auto' }}
+          />
+          <h1 className="font-venue text-3xl text-stone-900 md:text-4xl">
+            BurgerTime
+          </h1>
+        </div>
+        <p className="mx-auto mb-3 max-w-2xl text-sm text-stone-600 md:text-base">
           One man&apos;s journey to eat every cheeseburger in the world.{' '}
-          <em>
-            <small>(Mostly NYC)</small>
-          </em>
+          <em className="text-stone-500">(Mostly NYC.)</em>
         </p>
-        <Link className="text-orange-600 hover:text-orange-500" href={`/about`}>
-          [Read More]
-        </Link>
       </header>
-      <Divider />
-      <main className="min-w-0 pt-6 lg:flex lg:flex-row">{content}</main>
+      <Divider compact />
+      <main className="min-w-0 pb-12 lg:flex lg:gap-8">{content}</main>
     </Layout>
   );
 };

@@ -1,60 +1,63 @@
 import { MouseEventHandler, ReactNode } from 'react';
 import Link from 'next/link';
+import { Button as AntButton } from 'antd';
 
 type Props = {
   children: ReactNode;
   disabled?: boolean;
+  loading?: boolean;
   onClick?: MouseEventHandler<HTMLButtonElement>;
   status: 'primary' | 'danger' | 'warning' | 'success' | 'text' | 'link';
   type?: 'button' | 'submit' | 'reset';
   url?: string;
 };
 
+function mapStatus(status: Props['status']) {
+  switch (status) {
+    case 'danger':
+      return { danger: true, type: 'primary' as const };
+    case 'link':
+      return { type: 'link' as const };
+    case 'text':
+      return { type: 'text' as const };
+    case 'warning':
+      return { type: 'default' as const };
+    default:
+      return { type: 'primary' as const };
+  }
+}
+
 function Button({
   children,
   disabled,
+  loading,
   onClick,
   status,
-  type,
+  type = 'button',
   url,
 }: Readonly<Props>) {
-  const buttonProps = {
-    disabled,
-    onClick,
-    type,
-  };
-  let bg: string =
-    'bg-orange-600 hover:bg-orange-800 text-slate-50 disabled:bg-orange-800/30';
+  const { type: antType, danger } = mapStatus(status);
 
-  switch (status) {
-    case 'danger':
-      bg = 'bg-red-800 hover:bg-red-900 text-slate-50';
-      break;
-    case 'warning':
-      bg = 'bg-yellow-500 hover:bg-yellow-600 text-slate-50';
-      break;
-    case 'link':
-      bg = 'text-red-600 hover:text-red-800';
-      break;
-    default:
+  const button = (
+    <AntButton
+      type={antType}
+      danger={danger}
+      shape={status === 'link' ? 'default' : 'round'}
+      disabled={disabled}
+      loading={loading}
+      htmlType={type}
+      onClick={onClick}
+      className={status === 'link' ? '!px-2' : undefined}
+    >
+      {children}
+    </AntButton>
+  );
+
+  if (url) {
+    return <Link href={url}>{button}</Link>;
   }
 
-  const classes = `inline-block rounded py-1 px-5 transition-colors ${bg} ${
-    disabled ? 'cursor-not-allowed' : 'cursor-pointer'
-  }`;
-
-  if (url)
-    return (
-      <Link href={url} className={`${classes} cursor-pointer`}>
-        {children}
-      </Link>
-    );
-
-  return (
-    <button className={classes} {...buttonProps}>
-      {children}
-    </button>
-  );
+  return button;
 }
 
 export default Button;

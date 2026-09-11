@@ -8,6 +8,7 @@
 .pnp.cjs
 .pnp.loader.mjs
 .env
+.env.production
 
 # production
 /build

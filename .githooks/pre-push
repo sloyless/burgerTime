@@ -4,10 +4,6 @@ set -e
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
-echo "pre-push: running ESLint..."
-yarn lint
-
-echo "pre-push: running TypeScript..."
-yarn tsc
+yarn ci
 
 echo "pre-push: checks passed."

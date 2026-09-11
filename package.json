@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "deploy": "next build && firebase deploy --only hosting",
+    "ci": "yarn tsc && yarn lint",
     "validate": "yarn format && yarn tsc && yarn lint",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,scss,md,json}' --config ./prettier.config.js",

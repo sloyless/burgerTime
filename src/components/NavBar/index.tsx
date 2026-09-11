@@ -13,10 +13,10 @@ import {
 import { useAuth } from 'context/AuthContext';
 import { v4 as uuidv4 } from 'uuid';
 
-import logo from './assets/logo.png';
-import defaultAvatar from './assets/favicon.png';
-
 import styles from './NavBar.module.css';
+
+const LOGO_SRC = '/logo.png';
+const DEFAULT_AVATAR_SRC = '/favicon.png';
 import Button from 'components/Button';
 import { ADMINUID } from 'functions';
 
@@ -84,9 +84,10 @@ function NavBar() {
         <Link href="/" className="flex flex-wrap items-center gap-4 md:mr-6">
           <Image
             width={30}
-            src={logo}
+            height={24}
+            src={LOGO_SRC}
             priority
-            alt=""
+            alt="BurgerTime"
             style={{
               maxWidth: '100%',
               height: 'auto',
@@ -124,7 +125,7 @@ function NavBar() {
               >
                 <Image
                   className="mr-3 rounded-full"
-                  src={user.photoURL ?? defaultAvatar}
+                  src={user.photoURL ?? DEFAULT_AVATAR_SRC}
                   width={25}
                   height={25}
                   alt=""

@@ -52,7 +52,6 @@ hs_err_pid*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
 .firebase
 .yarn

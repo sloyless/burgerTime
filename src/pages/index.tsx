@@ -8,7 +8,6 @@ import { database } from 'utils/firebase';
 import { Burger } from 'utils/types';
 import Card from 'components/Card';
 import EmptyState from 'components/EmptyState';
-import logo from 'components/NavBar/assets/logo.png';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
@@ -143,8 +142,9 @@ const Home: NextPage = () => {
         <Image
           className="mx-auto my-5"
           width={120}
-          src={logo}
-          alt=""
+          height={96}
+          src="/logo.png"
+          alt="BurgerTime"
           style={{
             maxWidth: '100%',
             height: 'auto',

@@ -31,22 +31,37 @@ const BurgerPage: NextPage = () => {
   const [loading, setLoading] = useState(true);
   const [burger, setBurger] = useState<DocumentData>();
 
-  // Get data if currentTeam set or changed
   useEffect(() => {
-    // Get data from appState if exists, otherwise fetch from Firebase
+    if (!burgerID || typeof burgerID !== 'string') {
+      return;
+    }
+
     setLoading(true);
 
-    if (burgerID) {
-      // Get real-time data to monitor changes
-      const dbInstance = doc(database, 'burgers', burgerID.toString());
-      const unsub = onSnapshot(dbInstance, (docData) => {
-        setBurger(docData.data());
-      });
-
+    const timeoutId = window.setTimeout(() => {
       setLoading(false);
-      return unsub;
-    }
-  }, [burgerID, loading]);
+    }, 10000);
+
+    const dbInstance = doc(database, 'burgers', burgerID);
+    const unsub = onSnapshot(
+      dbInstance,
+      (docData) => {
+        window.clearTimeout(timeoutId);
+        setBurger(docData.data());
+        setLoading(false);
+      },
+      (error) => {
+        window.clearTimeout(timeoutId);
+        console.error('Failed to load burger:', error);
+        setLoading(false);
+      }
+    );
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      unsub();
+    };
+  }, [burgerID]);
 
   if (loading) return <div className="mt-5 pt-5">Loading...</div>;
 

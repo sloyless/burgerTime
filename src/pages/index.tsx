@@ -17,36 +17,46 @@ const Home: NextPage = () => {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<Burger[]>();
 
-  // Get data if user set or changed
   useEffect(() => {
-    if (!items) {
-      // Get real-time data to monitor collection changes
-      const dbInstance = query(
-        collection(database, 'burgers'),
-        orderBy('timestamp', 'desc')
-      );
-      const unsub = onSnapshot(dbInstance, (docs) => {
+    const burgersQuery = query(
+      collection(database, 'burgers'),
+      orderBy('timestamp', 'desc')
+    );
+
+    const timeoutId = window.setTimeout(() => {
+      setLoading(false);
+    }, 10000);
+
+    const unsub = onSnapshot(
+      burgersQuery,
+      (docs) => {
+        window.clearTimeout(timeoutId);
         const matchedItems: Burger[] = [];
-        docs.forEach((doc) => {
-          // onSnapshot does not return ids
-          const item = {
-            ...doc.data(),
-            id: doc.id,
-          };
-          matchedItems.push(item);
+        docs.forEach((docSnap) => {
+          matchedItems.push({
+            ...(docSnap.data() as Burger),
+            id: docSnap.id,
+          });
         });
         setItems(matchedItems);
         setLoading(false);
-      });
+      },
+      (error) => {
+        window.clearTimeout(timeoutId);
+        console.error('Failed to load burgers:', error);
+        setItems([]);
+        setLoading(false);
+      }
+    );
 
-      return () => {
-        unsub();
-      };
-    }
-  }, [items, loading]);
+    return () => {
+      window.clearTimeout(timeoutId);
+      unsub();
+    };
+  }, []);
 
   const getTopTenBurgers = (burgers: Burger[]) => {
-    const topTen: Burger[] = burgers.toSorted((a, b) => {
+    const topTen: Burger[] = [...burgers].sort((a, b) => {
       if (a.total && b.total) {
         return b.total - a.total;
       } else {

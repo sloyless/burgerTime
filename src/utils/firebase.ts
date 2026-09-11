@@ -1,6 +1,18 @@
 import { getApp, getApps, initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import {
+  browserLocalPersistence,
+  browserPopupRedirectResolver,
+  getAuth,
+  inMemoryPersistence,
+  indexedDBLocalPersistence,
+  initializeAuth,
+  type Auth,
+} from 'firebase/auth';
+import {
+  getFirestore,
+  initializeFirestore,
+  type Firestore,
+} from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -13,9 +25,64 @@ const firebaseConfig = {
 };
 
 export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const database = getFirestore(app);
 
-// Storage
+function isSafari(): boolean {
+  if (typeof navigator === 'undefined') {
+    return false;
+  }
+
+  const ua = navigator.userAgent;
+  const isIOS =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isMacSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+
+  return isIOS || isMacSafari;
+}
+
+function initAuth(): Auth {
+  if (typeof window === 'undefined') {
+    return getAuth(app);
+  }
+
+  try {
+    return initializeAuth(app, {
+      persistence: [
+        indexedDBLocalPersistence,
+        browserLocalPersistence,
+        inMemoryPersistence,
+      ],
+      popupRedirectResolver: browserPopupRedirectResolver,
+    });
+  } catch {
+    return getAuth(app);
+  }
+}
+
+export const auth = initAuth();
+
+function initDatabase(): Firestore {
+  if (typeof window === 'undefined') {
+    return getFirestore(app);
+  }
+
+  const settings = isSafari()
+    ? {
+        experimentalForceLongPolling: true,
+        useFetchStreams: false,
+      }
+    : {
+        experimentalAutoDetectLongPolling: true,
+      };
+
+  try {
+    return initializeFirestore(app, settings);
+  } catch {
+    return getFirestore(app);
+  }
+}
+
+export const database = initDatabase();
+
 const STORAGE_FOLDER_PATH = 'gs://burgertime-48011.appspot.com';
 export const storage = getStorage(app, STORAGE_FOLDER_PATH);

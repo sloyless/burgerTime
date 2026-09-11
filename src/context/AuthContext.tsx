@@ -1,22 +1,27 @@
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
-  useState,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
 import {
+  browserPopupRedirectResolver,
+  getRedirectResult,
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithPopup,
   signOut,
-  UserCredential,
   User,
+  UserCredential,
 } from 'firebase/auth';
 import { auth } from 'utils/firebase';
 
 const provider = new GoogleAuthProvider();
+
+const AUTH_INIT_TIMEOUT_MS = 5000;
 
 const AuthContext = createContext<{
   user: User | null;
@@ -26,46 +31,70 @@ const AuthContext = createContext<{
 }>({
   user: null,
   loading: true,
-  login: () => signInWithPopup(auth, provider),
+  login: () => signInWithPopup(auth, provider, browserPopupRedirectResolver),
   logout: () => Promise.resolve(),
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (userImp) => {
-      if (userImp) {
-        setUser(userImp);
-      } else {
-        setUser(null);
+    let settled = false;
+
+    const finishLoading = () => {
+      if (!settled) {
+        settled = true;
+        setLoading(false);
       }
+    };
 
-      setLoading(false);
-    });
+    const timeoutId = window.setTimeout(finishLoading, AUTH_INIT_TIMEOUT_MS);
 
-    return () => unsubscribe();
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          setUser(result.user);
+        }
+      })
+      .catch((error) => {
+        console.error('Firebase redirect sign-in failed:', error);
+      });
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (userImp) => {
+        setUser(userImp);
+        finishLoading();
+      },
+      (error) => {
+        console.error('Firebase auth state error:', error);
+        finishLoading();
+      }
+    );
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      unsubscribe();
+    };
   }, []);
 
-  const login = () => {
-    return signInWithPopup(auth, provider);
-  };
+  const login = useCallback(() => {
+    return signInWithPopup(auth, provider, browserPopupRedirectResolver);
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     setUser(null);
+    await signOut(auth);
+  }, []);
 
-    return await signOut(auth);
-  };
   const value = useMemo(
     () => ({ loading, user, login, logout }),
     [loading, user, login, logout]
   );
 
   return (
-    <AuthContext.Provider value={value}>
-      {loading ? null : children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
   );
 };
 
@@ -73,7 +102,7 @@ export const useAuth = () => {
   const context = useContext(AuthContext);
 
   if (context === undefined) {
-    throw new Error('useCount must be used within a CountProvider');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
 
   return context;

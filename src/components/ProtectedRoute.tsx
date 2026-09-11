@@ -7,14 +7,18 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !user) {
       router.push('/');
     }
-  }, [router, user]);
+  }, [loading, router, user]);
+
+  if (loading) {
+    return null;
+  }
 
   return <>{user ? children : null}</>;
 };

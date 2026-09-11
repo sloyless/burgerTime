@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
-const authDomain =
-  process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
-  'burgertime-48011.firebaseapp.com';
+const firebaseAuthHandlerHost = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+  ? `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}.firebaseapp.com`
+  : 'burgertime-48011.firebaseapp.com';
 
 const nextConfig = {
   reactStrictMode: true,
@@ -14,7 +14,7 @@ const nextConfig = {
       beforeFiles: [
         {
           source: '/__/auth/:path*',
-          destination: `https://${authDomain}/__/auth/:path*`,
+          destination: `https://${firebaseAuthHandlerHost}/__/auth/:path*`,
         },
       ],
     };

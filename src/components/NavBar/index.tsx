@@ -31,7 +31,10 @@ function NavBar() {
 
     setLoginPending(true);
     try {
-      await login();
+      const result = await login();
+      if (result === undefined) {
+        return;
+      }
     } catch (error) {
       const code =
         error && typeof error === 'object' && 'code' in error

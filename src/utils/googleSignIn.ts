@@ -1,12 +1,11 @@
 import {
-  browserPopupRedirectResolver,
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
   UserCredential,
 } from 'firebase/auth';
 
-import { auth } from 'utils/firebase';
+import { auth, isSafari } from 'utils/firebase';
 
 const provider = new GoogleAuthProvider();
 
@@ -17,20 +16,6 @@ function getAuthErrorCode(error: unknown): string | undefined {
   return undefined;
 }
 
-function shouldPreferRedirect(): boolean {
-  if (typeof navigator === 'undefined') {
-    return false;
-  }
-
-  const ua = navigator.userAgent;
-  const isIOS =
-    /iPad|iPhone|iPod/.test(ua) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const isMacSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
-
-  return isIOS || isMacSafari;
-}
-
 const POPUP_FALLBACK_CODES = new Set([
   'auth/popup-blocked',
   'auth/operation-not-supported-in-this-environment',
@@ -38,17 +23,17 @@ const POPUP_FALLBACK_CODES = new Set([
 ]);
 
 async function redirectSignIn(): Promise<void> {
-  await signInWithRedirect(auth, provider, browserPopupRedirectResolver);
+  await signInWithRedirect(auth, provider);
 }
 
 export async function signInWithGoogle(): Promise<UserCredential | void> {
-  if (shouldPreferRedirect()) {
+  if (isSafari()) {
     await redirectSignIn();
     return;
   }
 
   try {
-    return await signInWithPopup(auth, provider, browserPopupRedirectResolver);
+    return await signInWithPopup(auth, provider);
   } catch (error) {
     const code = getAuthErrorCode(error);
     if (code && POPUP_FALLBACK_CODES.has(code)) {
@@ -70,20 +55,26 @@ export function getGoogleSignInHelpMessage(error: unknown): string {
     case 'auth/unauthorized-domain':
       return (
         'This site is not authorized for Firebase Auth. In Firebase Console → ' +
-        'Authentication → Settings → Authorized domains, add "localhost". ' +
-        'Use http://localhost:3000 (not 127.0.0.1).'
+        'Authentication → Settings → Authorized domains, add your site hostname ' +
+        '(e.g. burgertime.app and localhost).'
       );
     case 'auth/popup-blocked':
-      return 'Sign-in popup was blocked. Allow popups for localhost or try again.';
+      return 'Sign-in popup was blocked. Allow popups for this site or try again.';
     case 'auth/popup-closed-by-user':
       return (
         'The Google sign-in window closed before finishing. Allow popups for ' +
-        'localhost, or disable extensions that block Google login.'
+        'this site, or disable extensions that block Google login.'
       );
     case 'auth/operation-not-allowed':
       return 'Google sign-in is not enabled. Enable it under Firebase → Authentication → Sign-in method.';
     case 'auth/invalid-api-key':
       return 'Invalid Firebase API key. Check NEXT_PUBLIC_FIREBASE_* values in .env and restart the dev server.';
+    case 'auth/missing-or-invalid-nonce':
+    case 'auth/invalid-credential':
+      return (
+        'Sign-in could not be completed (often Safari privacy settings). Try turning off ' +
+        '“Prevent Cross-Site Tracking” for this site, or use a non-private window.'
+      );
     default:
       return 'Google sign-in failed. Open the browser console for details.';
   }

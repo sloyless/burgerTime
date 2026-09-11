@@ -42,7 +42,7 @@ function BurgerEditForm({
 
   const initialValues = useMemo(
     () => burgerDocumentToFormValues(initial),
-    [initial]
+    [initial, burgerId]
   );
 
   const imageUrl = Form.useWatch('image', form) ?? initialValues.image;
@@ -112,7 +112,6 @@ function BurgerEditForm({
         burgerName: values.burgerName,
         cheese: values.cheese,
         cookType: values.cookType,
-        image: values.image,
         meat: values.meat,
         notes: values.notes,
         price: values.price,
@@ -122,6 +121,7 @@ function BurgerEditForm({
         total: calculateScore(draft),
         veg: values.veg,
         venue: values.venue,
+        ...(values.image ? { image: values.image } : {}),
       });
       onSaved(slug);
     } catch (error) {

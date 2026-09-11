@@ -17,17 +17,17 @@ import {
 import { auth } from 'utils/firebase';
 import { signInWithGoogle } from 'utils/googleSignIn';
 
-const AUTH_INIT_TIMEOUT_MS = 5000;
+const AUTH_INIT_TIMEOUT_MS = 12_000;
 
 const AuthContext = createContext<{
   user: User | null;
   loading: boolean;
-  login: () => Promise<UserCredential>;
+  login: () => Promise<UserCredential | void>;
   logout: () => Promise<void>;
 }>({
   user: null,
   loading: true,
-  login: () => signInWithGoogle() as Promise<UserCredential>,
+  login: () => signInWithGoogle(),
   logout: () => Promise.resolve(),
 });
 
@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let settled = false;
+    let unsubscribe: (() => void) | undefined;
 
     const finishLoading = () => {
       if (!settled) {
@@ -47,36 +48,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const timeoutId = window.setTimeout(finishLoading, AUTH_INIT_TIMEOUT_MS);
 
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          setUser(result.user);
+    void (async () => {
+      try {
+        const redirectResult = await getRedirectResult(auth);
+        if (redirectResult?.user) {
+          setUser(redirectResult.user);
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Firebase redirect sign-in failed:', error);
-      });
-
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (userImp) => {
-        setUser(userImp);
-        finishLoading();
-      },
-      (error) => {
-        console.error('Firebase auth state error:', error);
-        finishLoading();
       }
-    );
+
+      unsubscribe = onAuthStateChanged(
+        auth,
+        (userImp) => {
+          setUser(userImp);
+          finishLoading();
+        },
+        (error) => {
+          console.error('Firebase auth state error:', error);
+          finishLoading();
+        }
+      );
+    })();
 
     return () => {
       window.clearTimeout(timeoutId);
-      unsubscribe();
+      unsubscribe?.();
     };
   }, []);
 
   const login = useCallback(() => {
-    return signInWithGoogle() as Promise<UserCredential>;
+    return signInWithGoogle();
   }, []);
 
   const logout = useCallback(async () => {

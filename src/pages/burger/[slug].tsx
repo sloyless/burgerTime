@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { NextPage } from 'next';
 import { doc, DocumentData, onSnapshot, updateDoc } from 'firebase/firestore';
 import PageMeta from 'components/PageMeta';
@@ -31,34 +31,20 @@ const BurgerPage: NextPage = () => {
   const { user } = useAuth();
 
   const [documentId, setDocumentId] = useState<string>();
-  const [loading, setLoading] = useState(true);
+  const [resolving, setResolving] = useState(true);
   const [burger, setBurger] = useState<DocumentData>();
+  const [snapshotLoaded, setSnapshotLoaded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [editBaseline, setEditBaseline] = useState<DocumentData | null>(null);
+  const documentIdRef = useRef<string | undefined>(undefined);
 
   const isAdmin = user?.uid === ADMINUID;
 
   useEffect(() => {
-    setIsEditing(false);
-  }, [urlSegment]);
-
-  function handleEditSaved(slug: string) {
-    setIsEditing(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (slug && urlSegment !== slug) {
-      void router.replace(`/burger/${slug}`, undefined, { shallow: false });
-    }
-  }
-
-  useEffect(() => {
     if (!urlSegment) return;
 
-    let unsub: (() => void) | undefined;
     let cancelled = false;
-
-    setLoading(true);
-    const timeoutId = window.setTimeout(() => {
-      setLoading(false);
-    }, 10000);
+    setResolving(true);
 
     void resolveBurgerDocumentId(urlSegment)
       .then((resolvedId) => {
@@ -66,58 +52,81 @@ const BurgerPage: NextPage = () => {
 
         if (!resolvedId) {
           setDocumentId(undefined);
+          documentIdRef.current = undefined;
           setBurger(undefined);
-          setLoading(false);
-          window.clearTimeout(timeoutId);
+          setResolving(false);
           return;
         }
 
-        setDocumentId(resolvedId);
+        if (resolvedId === documentIdRef.current) {
+          setResolving(false);
+          return;
+        }
 
-        unsub = onSnapshot(
-          doc(database, 'burgers', resolvedId),
-          (docSnap) => {
-            window.clearTimeout(timeoutId);
-            if (docSnap.exists()) {
-              setBurger({ ...docSnap.data(), id: docSnap.id });
-            } else {
-              setBurger(undefined);
-            }
-            setLoading(false);
-          },
-          (error) => {
-            window.clearTimeout(timeoutId);
-            console.error('Failed to load burger:', error);
-            setBurger(undefined);
-            setLoading(false);
-          }
-        );
+        documentIdRef.current = resolvedId;
+        setDocumentId(resolvedId);
+        setResolving(false);
       })
       .catch((error) => {
         if (cancelled) return;
-        window.clearTimeout(timeoutId);
         console.error('Failed to resolve burger URL:', error);
         setDocumentId(undefined);
+        documentIdRef.current = undefined;
         setBurger(undefined);
-        setLoading(false);
+        setResolving(false);
       });
 
     return () => {
       cancelled = true;
-      window.clearTimeout(timeoutId);
-      unsub?.();
     };
   }, [urlSegment]);
 
+  useEffect(() => {
+    if (!documentId) {
+      setSnapshotLoaded(false);
+      return;
+    }
+
+    setSnapshotLoaded(false);
+    const timeoutId = window.setTimeout(() => {
+      setSnapshotLoaded(true);
+      console.warn('Burger snapshot timed out');
+    }, 10000);
+
+    const unsub = onSnapshot(
+      doc(database, 'burgers', documentId),
+      (docSnap) => {
+        window.clearTimeout(timeoutId);
+        setSnapshotLoaded(true);
+        if (docSnap.exists()) {
+          setBurger({ ...docSnap.data(), id: docSnap.id });
+        } else {
+          setBurger(undefined);
+        }
+      },
+      (error) => {
+        window.clearTimeout(timeoutId);
+        setSnapshotLoaded(true);
+        console.error('Failed to load burger:', error);
+        setBurger(undefined);
+      }
+    );
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      unsub();
+    };
+  }, [documentId]);
+
   const burgerRecord = burger as Burger | undefined;
-  const canonicalSlug =
-    burgerRecord?.slug ??
-    (burgerRecord ? getCanonicalBurgerSlug(burgerRecord) : undefined);
+  const canonicalSlug = burgerRecord
+    ? burgerRecord.slug ?? getCanonicalBurgerSlug(burgerRecord)
+    : undefined;
 
   useEffect(() => {
     if (
       !isAdmin ||
-      loading ||
+      resolving ||
       !burgerRecord ||
       !documentId ||
       burgerRecord.slug
@@ -136,16 +145,39 @@ const BurgerPage: NextPage = () => {
       reviewDateYmd,
       documentId
     ).then((slug) => updateDoc(doc(database, 'burgers', documentId), { slug }));
-  }, [isAdmin, loading, burgerRecord, documentId]);
+  }, [isAdmin, resolving, burgerRecord, documentId]);
 
   useEffect(() => {
-    if (loading || !canonicalSlug || !urlSegment || !burgerRecord) return;
+    if (resolving || !canonicalSlug || !urlSegment) return;
     if (urlSegment !== canonicalSlug) {
       void router.replace(`/burger/${canonicalSlug}`, undefined, {
-        shallow: false,
+        shallow: true,
       });
     }
-  }, [loading, canonicalSlug, urlSegment, burgerRecord, router]);
+  }, [resolving, canonicalSlug, urlSegment, router]);
+
+  function openEdit() {
+    if (!burgerRecord) return;
+    setEditBaseline({ ...burgerRecord });
+    setIsEditing(true);
+  }
+
+  function closeEdit() {
+    setIsEditing(false);
+    setEditBaseline(null);
+  }
+
+  function handleEditSaved(slug: string) {
+    setIsEditing(false);
+    setEditBaseline(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (slug && urlSegment !== slug) {
+      void router.replace(`/burger/${slug}`, undefined, { shallow: true });
+    }
+  }
+
+  const loading =
+    resolving || (Boolean(documentId) && !snapshotLoaded);
 
   if (loading) {
     return (
@@ -174,7 +206,10 @@ const BurgerPage: NextPage = () => {
         (burgerRecord.timestamp as { seconds?: number }).seconds ?? 0
       )
     : undefined;
-  const publishedTime = reviewTimestamp?.toISOString();
+  const publishedTime =
+    reviewTimestamp && !Number.isNaN(reviewTimestamp.getTime())
+      ? reviewTimestamp.toISOString()
+      : undefined;
   const canonicalPath =
     burgerRecord && canonicalSlug
       ? getBurgerPath({ ...burgerRecord, slug: canonicalSlug })
@@ -227,17 +262,18 @@ const BurgerPage: NextPage = () => {
                   <Button
                     type="button"
                     status="primary"
-                    onClick={() => setIsEditing(true)}
+                    onClick={openEdit}
                   >
                     Edit
                   </Button>
                 </div>
               )}
-              {isEditing ? (
+              {isEditing && editBaseline ? (
                 <BurgerEditForm
+                  key={documentId}
                   burgerId={documentId}
-                  initial={burgerRecord}
-                  onCancel={() => setIsEditing(false)}
+                  initial={editBaseline}
+                  onCancel={closeEdit}
                   onSaved={handleEditSaved}
                 />
               ) : (

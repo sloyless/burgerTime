@@ -211,8 +211,17 @@ export async function resolveBurgerDocumentId(
     return slugSnap.docs[0].id;
   }
 
-  const allSnap = await getDocs(collection(database, BURGERS_COLLECTION));
-  for (const docSnap of allSnap.docs) {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const recentQuery = query(
+    collection(database, BURGERS_COLLECTION),
+    orderBy('timestamp', 'desc'),
+    limit(500)
+  );
+  const recentSnap = await getDocs(recentQuery);
+  for (const docSnap of recentSnap.docs) {
     const burger = docToBurger(docSnap);
     if (
       burger.slug === urlSegment ||

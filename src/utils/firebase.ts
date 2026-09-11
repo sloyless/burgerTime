@@ -15,9 +15,36 @@ import {
 } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
+const PROJECT_AUTH_HANDLER_HOST =
+  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    ? `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}.firebaseapp.com`
+    : 'burgertime-48011.firebaseapp.com';
+
+const CUSTOM_SITE_HOSTS = new Set(['burgertime.app', 'www.burgertime.app']);
+
+/** Safari needs OAuth redirects on the same site as the app (custom auth domain). */
+export function resolveClientAuthDomain(): string {
+  const configured =
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ??
+    PROJECT_AUTH_HANDLER_HOST;
+
+  if (typeof window === 'undefined') {
+    return configured;
+  }
+
+  const hostname = window.location.hostname;
+  if (CUSTOM_SITE_HOSTS.has(hostname)) {
+    return hostname === 'www.burgertime.app'
+      ? 'burgertime.app'
+      : hostname;
+  }
+
+  return configured;
+}
+
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  authDomain: resolveClientAuthDomain(),
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
@@ -26,7 +53,7 @@ const firebaseConfig = {
 
 export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-function isSafari(): boolean {
+export function isSafari(): boolean {
   if (typeof navigator === 'undefined') {
     return false;
   }
@@ -45,16 +72,27 @@ function initAuth(): Auth {
     return getAuth(app);
   }
 
-  try {
-    return initializeAuth(app, {
-      persistence: [
+  const persistence = isSafari()
+    ? [browserLocalPersistence, indexedDBLocalPersistence, inMemoryPersistence]
+    : [
         indexedDBLocalPersistence,
         browserLocalPersistence,
         inMemoryPersistence,
-      ],
+      ];
+
+  try {
+    return initializeAuth(app, {
+      persistence,
       popupRedirectResolver: browserPopupRedirectResolver,
     });
-  } catch {
+  } catch (error) {
+    const code =
+      error && typeof error === 'object' && 'code' in error
+        ? String(error.code)
+        : '';
+    if (code === 'auth/already-initialized') {
+      return getAuth(app);
+    }
     return getAuth(app);
   }
 }
@@ -86,3 +124,5 @@ export const database = initDatabase();
 
 const STORAGE_FOLDER_PATH = 'gs://burgertime-48011.appspot.com';
 export const storage = getStorage(app, STORAGE_FOLDER_PATH);
+
+export { PROJECT_AUTH_HANDLER_HOST };

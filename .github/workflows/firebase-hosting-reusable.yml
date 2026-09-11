@@ -2,6 +2,9 @@ name: Firebase Hosting (reusable)
 
 on:
   workflow_call:
+    permissions:
+      contents: read
+      pull-requests: write
     inputs:
       channelId:
         description: 'Hosting channel (e.g. live). Omit for PR preview channels.'
@@ -20,7 +23,6 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-      id-token: write
     env:
       FIREBASE_CLI_EXPERIMENTS: webframeworks
       NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}

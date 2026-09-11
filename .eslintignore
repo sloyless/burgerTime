@@ -1,8 +1,0 @@
-.firebase/*
-.github/*
-.next/*
-build/*
-node_modules/*
-public/*
-prettier.config.js
-postcss.config.js

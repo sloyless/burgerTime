@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Form } from 'antd';
+import { Form, Input } from 'antd';
 import type { FormInstance } from 'antd';
 
 import BurgerFormFields from './BurgerFormFields';
@@ -44,6 +44,9 @@ function BurgerFormContainer({
       scrollToFirstError
       className="max-w-full min-w-0"
     >
+      <Form.Item name="image" hidden>
+        <Input type="hidden" />
+      </Form.Item>
       <BurgerFormFields
         form={form}
         idPrefix={idPrefix}

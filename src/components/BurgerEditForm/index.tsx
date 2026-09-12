@@ -94,7 +94,10 @@ function BurgerEditForm({
       ? dateInputValueToUtcDate(values.reviewDate)
       : (fallbackDate ?? new Date());
 
-    const draft = burgerFormValuesToScoreInput(values);
+    const image =
+      values.image ?? (form.getFieldValue('image') as string | undefined);
+    const valuesWithImage: BurgerFormValues = { ...values, image };
+    const draft = burgerFormValuesToScoreInput(valuesWithImage);
 
     setSaving(true);
     try {
@@ -131,7 +134,7 @@ function BurgerEditForm({
         veg: values.veg,
         vegNA: values.vegNA,
         venue: values.venue,
-        ...(values.image ? { image: values.image } : {}),
+        ...(image ? { image } : {}),
       });
 
       const afterBurger: Burger = {
@@ -154,13 +157,13 @@ function BurgerEditForm({
         veg: values.veg,
         vegNA: values.vegNA,
         venue: values.venue,
-        image: values.image ?? beforeBurger.image,
+        image: image ?? beforeBurger.image,
       };
 
       await syncCollectionSummaryAfterUpdate(beforeBurger, afterBurger);
 
       const previousImage = initialValues.image;
-      const nextImage = values.image;
+      const nextImage = image;
       if (previousImage && previousImage !== nextImage) {
         await deleteBurgerPhotoByUrl(previousImage);
       }

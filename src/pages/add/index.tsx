@@ -52,6 +52,8 @@ const Add: NextPage = () => {
   };
 
   async function handleFinish(values: BurgerFormValues) {
+    const image =
+      values.image ?? (form.getFieldValue('image') as string | undefined);
     const newBurger: Burger = {
       address: values.address,
       appearance: values.appearance,
@@ -60,7 +62,7 @@ const Add: NextPage = () => {
       cheese: values.cheese,
       cheeseNA: values.cheeseNA,
       cookType: values.cookType,
-      image: values.image,
+      image,
       meat: values.meat,
       notes: values.notes,
       price: values.price,

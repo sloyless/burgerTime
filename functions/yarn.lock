@@ -1173,21 +1173,22 @@ find-up@^5.0.0:
     locate-path "^6.0.0"
     path-exists "^4.0.0"
 
-firebase-admin@^14.4.0:
-  version "14.4.0"
-  resolved "https://registry.yarnpkg.com/firebase-admin/-/firebase-admin-14.4.0.tgz#07fc537a2f43ca987773ea838e90c295835fb897"
-  integrity sha512-yEx+GCsHvjH2svh4j1ATW57o8tlfjRQ0klTxvn7XCKUPXWiUQaRTHSzPSqhXtsLYSe4IwTqR7qqrh2sA45A0HA==
+firebase-admin@^13.6.0:
+  version "13.10.0"
+  resolved "https://registry.yarnpkg.com/firebase-admin/-/firebase-admin-13.10.0.tgz#d8d11067773ce72dbf2d4c764bea4598762c53e4"
+  integrity sha512-rbuCrJvYRwqBqvbccMS8fj/x2zsaMisdf5RQbRzQzr14Rbq9r2UlpuBHqWAwrO6c9dIRF56xF/xoepXsD5yDuQ==
   dependencies:
     "@fastify/busboy" "^3.0.0"
-    "@firebase/database-compat" "^2.1.4"
-    "@firebase/database-types" "^1.0.20"
+    "@firebase/database-compat" "^2.0.0"
+    "@firebase/database-types" "^1.0.6"
+    farmhash-modern "^1.1.0"
     fast-deep-equal "^3.1.1"
-    google-auth-library "^10.6.2"
+    google-auth-library "^10.6.1"
     jsonwebtoken "^9.0.0"
-    jwks-rsa "^4.0.1"
+    jwks-rsa "^3.1.0"
   optionalDependencies:
-    "@google-cloud/firestore" "^9.1.0"
-    "@google-cloud/storage" "^8.1.0"
+    "@google-cloud/firestore" "^7.11.0"
+    "@google-cloud/storage" "^7.19.0"
 
 firebase-functions-test@^3.5.0:
   version "3.5.0"

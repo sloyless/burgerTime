@@ -26,6 +26,10 @@
       {
         "source": "/__/auth/**",
         "destination": "https://burgertime-48011.firebaseapp.com/__/auth/**"
+      },
+      {
+        "source": "/burger/**",
+        "destination": "/burger/[slug].html"
       }
     ],
     "frameworksBackend": {

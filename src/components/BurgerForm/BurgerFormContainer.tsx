@@ -4,6 +4,7 @@ import type { FormInstance } from 'antd';
 
 import BurgerFormFields from './BurgerFormFields';
 import { useBurgerFormScore } from './useBurgerFormScore';
+import { burgerFormImageFromValues } from './burgerFormImage';
 import { BurgerFormValues } from './types';
 
 type Props = {
@@ -39,11 +40,10 @@ function BurgerFormContainer({
       layout="vertical"
       initialValues={initialValues}
       onFinish={(values) => {
-        const image = form.getFieldValue('image') as string | undefined;
-        onFinish({
-          ...values,
-          image: image ?? values.image,
-        });
+        const image =
+          burgerFormImageFromValues(values) ??
+          (form.getFieldValue('image') as string | undefined);
+        onFinish({ ...values, image });
       }}
       onValuesChange={onValuesChange}
       requiredMark={false}

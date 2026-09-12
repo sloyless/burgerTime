@@ -11,6 +11,8 @@ import {
   BurgerFormValues,
   useBurgerFormComplete,
 } from 'components/BurgerForm';
+import { burgerFormImageFromValues } from 'components/BurgerForm/burgerFormImage';
+import { useBurgerPhotoUpload } from 'components/BurgerForm/useBurgerPhotoUpload';
 import {
   calculateScore,
   calculateTimestamp,
@@ -18,8 +20,7 @@ import {
   timestampToDateInputValue,
 } from 'functions';
 import { syncCollectionSummaryAfterUpdate } from 'libs/collectionSummary';
-import { burgerImageReferencesEqual } from 'libs/burgerImageUrl';
-import { deleteBurgerPhotoByUrl, uploadBurgerPhotoReplacingPrevious } from 'libs/storage';
+import { deleteReplacedBurgerPhotoAfterSave } from 'libs/storage';
 import { database } from 'utils/firebase';
 import { Burger } from 'utils/types';
 import { allocateBurgerSlug } from 'utils/burgerSlug';
@@ -41,7 +42,6 @@ function BurgerEditForm({
   const [saving, setSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [form] = Form.useForm<BurgerFormValues>();
-  const [isUploading, setIsUploading] = useState(false);
 
   const initialValues = useMemo(
     () => burgerDocumentToFormValues(initial),
@@ -58,8 +58,7 @@ function BurgerEditForm({
       vegNA: Boolean(form.getFieldValue('vegNA')),
       sauceNA: Boolean(form.getFieldValue('sauceNA')),
     } as BurgerFormValues;
-    const hasFormChanges = !areBurgerFormValuesEqual(current, initialValues);
-    setIsDirty(hasFormChanges);
+    setIsDirty(!areBurgerFormValuesEqual(current, initialValues));
   }, [form, initialValues]);
 
   useEffect(() => {
@@ -67,26 +66,12 @@ function BurgerEditForm({
     setIsDirty(false);
   }, [form, initialValues]);
 
-  const uploadImage = async (file: File) => {
-    setIsUploading(true);
-    try {
-      const previousUrl =
-        form.getFieldValue('image') ?? initialValues.image;
-      const url = await uploadBurgerPhotoReplacingPrevious(file, previousUrl, {
-        retainCommittedUrl: initialValues.image,
-      });
-      form.setFields([
-        { name: 'image', value: url, touched: true },
-      ]);
-      syncDirtyState();
-    } catch (error) {
-      console.error('Image upload failed:', error);
-      message.error('Photo upload failed.', 5);
-      throw error;
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  const { isUploading, uploadImage } = useBurgerPhotoUpload({
+    form,
+    message,
+    retainCommittedUrl: initialValues.image,
+    onUploaded: syncDirtyState,
+  });
 
   async function handleFinish(values: BurgerFormValues) {
     const fallbackDate =
@@ -97,8 +82,7 @@ function BurgerEditForm({
       ? dateInputValueToUtcDate(values.reviewDate)
       : (fallbackDate ?? new Date());
 
-    const image =
-      values.image ?? (form.getFieldValue('image') as string | undefined);
+    const image = burgerFormImageFromValues(values);
     const valuesWithImage: BurgerFormValues = { ...values, image };
     const draft = burgerFormValuesToScoreInput(valuesWithImage);
 
@@ -164,15 +148,7 @@ function BurgerEditForm({
       };
 
       await syncCollectionSummaryAfterUpdate(beforeBurger, afterBurger);
-
-      const previousImage = initialValues.image;
-      if (
-        previousImage &&
-        image &&
-        !burgerImageReferencesEqual(previousImage, image)
-      ) {
-        await deleteBurgerPhotoByUrl(previousImage);
-      }
+      await deleteReplacedBurgerPhotoAfterSave(initialValues.image, image);
 
       onSaved(slug);
     } catch (error) {

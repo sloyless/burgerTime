@@ -11,7 +11,7 @@ function BurgerPriceLegend() {
     <ul className="flex flex-col gap-1">
       {PRICE_TIERS.map((tier) => (
         <li key={tier.label}>
-          <span className="text-brand-600 font-medium">
+          <span className="font-medium text-brand-600">
             {'$'.repeat(tier.count)}
           </span>
           <span className="text-stone-600"> - {tier.label}</span>

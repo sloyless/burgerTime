@@ -1,13 +1,22 @@
 import { FirebaseError } from 'firebase/app';
-import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from 'firebase/storage';
 import { nanoid } from 'nanoid';
 
 import { prepareImageForUpload } from 'utils/prepareImageForUpload';
 import { storage } from '../utils/firebase';
 import {
+  burgerImageReferencesEqual,
+  isBurgerStorageObjectPath,
   isBurgerStoragePhotoUrl,
   storagePathFromDownloadUrl,
-} from './storagePaths';
+} from './burgerPhotoRefs';
+
+const BURGER_PHOTO_FOLDER = 'burgers/';
 
 function isObjectNotFound(error: unknown): boolean {
   return (
@@ -15,80 +24,95 @@ function isObjectNotFound(error: unknown): boolean {
   );
 }
 
-export const uploadFile = async (file: File, folder: string) => {
-  try {
-    const prepared = await prepareImageForUpload(file);
-    const filename = nanoid();
-    const storageRef = ref(
-      storage,
-      `${folder}${filename}.${prepared.name.split('.').pop()}`
-    );
-    const contentType =
-      prepared.type && prepared.type.startsWith('image/')
-        ? prepared.type
-        : 'image/jpeg';
-
-    const res = await uploadBytes(storageRef, prepared, { contentType });
-
-    return res.metadata.fullPath;
-  } catch (error) {
-    throw error;
+function uploadExtension(file: File): string {
+  const fromName = file.name.split('.').pop()?.toLowerCase();
+  if (fromName && /^[a-z0-9]+$/.test(fromName)) {
+    return fromName;
   }
-};
+  if (file.type === 'image/png') return 'png';
+  if (file.type === 'image/webp') return 'webp';
+  return 'jpg';
+}
 
-export const getFile = async (path: string) => {
-  try {
-    const fileRef = ref(storage, path);
-    return getDownloadURL(fileRef);
-  } catch (error) {
-    throw error;
+function storagePathFromReference(reference: string): string | null {
+  if (isBurgerStorageObjectPath(reference)) {
+    return reference;
   }
-};
+  return storagePathFromDownloadUrl(reference);
+}
 
-/** Remove a burger photo object when its download URL points at our Storage bucket. */
-export async function deleteBurgerPhotoByUrl(
-  imageUrl: string | undefined
+export async function uploadBurgerPhoto(file: File): Promise<string> {
+  const prepared = await prepareImageForUpload(file);
+  const storageRef = ref(
+    storage,
+    `${BURGER_PHOTO_FOLDER}${nanoid()}.${uploadExtension(prepared)}`
+  );
+  const contentType =
+    prepared.type && prepared.type.startsWith('image/')
+      ? prepared.type
+      : 'image/jpeg';
+
+  await uploadBytes(storageRef, prepared, { contentType });
+  return getDownloadURL(storageRef);
+}
+
+export const getFile = async (path: string) =>
+  getDownloadURL(ref(storage, path));
+
+export async function deleteBurgerPhoto(
+  reference: string | undefined
 ): Promise<void> {
-  if (!imageUrl) return;
+  if (!reference) return;
 
-  const path = storagePathFromDownloadUrl(imageUrl);
+  const path = storagePathFromReference(reference);
   if (!path) return;
 
   try {
     await deleteObject(ref(storage, path));
   } catch (error) {
     if (!isObjectNotFound(error)) {
-      console.warn('Failed to delete replaced burger photo:', path, error);
+      console.warn('Failed to delete burger photo:', path, error);
     }
   }
 }
 
 type ReplacePreviousOptions = {
-  /** Download URL still tied to Firestore — do not delete from Storage until save. */
   retainCommittedUrl?: string;
 };
 
-/** Upload a new burger photo and delete superseded interim uploads from Storage. */
 export async function uploadBurgerPhotoReplacingPrevious(
   file: File,
-  previousImageUrl?: string,
+  previousReference?: string,
   options?: ReplacePreviousOptions
 ): Promise<string> {
-  const imagePath = await uploadFile(file, 'burgers/');
-  const url = await getFile(imagePath);
+  const url = await uploadBurgerPhoto(file);
 
   if (
-    previousImageUrl &&
-    previousImageUrl !== url &&
-    isBurgerStoragePhotoUrl(previousImageUrl)
+    previousReference &&
+    !burgerImageReferencesEqual(previousReference, url) &&
+    (isBurgerStoragePhotoUrl(previousReference) ||
+      isBurgerStorageObjectPath(previousReference))
   ) {
     const isCommitted =
       options?.retainCommittedUrl != null &&
-      previousImageUrl === options.retainCommittedUrl;
+      burgerImageReferencesEqual(previousReference, options.retainCommittedUrl);
     if (!isCommitted) {
-      await deleteBurgerPhotoByUrl(previousImageUrl);
+      await deleteBurgerPhoto(previousReference);
     }
   }
 
   return url;
+}
+
+export async function deleteReplacedBurgerPhotoAfterSave(
+  previousImage: string | undefined,
+  nextImage: string | undefined
+): Promise<void> {
+  if (
+    previousImage &&
+    nextImage &&
+    !burgerImageReferencesEqual(previousImage, nextImage)
+  ) {
+    await deleteBurgerPhoto(previousImage);
+  }
 }

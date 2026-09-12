@@ -144,11 +144,7 @@ const SearchPage: NextPage = () => {
         </p>
         <div className="flex flex-col gap-6">
           {results.map((burger) => (
-            <Card
-              key={burger.id}
-              burger={burger}
-              url={getBurgerPath(burger)}
-            />
+            <Card key={burger.id} burger={burger} url={getBurgerPath(burger)} />
           ))}
         </div>
       </div>

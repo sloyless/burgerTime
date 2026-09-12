@@ -8,7 +8,6 @@ import { App, Form } from 'antd';
 import { useAuth } from 'context/AuthContext';
 import { calculateScore, dateInputValueToUtcDate } from 'functions';
 import { database } from 'utils/firebase';
-import { uploadBurgerPhotoReplacingPrevious } from 'libs/storage';
 
 import { Layout } from 'layout';
 
@@ -19,6 +18,8 @@ import {
   BurgerFormValues,
   useBurgerFormComplete,
 } from 'components/BurgerForm';
+import { burgerFormImageFromValues } from 'components/BurgerForm/burgerFormImage';
+import { useBurgerPhotoUpload } from 'components/BurgerForm/useBurgerPhotoUpload';
 import { Burger } from 'utils/types';
 import { syncCollectionSummaryAfterCreate } from 'libs/collectionSummary';
 import { allocateBurgerSlug, getBurgerPath } from 'utils/burgerSlug';
@@ -31,29 +32,12 @@ const Add: NextPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm<BurgerFormValues>();
-  const [isUploading, setIsUploading] = useState(false);
-
   const imageUrl = Form.useWatch('image', form);
   const isFormComplete = useBurgerFormComplete(form);
-
-  const uploadImage = async (file: File) => {
-    setIsUploading(true);
-    try {
-      const previousUrl = form.getFieldValue('image');
-      const url = await uploadBurgerPhotoReplacingPrevious(file, previousUrl);
-      form.setFields([{ name: 'image', value: url, touched: true }]);
-    } catch (error) {
-      console.error('Image upload failed:', error);
-      message.error('Photo upload failed.', 5);
-      throw error;
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  const { isUploading, uploadImage } = useBurgerPhotoUpload({ form, message });
 
   async function handleFinish(values: BurgerFormValues) {
-    const image =
-      values.image ?? (form.getFieldValue('image') as string | undefined);
+    const image = burgerFormImageFromValues(values);
     const newBurger: Burger = {
       address: values.address,
       appearance: values.appearance,

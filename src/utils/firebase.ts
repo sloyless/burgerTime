@@ -11,11 +11,14 @@ import {
 import {
   getFirestore,
   initializeFirestore,
+  memoryLocalCache,
   persistentLocalCache,
   persistentMultipleTabManager,
   type Firestore,
 } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+
+import { isIosWebKit } from 'utils/isIosWebKit';
 
 const PROJECT_AUTH_HANDLER_HOST = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
   ? `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}.firebaseapp.com`
@@ -85,11 +88,15 @@ function initDatabase(): Firestore {
   }
 
   try {
+    const localCache = isIosWebKit()
+      ? memoryLocalCache()
+      : persistentLocalCache({
+          tabManager: persistentMultipleTabManager(),
+        });
+
     return initializeFirestore(app, {
       experimentalAutoDetectLongPolling: true,
-      localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager(),
-      }),
+      localCache,
     });
   } catch {
     return getFirestore(app);

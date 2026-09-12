@@ -14,6 +14,7 @@ import {
   type User,
   type UserCredential,
 } from 'firebase/auth';
+import { consumeAuthRedirectPending } from 'utils/authRedirectPending';
 import { auth } from 'utils/firebase';
 import { signInWithGoogle } from 'utils/googleSignIn';
 
@@ -46,13 +47,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const timeoutId = window.setTimeout(finishLoading, AUTH_INIT_TIMEOUT_MS);
 
     void (async () => {
-      try {
-        const redirectResult = await getRedirectResult(auth);
-        if (redirectResult?.user) {
-          setUser(redirectResult.user);
+      if (consumeAuthRedirectPending()) {
+        try {
+          const redirectResult = await getRedirectResult(auth);
+          if (redirectResult?.user) {
+            setUser(redirectResult.user);
+          }
+        } catch (error) {
+          console.error('Firebase redirect sign-in failed:', error);
         }
-      } catch (error) {
-        console.error('Firebase redirect sign-in failed:', error);
       }
 
       unsubscribe = onAuthStateChanged(

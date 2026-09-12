@@ -5,6 +5,7 @@ import {
   type UserCredential,
 } from 'firebase/auth';
 
+import { markAuthRedirectPending } from 'utils/authRedirectPending';
 import { auth } from 'utils/firebase';
 
 const provider = new GoogleAuthProvider();
@@ -23,6 +24,7 @@ const POPUP_FALLBACK_CODES = new Set([
 ]);
 
 async function redirectSignIn(): Promise<void> {
+  markAuthRedirectPending();
   await signInWithRedirect(auth, provider);
 }
 

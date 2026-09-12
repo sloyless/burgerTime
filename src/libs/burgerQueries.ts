@@ -33,8 +33,8 @@ import {
   type ReviewPageCursor,
 } from './reviewPageCursor';
 import {
-  fetchCollectionStats,
   fetchCollectionSummaryDoc,
+  summaryDocToStats,
   totalReviewCountFromSummary,
 } from './collectionSummary';
 import {
@@ -132,15 +132,15 @@ function encodedCursorForPage(
   return storedCursors?.get(page);
 }
 
-/** Resolves start cursor for a page, walking from the nearest stored cursor. */
-export async function resolveReviewPageStartCursor(
+/** Resolves start cursor from URL `after` or stored cursors (no multi-page Firestore walk). */
+export function resolveReviewPageStartCursor(
   page: number,
-  pageSize: number,
+  _pageSize: number,
   options?: {
     afterParam?: string;
     storedCursors?: Map<number, string>;
   }
-): Promise<ResolvePageCursorResult> {
+): ResolvePageCursorResult {
   const discoveredCursors = new Map<number, string>();
 
   if (page <= 1) {
@@ -159,46 +159,7 @@ export async function resolveReviewPageStartCursor(
     }
   }
 
-  let walkFromPage = 1;
-  let cursor: ReviewPageCursor | undefined;
-
-  if (options?.storedCursors?.size) {
-    let bestPage = 0;
-    for (const knownPage of options.storedCursors.keys()) {
-      if (knownPage < page && knownPage > bestPage) {
-        bestPage = knownPage;
-      }
-    }
-
-    if (bestPage > 1) {
-      const encodedBest = options.storedCursors.get(bestPage);
-      const decodedBest = encodedBest
-        ? decodeReviewPageCursor(encodedBest)
-        : null;
-      if (decodedBest) {
-        walkFromPage = bestPage;
-        cursor = decodedBest;
-      }
-    }
-  }
-
-  for (let p = walkFromPage; p < page; p++) {
-    const { items, nextPageCursor } = await fetchLatestReviewsAfter(
-      pageSize,
-      cursor
-    );
-    if (!items.length) break;
-
-    if (nextPageCursor) {
-      discoveredCursors.set(p + 1, encodeReviewPageCursor(nextPageCursor));
-      cursor = nextPageCursor;
-    } else {
-      cursor = undefined;
-      break;
-    }
-  }
-
-  return { startCursor: cursor, discoveredCursors };
+  return { startCursor: undefined, discoveredCursors };
 }
 
 export async function fetchLatestReviewsPage(
@@ -210,7 +171,7 @@ export async function fetchLatestReviewsPage(
   }
 ): Promise<LatestReviewsPageResult & ResolvePageCursorResult> {
   const safePage = Math.max(1, page);
-  const { startCursor, discoveredCursors } = await resolveReviewPageStartCursor(
+  const { startCursor, discoveredCursors } = resolveReviewPageStartCursor(
     safePage,
     pageSize,
     options
@@ -305,13 +266,13 @@ export async function fetchHomePageData(
 ): Promise<HomePageData> {
   const safePage = Math.max(1, page);
 
-  const [summary, topTen, stats, pageResult] = await Promise.all([
+  const [summary, topTen, pageResult] = await Promise.all([
     fetchCollectionSummaryDoc(),
     fetchTopTenBurgers(),
-    fetchCollectionStats(),
     fetchLatestReviewsPage(safePage, pageSize, options),
   ]);
 
+  const stats = summary ? summaryDocToStats(summary) : null;
   const count =
     summary != null
       ? totalReviewCountFromSummary(summary)

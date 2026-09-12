@@ -24,6 +24,10 @@ import {
 } from 'utils/burgerSlug';
 
 import {
+  cacheBurgerDocId,
+  getCachedBurgerDocId,
+} from './burgerSlugResolveCache';
+import {
   decodeReviewPageCursor,
   encodeReviewPageCursor,
   ReviewPageCursor,
@@ -186,9 +190,21 @@ export async function fetchHomePageData(
 export async function resolveBurgerDocumentId(
   urlSegment: string
 ): Promise<string | null> {
+  const cachedId = getCachedBurgerDocId(urlSegment);
+  if (cachedId) {
+    const cachedSnap = await getDoc(doc(database, BURGERS_COLLECTION, cachedId));
+    if (cachedSnap.exists()) {
+      return cachedId;
+    }
+  }
+
   if (looksLikeFirestoreDocumentId(urlSegment)) {
     const snap = await getDoc(doc(database, BURGERS_COLLECTION, urlSegment));
-    return snap.exists() ? urlSegment : null;
+    if (snap.exists()) {
+      cacheBurgerDocId(urlSegment, urlSegment);
+      return urlSegment;
+    }
+    return null;
   }
 
   const legacyId = extractLegacyDocumentIdFromSlug(urlSegment);
@@ -197,6 +213,7 @@ export async function resolveBurgerDocumentId(
       doc(database, BURGERS_COLLECTION, legacyId)
     );
     if (legacySnap.exists()) {
+      cacheBurgerDocId(urlSegment, legacyId);
       return legacyId;
     }
   }
@@ -208,7 +225,9 @@ export async function resolveBurgerDocumentId(
   );
   const slugSnap = await getDocs(slugQuery);
   if (!slugSnap.empty) {
-    return slugSnap.docs[0].id;
+    const id = slugSnap.docs[0].id;
+    cacheBurgerDocId(urlSegment, id);
+    return id;
   }
 
   if (typeof window === 'undefined') {
@@ -229,6 +248,7 @@ export async function resolveBurgerDocumentId(
       burger.slug === urlSegment ||
       getCanonicalBurgerSlug(burger) === urlSegment
     ) {
+      cacheBurgerDocId(urlSegment, docSnap.id);
       return docSnap.id;
     }
   }

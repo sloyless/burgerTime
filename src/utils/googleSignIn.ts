@@ -5,7 +5,8 @@ import {
   UserCredential,
 } from 'firebase/auth';
 
-import { auth, isSafari } from 'utils/firebase';
+import { markAuthRedirectPending } from 'utils/authRedirect';
+import { auth, isIOSSafari } from 'utils/firebase';
 
 const provider = new GoogleAuthProvider();
 
@@ -23,11 +24,12 @@ const POPUP_FALLBACK_CODES = new Set([
 ]);
 
 async function redirectSignIn(): Promise<void> {
+  markAuthRedirectPending();
   await signInWithRedirect(auth, provider);
 }
 
 export async function signInWithGoogle(): Promise<UserCredential | void> {
-  if (isSafari()) {
+  if (isIOSSafari()) {
     await redirectSignIn();
     return;
   }

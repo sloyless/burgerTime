@@ -53,18 +53,28 @@ const firebaseConfig = {
 
 export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
+/** iPhone / iPad / iPadOS desktop mode — popup OAuth is unreliable; use redirect. */
+export function isIOSSafari(): boolean {
+  if (typeof navigator === 'undefined') {
+    return false;
+  }
+
+  const ua = navigator.userAgent;
+  return (
+    /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+}
+
 export function isSafari(): boolean {
   if (typeof navigator === 'undefined') {
     return false;
   }
 
   const ua = navigator.userAgent;
-  const isIOS =
-    /iPad|iPhone|iPod/.test(ua) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const isMacSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
 
-  return isIOS || isMacSafari;
+  return isIOSSafari() || isMacSafari;
 }
 
 function initAuth(): Auth {
@@ -72,7 +82,7 @@ function initAuth(): Auth {
     return getAuth(app);
   }
 
-  const persistence = isSafari()
+  const persistence = isIOSSafari()
     ? [browserLocalPersistence, indexedDBLocalPersistence, inMemoryPersistence]
     : [
         indexedDBLocalPersistence,
@@ -104,7 +114,7 @@ function initDatabase(): Firestore {
     return getFirestore(app);
   }
 
-  const settings = isSafari()
+  const settings = isIOSSafari()
     ? {
         experimentalForceLongPolling: true,
         useFetchStreams: false,

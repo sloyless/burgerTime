@@ -33,6 +33,7 @@ function NavBar() {
     try {
       const result = await login();
       if (result === undefined) {
+        message.loading('Redirecting to Google…', 2);
         return;
       }
     } catch (error) {

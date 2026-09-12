@@ -17,6 +17,10 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { fetchHomePageData } from 'libs/burgerQueries';
+import {
+  readStoredPageCursors,
+  writeStoredPageCursors,
+} from 'libs/reviewPageCursorStorage';
 import { getBurgerPath } from 'utils/burgerSlug';
 
 const PAGE_SIZE = 25;
@@ -30,6 +34,7 @@ const Home: NextPage = () => {
   const [topTenBurgers, setTopTenBurgers] = useState<Burger[]>([]);
   const [totalReviews, setTotalReviews] = useState(0);
   const pageCursorsRef = useRef<Map<number, string>>(new Map());
+  const cursorsHydratedRef = useRef(false);
 
   const requestedPage = Number(router.query.page) || 1;
   const afterParam =
@@ -42,10 +47,43 @@ const Home: NextPage = () => {
   }, []);
 
   useEffect(() => {
+    if (cursorsHydratedRef.current) return;
+    cursorsHydratedRef.current = true;
+    for (const [page, cursor] of readStoredPageCursors()) {
+      pageCursorsRef.current.set(page, cursor);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    const page = Math.max(1, requestedPage);
+    if (page <= 1 || afterParam) return;
+
+    const cursor =
+      pageCursorsRef.current.get(page) ?? readStoredPageCursors().get(page);
+
+    if (cursor) {
+      void router.replace(
+        { pathname: '/', query: { page: String(page), after: cursor } },
+        undefined,
+        { shallow: true }
+      );
+      return;
+    }
+
+    void router.replace('/', undefined, { shallow: true });
+  }, [router.isReady, requestedPage, afterParam, router]);
+
+  useEffect(() => {
     if (!router.isReady) return;
 
     let cancelled = false;
     const page = Math.max(1, requestedPage);
+
+    if (page > 1 && !afterParam) {
+      return;
+    }
 
     setLoading(true);
     setLoadError(false);
@@ -74,6 +112,7 @@ const Home: NextPage = () => {
 
         if (data.nextPageCursorEncoded && page < data.totalPages) {
           pageCursorsRef.current.set(page + 1, data.nextPageCursorEncoded);
+          writeStoredPageCursors(pageCursorsRef.current);
         }
 
         setTotalReviews(data.count);

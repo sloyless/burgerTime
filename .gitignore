@@ -9,6 +9,7 @@
 .pnp.loader.mjs
 .env
 .env.production
+burgertime-admin.json
 
 # production
 /build

@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { doc, DocumentData, onSnapshot, updateDoc } from 'firebase/firestore';
+import BurgerPageMeta from 'components/BurgerPageMeta';
 import PageMeta from 'components/PageMeta';
 import { useRouter } from 'next/router';
 import { Result } from 'antd';
 
 import { Layout } from 'layout';
 import { resolveBurgerDocumentId } from 'libs/burgerQueries';
+import type { ServerBurger } from 'utils/serverBurger';
 import { database } from 'utils/firebase';
 import { Burger } from 'utils/types';
 import { allocateBurgerSlug, getCanonicalBurgerSlug } from 'utils/burgerSlug';
 import {
   ADMINUID,
-  calculateTimestamp,
   getDisplayScore,
   timestampToDateInputValue,
 } from 'functions';
@@ -27,31 +28,48 @@ import PageLoading from 'components/PageLoading';
 
 type Props = {
   slug: string;
+  initialBurger: ServerBurger | null;
 };
 
-function BurgerPageClient({ slug: slugFromServer }: Readonly<Props>) {
+function BurgerPageClient({
+  slug: slugFromServer,
+  initialBurger,
+}: Readonly<Props>) {
   const router = useRouter();
   const urlSegment =
     (typeof router.query.slug === 'string' ? router.query.slug : undefined) ??
     slugFromServer;
   const { user } = useAuth();
 
-  const [documentId, setDocumentId] = useState<string>();
-  const [resolving, setResolving] = useState(true);
+  const seededBurger =
+    initialBurger && slugFromServer === urlSegment ? initialBurger : null;
+
+  const [documentId, setDocumentId] = useState(seededBurger?.id);
+  const [resolving, setResolving] = useState(!seededBurger);
   const [resolveFailed, setResolveFailed] = useState(false);
-  const [burger, setBurger] = useState<DocumentData>();
-  const [snapshotLoaded, setSnapshotLoaded] = useState(false);
+  const [burger, setBurger] = useState<DocumentData | undefined>(
+    seededBurger ?? undefined
+  );
+  const [snapshotLoaded, setSnapshotLoaded] = useState(Boolean(seededBurger));
   const [snapshotError, setSnapshotError] = useState(false);
   const [listenKey, setListenKey] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editBaseline, setEditBaseline] = useState<DocumentData | null>(null);
-  const documentIdRef = useRef<string | undefined>(undefined);
+  const documentIdRef = useRef<string | undefined>(seededBurger?.id);
   const slugBackfillAttemptedRef = useRef<Set<string>>(new Set());
 
   const isAdmin = user?.uid === ADMINUID;
 
   useEffect(() => {
     if (!urlSegment) return;
+
+    if (seededBurger?.id && slugFromServer === urlSegment) {
+      documentIdRef.current = seededBurger.id;
+      setDocumentId(seededBurger.id);
+      setBurger(seededBurger);
+      setResolving(false);
+      return;
+    }
 
     let cancelled = false;
     setResolving(true);
@@ -91,7 +109,7 @@ function BurgerPageClient({ slug: slugFromServer }: Readonly<Props>) {
     return () => {
       cancelled = true;
     };
-  }, [urlSegment]);
+  }, [urlSegment, slugFromServer, seededBurger]);
 
   useEffect(() => {
     if (!documentId) {
@@ -280,70 +298,18 @@ function BurgerPageClient({ slug: slugFromServer }: Readonly<Props>) {
   }
 
   const score = burgerRecord ? getDisplayScore(burgerRecord) : 0;
-  const pageTitle = burgerRecord
-    ? `${burgerRecord.venue ?? 'Review'} — ${burgerRecord.burgerName ?? 'Burger'}`
-    : 'Review not found';
-  const metaDescription = burgerRecord?.notes
-    ? String(burgerRecord.notes).slice(0, 160)
-    : burgerRecord
-      ? `Burger review at ${burgerRecord.venue ?? 'unknown venue'}. Score: ${score}.`
-      : 'This burger review could not be found.';
-  const metaImage =
-    burgerRecord?.image && typeof burgerRecord.image === 'string'
-      ? burgerRecord.image
-      : undefined;
-  const reviewTimestamp = burgerRecord?.timestamp
-    ? calculateTimestamp(
-        (burgerRecord.timestamp as { seconds?: number }).seconds ?? 0
-      )
-    : undefined;
-  const publishedTime =
-    reviewTimestamp && !Number.isNaN(reviewTimestamp.getTime())
-      ? reviewTimestamp.toISOString()
-      : undefined;
-  const canonicalPath =
-    burgerRecord && canonicalSlug
-      ? getBurgerPath({ ...burgerRecord, slug: canonicalSlug })
-      : `/burger/${urlSegment}`;
-  const jsonLd = burgerRecord
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'Review',
-        name: burgerRecord.burgerName ?? 'Burger review',
-        reviewBody: burgerRecord.notes
-          ? String(burgerRecord.notes).slice(0, 5000)
-          : metaDescription,
-        datePublished: publishedTime,
-        itemReviewed: {
-          '@type': 'FoodEstablishment',
-          name: burgerRecord.venue ?? 'Restaurant',
-        },
-        reviewRating: {
-          '@type': 'Rating',
-          ratingValue: score,
-          bestRating: 100,
-          worstRating: 0,
-        },
-        ...(metaImage ? { image: metaImage } : {}),
-      }
-    : undefined;
+  const serverRenderedMeta = Boolean(
+    initialBurger && slugFromServer === urlSegment
+  );
 
   return (
     <Layout padding={false}>
-      <PageMeta
-        title={pageTitle}
-        description={metaDescription}
-        image={metaImage}
-        imageAlt={
-          burgerRecord
-            ? `${burgerRecord.burgerName ?? 'Burger'} at ${burgerRecord.venue ?? 'venue'} — score ${score}`
-            : undefined
-        }
-        type="article"
-        publishedTime={publishedTime}
-        canonicalPath={canonicalPath}
-        jsonLd={jsonLd}
-      />
+      {burgerRecord && (!serverRenderedMeta || snapshotLoaded) ? (
+        <BurgerPageMeta
+          burger={{ ...burgerRecord, id: documentId, slug: canonicalSlug }}
+          urlSegment={urlSegment}
+        />
+      ) : null}
       <main className={BURGER_WITH_RULES_MAIN_CLASSNAME}>
         <div className="max-w-full min-w-0 flex-1">
           {burgerRecord && documentId ? (

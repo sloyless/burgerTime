@@ -6,6 +6,7 @@ const firebaseAuthHandlerHost = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['antd'],
+  serverExternalPackages: ['firebase-admin'],
   experimental: {
     optimizePackageImports: ['antd', '@fortawesome/free-solid-svg-icons'],
   },

@@ -1,19 +1,9 @@
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 
+import BurgerPageClient from 'components/BurgerPageClient';
 import PageMeta from 'components/PageMeta';
 import PageLoading from 'components/PageLoading';
 import { Layout } from 'layout';
-
-const BurgerPageClient = dynamic(() => import('components/BurgerPageClient'), {
-  ssr: false,
-  loading: () => (
-    <Layout padding={false}>
-      <PageMeta title="Burger review" />
-      <PageLoading tip="Loading review…" />
-    </Layout>
-  ),
-});
 
 export default function BurgerPage() {
   const router = useRouter();
@@ -22,19 +12,10 @@ export default function BurgerPage() {
 
   const canonicalPath = slug ? `/burger/${slug}` : '/burger';
 
-  if (!router.isReady) {
+  if (!router.isReady || !slug) {
     return (
       <Layout padding={false}>
         <PageMeta title="Burger review" canonicalPath={canonicalPath} />
-        <PageLoading tip="Loading review…" />
-      </Layout>
-    );
-  }
-
-  if (!slug) {
-    return (
-      <Layout padding={false}>
-        <PageMeta title="Burger review" noIndex />
         <PageLoading tip="Loading review…" />
       </Layout>
     );

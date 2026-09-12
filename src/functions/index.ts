@@ -43,10 +43,15 @@ export {
 } from './burgerScore';
 import { calculateScore } from './burgerScore';
 
-/** Always derived from current ratings (and N/A flags). */
+/** Derived from ratings (and N/A flags); uses stored `total` when ratings are absent (e.g. search index). */
 export function getDisplayScore(item: Burger) {
   if (!item) return 0;
-  return calculateScore(item);
+  const computed = calculateScore(item);
+  if (computed > 0) return computed;
+  if (item.total != null && !Number.isNaN(item.total)) {
+    return item.total;
+  }
+  return computed;
 }
 
 export function calculateScoreColor(score: number) {

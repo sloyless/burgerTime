@@ -13,7 +13,7 @@ import type { Burger } from 'utils/types';
 
 const MANIFEST_PATH = 'meta/searchIndex';
 const CHUNK_MAX_ENTRIES = 250;
-const CACHE_STORAGE_KEY = 'burgertime-search-index-v1';
+const CACHE_STORAGE_KEY = 'burgertime-search-index-v2';
 
 export type SearchIndexEntry = {
   id: string;
@@ -26,6 +26,15 @@ export type SearchIndexEntry = {
   timestampSeconds: number;
   image?: string;
   total?: number;
+  appearance?: number;
+  bun?: number;
+  meat?: number;
+  cheese?: number;
+  veg?: number;
+  sauce?: number;
+  cheeseNA?: boolean;
+  vegNA?: boolean;
+  sauceNA?: boolean;
 };
 
 type SearchIndexManifest = {
@@ -66,6 +75,15 @@ export function searchEntryToBurger(entry: SearchIndexEntry): Burger {
     address: entry.address,
     image: entry.image,
     total: entry.total,
+    appearance: entry.appearance,
+    bun: entry.bun,
+    meat: entry.meat,
+    cheese: entry.cheese,
+    veg: entry.veg,
+    sauce: entry.sauce,
+    cheeseNA: entry.cheeseNA,
+    vegNA: entry.vegNA,
+    sauceNA: entry.sauceNA,
     timestamp: {
       seconds: entry.timestampSeconds,
     } as unknown as Burger['timestamp'],
@@ -92,6 +110,15 @@ export function buildSearchIndexEntry(burger: Burger): SearchIndexEntry {
     entry.image = burger.image;
   }
   if (burger.total != null) entry.total = burger.total;
+  if (burger.appearance != null) entry.appearance = burger.appearance;
+  if (burger.bun != null) entry.bun = burger.bun;
+  if (burger.meat != null) entry.meat = burger.meat;
+  if (burger.cheese != null) entry.cheese = burger.cheese;
+  if (burger.veg != null) entry.veg = burger.veg;
+  if (burger.sauce != null) entry.sauce = burger.sauce;
+  if (burger.cheeseNA) entry.cheeseNA = true;
+  if (burger.vegNA) entry.vegNA = true;
+  if (burger.sauceNA) entry.sauceNA = true;
 
   return entry;
 }

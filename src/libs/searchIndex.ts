@@ -72,25 +72,28 @@ export function searchEntryToBurger(entry: SearchIndexEntry): Burger {
   };
 }
 
+/** Firestore rejects `undefined` on optional fields — omit them entirely. */
 export function buildSearchIndexEntry(burger: Burger): SearchIndexEntry {
   const seconds =
     (burger.timestamp as { seconds?: number } | undefined)?.seconds ?? 0;
 
-  return {
+  const entry: SearchIndexEntry = {
     id: burger.id ?? '',
-    slug: burger.slug,
-    venue: burger.venue,
-    burgerName: burger.burgerName,
-    address: burger.address,
-    notes: burger.notes,
-    cookType: burger.cookType,
     timestampSeconds: seconds,
-    image:
-      burger.image && typeof burger.image === 'string'
-        ? burger.image
-        : undefined,
-    total: burger.total,
   };
+
+  if (burger.slug) entry.slug = burger.slug;
+  if (burger.venue) entry.venue = burger.venue;
+  if (burger.burgerName) entry.burgerName = burger.burgerName;
+  if (burger.address) entry.address = burger.address;
+  if (burger.notes) entry.notes = burger.notes;
+  if (burger.cookType) entry.cookType = burger.cookType;
+  if (burger.image && typeof burger.image === 'string') {
+    entry.image = burger.image;
+  }
+  if (burger.total != null) entry.total = burger.total;
+
+  return entry;
 }
 
 function readSessionCache(): CachedSearchIndex | null {

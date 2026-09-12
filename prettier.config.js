@@ -1,6 +1,7 @@
 module.exports = {
   plugins: ['prettier-plugin-tailwindcss'],
-  jsxBracketSameLine: false,
+  tailwindStylesheet: './src/styles/globals.css',
+  bracketSameLine: false,
   printWidth: 80,
   semi: true,
   singleQuote: true,

@@ -3,6 +3,14 @@ import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
 import prettier from 'eslint-config-prettier/flat';
 import eslintPluginTailwindcss from 'eslint-plugin-tailwindcss';
+const unusedVarsRule = [
+  'error',
+  {
+    argsIgnorePattern: '^_',
+    caughtErrorsIgnorePattern: '^_',
+    varsIgnorePattern: '^_',
+  },
+];
 
 export default defineConfig([
   ...nextVitals,
@@ -19,14 +27,20 @@ export default defineConfig([
       },
     },
     rules: {
+      'tailwindcss/classnames-order': 'off',
       'tailwindcss/no-custom-classname': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-shadow': 'error',
       '@typescript-eslint/no-use-before-define': 'error',
-      '@typescript-eslint/no-unused-vars': 'warn',
-      'react-hooks/exhaustive-deps': 'off',
-      'react-hooks/rules-of-hooks': 'off',
-      'react-hooks/set-state-in-effect': 'off',
+      '@typescript-eslint/no-unused-vars': unusedVarsRule,
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
+      ],
+      '@typescript-eslint/no-import-type-side-effects': 'error',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      'react-hooks/set-state-in-effect': 'warn',
       'react/no-unescaped-entities': 'off',
       '@typescript-eslint/no-require-imports': 'off',
       'react/display-name': 'off',
@@ -50,6 +64,28 @@ export default defineConfig([
         'warn',
         {
           extensions: ['.ts', '.tsx'],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/await-thenable': 'error',
+      '@typescript-eslint/no-misused-promises': [
+        'error',
+        {
+          checksVoidReturn: {
+            attributes: false,
+            properties: false,
+          },
         },
       ],
     },

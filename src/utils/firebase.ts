@@ -22,7 +22,7 @@ const PROJECT_AUTH_HANDLER_HOST =
 
 const CUSTOM_SITE_HOSTS = new Set(['burgertime.app', 'www.burgertime.app']);
 
-/** Safari needs OAuth redirects on the same site as the app (custom auth domain). */
+/** Use the site hostname as authDomain on production (OAuth return stays on-site). */
 export function resolveClientAuthDomain(): string {
   const configured =
     process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ??
@@ -53,46 +53,18 @@ const firebaseConfig = {
 
 export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-/** iPhone / iPad / iPadOS desktop mode — popup OAuth is unreliable; use redirect. */
-export function isIOSSafari(): boolean {
-  if (typeof navigator === 'undefined') {
-    return false;
-  }
-
-  const ua = navigator.userAgent;
-  return (
-    /iPad|iPhone|iPod/.test(ua) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  );
-}
-
-export function isSafari(): boolean {
-  if (typeof navigator === 'undefined') {
-    return false;
-  }
-
-  const ua = navigator.userAgent;
-  const isMacSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
-
-  return isIOSSafari() || isMacSafari;
-}
-
 function initAuth(): Auth {
   if (typeof window === 'undefined') {
     return getAuth(app);
   }
 
-  const persistence = isIOSSafari()
-    ? [browserLocalPersistence, indexedDBLocalPersistence, inMemoryPersistence]
-    : [
+  try {
+    return initializeAuth(app, {
+      persistence: [
         indexedDBLocalPersistence,
         browserLocalPersistence,
         inMemoryPersistence,
-      ];
-
-  try {
-    return initializeAuth(app, {
-      persistence,
+      ],
       popupRedirectResolver: browserPopupRedirectResolver,
     });
   } catch (error) {
@@ -114,17 +86,10 @@ function initDatabase(): Firestore {
     return getFirestore(app);
   }
 
-  const settings = isIOSSafari()
-    ? {
-        experimentalForceLongPolling: true,
-        useFetchStreams: false,
-      }
-    : {
-        experimentalAutoDetectLongPolling: true,
-      };
-
   try {
-    return initializeFirestore(app, settings);
+    return initializeFirestore(app, {
+      experimentalAutoDetectLongPolling: true,
+    });
   } catch {
     return getFirestore(app);
   }

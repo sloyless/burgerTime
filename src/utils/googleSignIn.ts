@@ -5,8 +5,7 @@ import {
   UserCredential,
 } from 'firebase/auth';
 
-import { markAuthRedirectPending } from 'utils/authRedirect';
-import { auth, isIOSSafari } from 'utils/firebase';
+import { auth } from 'utils/firebase';
 
 const provider = new GoogleAuthProvider();
 
@@ -24,16 +23,10 @@ const POPUP_FALLBACK_CODES = new Set([
 ]);
 
 async function redirectSignIn(): Promise<void> {
-  markAuthRedirectPending();
   await signInWithRedirect(auth, provider);
 }
 
 export async function signInWithGoogle(): Promise<UserCredential | void> {
-  if (isIOSSafari()) {
-    await redirectSignIn();
-    return;
-  }
-
   try {
     return await signInWithPopup(auth, provider);
   } catch (error) {
@@ -74,8 +67,8 @@ export function getGoogleSignInHelpMessage(error: unknown): string {
     case 'auth/missing-or-invalid-nonce':
     case 'auth/invalid-credential':
       return (
-        'Sign-in could not be completed (often Safari privacy settings). Try turning off ' +
-        '“Prevent Cross-Site Tracking” for this site, or use a non-private window.'
+        'Sign-in could not be completed. Try again in a non-private window, or ' +
+        'allow third-party cookies / popups for this site.'
       );
     default:
       return 'Google sign-in failed. Open the browser console for details.';

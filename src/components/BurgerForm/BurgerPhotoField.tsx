@@ -10,6 +10,10 @@ import { useDropzone } from 'react-dropzone';
 import { Spin, Typography } from 'antd';
 
 import Button from 'components/Button';
+import {
+  formatMaxBurgerPhotoUploadSize,
+  MAX_BURGER_PHOTO_UPLOAD_BYTES,
+} from 'utils/burgerPhotoUpload';
 
 const ACCEPT = {
   'image/jpeg': ['.jpg', '.jpeg'],
@@ -17,9 +21,8 @@ const ACCEPT = {
   'image/webp': ['.webp'],
   'image/heic': ['.heic'],
   'image/heif': ['.heif'],
+  'image/*': ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'],
 } as const;
-
-const MAX_BYTES = 20 * 1024 * 1024;
 
 type Props = {
   alt: string;
@@ -104,7 +107,7 @@ function BurgerPhotoField({
     useDropzone({
       accept: ACCEPT,
       maxFiles: 1,
-      maxSize: MAX_BYTES,
+      maxSize: MAX_BURGER_PHOTO_UPLOAD_BYTES,
       disabled: isUploading,
       onDrop,
     });
@@ -194,7 +197,8 @@ function BurgerPhotoField({
                     : 'Drag a photo here, or click to choose'}
                 </Typography.Text>
                 <Typography.Text type="secondary" className="text-xs">
-                  JPEG, PNG, or WebP · up to 20 MB
+                  JPEG, PNG, HEIC, or WebP · up to{' '}
+                  {formatMaxBurgerPhotoUploadSize()} (compressed before upload)
                 </Typography.Text>
               </>
             )}

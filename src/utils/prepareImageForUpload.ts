@@ -9,7 +9,14 @@ const SKIP_IF_UNDER_BYTES = 350_000;
  * download smaller files (Firebase Hosting serves originals; no Next image API).
  */
 export async function prepareImageForUpload(file: File): Promise<File> {
-  if (!file.type.startsWith('image/') || file.type === 'image/gif') {
+  if (
+    file.type &&
+    !file.type.startsWith('image/') &&
+    file.type !== 'application/octet-stream'
+  ) {
+    return file;
+  }
+  if (file.type === 'image/gif') {
     return file;
   }
 

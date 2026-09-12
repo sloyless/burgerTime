@@ -141,7 +141,7 @@ function NavBar() {
           }`}
         >
           <span
-            className="inline-block whitespace-nowrap text-stone-900 hover:text-brand-700"
+            className="hover:text-brand-700 inline-block whitespace-nowrap text-stone-900"
             style={{
               opacity: brandHidden ? 0 : 1,
               transition: isHome ? 'opacity 300ms ease-out' : undefined,
@@ -163,7 +163,7 @@ function NavBar() {
               className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-sans text-sm font-medium transition-colors ${
                 item.active
                   ? 'bg-brand-50 text-brand-700'
-                  : 'text-stone-600 hover:bg-stone-100 hover:text-brand-700'
+                  : 'hover:text-brand-700 text-stone-600 hover:bg-stone-100'
               }`}
             >
               <FontAwesomeIcon icon={item.icon} className="size-4" />

@@ -20,6 +20,7 @@ import {
   useBurgerFormComplete,
 } from 'components/BurgerForm';
 import { Burger } from 'utils/types';
+import { syncCollectionSummaryAfterCreate } from 'libs/collectionSummary';
 import { allocateBurgerSlug, getBurgerPath } from 'utils/burgerSlug';
 import BurgerRules from 'components/BurgerRules';
 import { BURGER_WITH_RULES_MAIN_CLASSNAME } from 'theme/layout';
@@ -30,22 +31,23 @@ const Add: NextPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm<BurgerFormValues>();
-  const [selectedFile, setSelectedFile] = useState<File | undefined>();
   const [isUploading, setIsUploading] = useState(false);
 
   const imageUrl = Form.useWatch('image', form);
   const isFormComplete = useBurgerFormComplete(form);
 
-  const uploadImage = async () => {
-    if (!selectedFile) return;
-
+  const uploadImage = async (file: File) => {
     setIsUploading(true);
     try {
-      const imagePath = await uploadFile(selectedFile, 'burgers/');
+      const imagePath = await uploadFile(file, 'burgers/');
       const url = await getFile(imagePath);
       form.setFieldValue('image', url);
     } catch (error) {
       console.error('Image upload failed:', error);
+      message.error(
+        'Photo upload failed. Try again or pick a different image.',
+        6
+      );
     } finally {
       setIsUploading(false);
     }
@@ -83,6 +85,11 @@ const Add: NextPage = () => {
         values.reviewDate
       );
       await setDoc(ref, { ...newBurger, slug });
+      await syncCollectionSummaryAfterCreate({
+        ...newBurger,
+        id: ref.id,
+        slug,
+      });
       await router.push(getBurgerPath({ ...newBurger, id: ref.id, slug }));
     } catch (error) {
       console.error(error);
@@ -108,9 +115,7 @@ const Add: NextPage = () => {
             initialValues={emptyBurgerFormValues()}
             imageUrl={imageUrl}
             isUploading={isUploading}
-            selectedFile={selectedFile}
-            onSelectImage={setSelectedFile}
-            onUploadImage={uploadImage}
+            onImageFile={uploadImage}
             onFinish={handleFinish}
             showRatingIntro
           >

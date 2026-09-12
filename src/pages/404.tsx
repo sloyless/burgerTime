@@ -16,7 +16,7 @@ const NotFoundPage: NextPage = () => (
         extra={
           <Link
             href="/"
-            className="font-medium text-brand-700 hover:text-brand-800"
+            className="text-brand-700 hover:text-brand-800 font-medium"
           >
             Back to home
           </Link>

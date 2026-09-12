@@ -17,8 +17,10 @@ import {
   dateInputValueToUtcDate,
   timestampToDateInputValue,
 } from 'functions';
+import { syncCollectionSummaryAfterUpdate } from 'libs/collectionSummary';
 import { getFile, uploadFile } from 'libs/storage';
 import { database } from 'utils/firebase';
+import { Burger } from 'utils/types';
 import { allocateBurgerSlug } from 'utils/burgerSlug';
 
 type Props = {
@@ -38,7 +40,6 @@ function BurgerEditForm({
   const [saving, setSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [form] = Form.useForm<BurgerFormValues>();
-  const [selectedFile, setSelectedFile] = useState<File | undefined>();
   const [isUploading, setIsUploading] = useState(false);
 
   const initialValues = useMemo(
@@ -57,31 +58,27 @@ function BurgerEditForm({
       sauceNA: Boolean(form.getFieldValue('sauceNA')),
     } as BurgerFormValues;
     const hasFormChanges = !areBurgerFormValuesEqual(current, initialValues);
-    setIsDirty(hasFormChanges || Boolean(selectedFile));
-  }, [form, initialValues, selectedFile]);
-
-  useEffect(() => {
-    form.setFieldsValue(initialValues);
-    setSelectedFile(undefined);
-    setIsDirty(false);
+    setIsDirty(hasFormChanges);
   }, [form, initialValues]);
 
   useEffect(() => {
-    syncDirtyState();
-  }, [selectedFile, syncDirtyState]);
+    form.setFieldsValue(initialValues);
+    setIsDirty(false);
+  }, [form, initialValues]);
 
-  const uploadImage = async () => {
-    if (!selectedFile) return;
-
+  const uploadImage = async (file: File) => {
     setIsUploading(true);
     try {
-      const imagePath = await uploadFile(selectedFile, 'burgers/');
+      const imagePath = await uploadFile(file, 'burgers/');
       const url = await getFile(imagePath);
       form.setFieldValue('image', url);
-      setSelectedFile(undefined);
       syncDirtyState();
     } catch (error) {
       console.error('Image upload failed:', error);
+      message.error(
+        'Photo upload failed. Try again or pick a different image.',
+        6
+      );
     } finally {
       setIsUploading(false);
     }
@@ -111,6 +108,9 @@ function BurgerEditForm({
         burgerId
       );
 
+      const beforeBurger = { ...(initial as Burger), id: burgerId };
+      const total = calculateScore(draft);
+
       await updateDoc(doc(database, 'burgers', burgerId), {
         address: values.address,
         appearance: values.appearance,
@@ -126,12 +126,37 @@ function BurgerEditForm({
         sauceNA: values.sauceNA,
         slug,
         timestamp: Timestamp.fromDate(parsedDate),
-        total: calculateScore(draft),
+        total,
         veg: values.veg,
         vegNA: values.vegNA,
         venue: values.venue,
         ...(values.image ? { image: values.image } : {}),
       });
+
+      const afterBurger: Burger = {
+        ...beforeBurger,
+        address: values.address,
+        appearance: values.appearance,
+        bun: values.bun,
+        burgerName: values.burgerName,
+        cheese: values.cheese,
+        cheeseNA: values.cheeseNA,
+        cookType: values.cookType,
+        meat: values.meat,
+        notes: values.notes,
+        price: values.price,
+        sauce: values.sauce,
+        sauceNA: values.sauceNA,
+        slug,
+        timestamp: Timestamp.fromDate(parsedDate),
+        total,
+        veg: values.veg,
+        vegNA: values.vegNA,
+        venue: values.venue,
+        image: values.image ?? beforeBurger.image,
+      };
+
+      await syncCollectionSummaryAfterUpdate(beforeBurger, afterBurger);
       onSaved(slug);
     } catch (error) {
       console.error('Failed to update burger:', error);
@@ -151,9 +176,7 @@ function BurgerEditForm({
       initialValues={initialValues}
       imageUrl={imageUrl}
       isUploading={isUploading}
-      selectedFile={selectedFile}
-      onSelectImage={setSelectedFile}
-      onUploadImage={uploadImage}
+      onImageFile={uploadImage}
       onFinish={handleFinish}
       onValuesChange={syncDirtyState}
     >

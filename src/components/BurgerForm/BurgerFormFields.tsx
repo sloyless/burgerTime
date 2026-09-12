@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import {
@@ -11,16 +10,13 @@ import {
   Row,
   Select,
   Space,
-  Spin,
   Typography,
-  Upload,
 } from 'antd';
 import type { FormInstance } from 'antd';
 
 import BurgerRateField from 'components/BurgerRateField';
 import ScoreBadge from 'components/ScoreBadge';
-import Button from 'components/Button';
-
+import BurgerPhotoField from './BurgerPhotoField';
 import BurgerPriceLegend from './BurgerPriceLegend';
 import OptionalRatingFormItem from './OptionalRatingFormItem';
 import {
@@ -44,10 +40,8 @@ type Props = {
   idPrefix?: string;
   imageUrl?: string;
   isUploading: boolean;
-  onSelectImage: (file: File | undefined) => void;
-  onUploadImage: () => void;
+  onImageFile: (file: File) => void;
   score: number;
-  selectedFile?: File;
   showRatingIntro?: boolean;
   onNotifyValuesChange?: () => void;
 };
@@ -57,10 +51,8 @@ function BurgerFormFields({
   idPrefix = '',
   imageUrl,
   isUploading,
-  onSelectImage,
-  onUploadImage,
+  onImageFile,
   score,
-  selectedFile,
   showRatingIntro = false,
   onNotifyValuesChange,
 }: Readonly<Props>) {
@@ -142,52 +134,12 @@ function BurgerFormFields({
             </Col>
           </Row>
         </div>
-        {isUploading && (
-          <div className="flex justify-center border-t border-stone-200 p-12">
-            <Spin size="large" description="Uploading photo…" />
-          </div>
-        )}
-        {imageUrl && !isUploading && (
-          <Image
-            width={500}
-            height={300}
-            src={imageUrl}
-            alt={burgerName || 'Burger'}
-            className="w-full"
-            loading="lazy"
-            style={{ width: '100%', height: 'auto', display: 'block' }}
-          />
-        )}
-        <div className="border-t border-dashed border-stone-200 bg-stone-50 p-4">
-          <Space orientation="vertical" size="small" className="w-full">
-            <Typography.Text className="font-semibold text-stone-700">
-              Photo
-            </Typography.Text>
-            <Space wrap>
-              <Upload
-                beforeUpload={(file) => {
-                  onSelectImage(file);
-                  return false;
-                }}
-                maxCount={1}
-                showUploadList={false}
-              >
-                <Button type="button" status="primary" disabled={isUploading}>
-                  Choose file
-                </Button>
-              </Upload>
-              <Button
-                type="button"
-                status="primary"
-                onClick={onUploadImage}
-                disabled={isUploading || !selectedFile}
-                loading={isUploading}
-              >
-                Upload
-              </Button>
-            </Space>
-          </Space>
-        </div>
+        <BurgerPhotoField
+          alt={burgerName || 'Burger'}
+          imageUrl={imageUrl}
+          isUploading={isUploading}
+          onImageFile={onImageFile}
+        />
       </Card>
 
       <Card className="shadow-sm">
@@ -226,7 +178,7 @@ function BurgerFormFields({
               Rating
             </Typography.Title>
             {showRatingIntro ? (
-              <Typography.Paragraph type="secondary" className="mb-0!">
+              <Typography.Paragraph type="secondary">
                 Rate each category on a 5-star scale. Use the{' '}
                 <span className="whitespace-nowrap">N/A</span> control when
                 cheese, vegetables, or sauces aren&apos;t on the burger.

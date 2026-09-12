@@ -93,7 +93,12 @@ function OptionalRatingFormItem({
       </Form.Item>
       <Form.Item
         name={field.key}
-        label={field.label}
+        label={
+          <>
+            {field.label}
+            <span className="font-normal text-stone-500"> (optional)</span>
+          </>
+        }
         rules={na ? [] : [ratingRule(field.label)]}
       >
         <OptionalRatingInput

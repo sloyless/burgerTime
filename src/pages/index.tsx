@@ -82,10 +82,7 @@ const Home: NextPage = () => {
         undefined,
         { shallow: true }
       );
-      return;
     }
-
-    void router.replace('/', undefined, { shallow: true });
   }, [router.isReady, requestedPage, afterParam, router]);
 
   useEffect(() => {
@@ -93,10 +90,6 @@ const Home: NextPage = () => {
 
     let cancelled = false;
     const page = Math.max(1, requestedPage);
-
-    if (page > 1 && !afterParam) {
-      return;
-    }
 
     setLoading(true);
     setLoadError(false);
@@ -110,9 +103,31 @@ const Home: NextPage = () => {
 
     void (async () => {
       try {
-        const data = await fetchHomePageData(page, PAGE_SIZE, afterParam);
+        const data = await fetchHomePageData(page, PAGE_SIZE, {
+          afterParam,
+          storedCursors: pageCursorsRef.current,
+        });
 
         if (cancelled) return;
+
+        for (const [cursorPage, cursor] of data.discoveredCursors) {
+          pageCursorsRef.current.set(cursorPage, cursor);
+        }
+        writeStoredPageCursors(pageCursorsRef.current);
+
+        if (page > 1 && !afterParam) {
+          const cursorForPage = pageCursorsRef.current.get(page);
+          if (cursorForPage) {
+            void router.replace(
+              {
+                pathname: '/',
+                query: { page: String(page), after: cursorForPage },
+              },
+              undefined,
+              { shallow: true }
+            );
+          }
+        }
 
         if (data.count > 0 && page > data.totalPages) {
           void router.replace(
@@ -244,7 +259,7 @@ const Home: NextPage = () => {
                 <li key={burger.id} className="text-stone-800">
                   <Link
                     href={getBurgerPath(burger)}
-                    className="block hover:text-brand-700"
+                    className="hover:text-brand-700 block"
                   >
                     <span className="font-venue">{burger.venue}</span>
                     <span className="mt-0.5 line-clamp-1 block text-stone-500">

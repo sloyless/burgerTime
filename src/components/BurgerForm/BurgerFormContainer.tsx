@@ -15,9 +15,7 @@ type Props = {
   isUploading: boolean;
   onFinish: (values: BurgerFormValues) => void;
   onValuesChange?: () => void;
-  onSelectImage: (file: File | undefined) => void;
-  onUploadImage: () => void;
-  selectedFile?: File;
+  onImageFile: (file: File) => void;
   showRatingIntro?: boolean;
 };
 
@@ -30,9 +28,7 @@ function BurgerFormContainer({
   isUploading,
   onFinish,
   onValuesChange,
-  onSelectImage,
-  onUploadImage,
-  selectedFile,
+  onImageFile,
   showRatingIntro,
 }: Readonly<Props>) {
   const score = useBurgerFormScore(form);
@@ -44,7 +40,7 @@ function BurgerFormContainer({
       initialValues={initialValues}
       onFinish={onFinish}
       onValuesChange={onValuesChange}
-      requiredMark="optional"
+      requiredMark={false}
       scrollToFirstError
       className="max-w-full min-w-0"
     >
@@ -53,11 +49,9 @@ function BurgerFormContainer({
         idPrefix={idPrefix}
         imageUrl={imageUrl}
         isUploading={isUploading}
-        onSelectImage={onSelectImage}
-        onUploadImage={onUploadImage}
+        onImageFile={onImageFile}
         onNotifyValuesChange={onValuesChange}
         score={score}
-        selectedFile={selectedFile}
         showRatingIntro={showRatingIntro}
       />
       {children}

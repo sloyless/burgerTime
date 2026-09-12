@@ -1,12 +1,7 @@
 import { Burger } from 'utils/types';
 
 export type BurgerScoreCategory =
-  | 'appearance'
-  | 'bun'
-  | 'meat'
-  | 'cheese'
-  | 'veg'
-  | 'sauce';
+  'appearance' | 'bun' | 'meat' | 'cheese' | 'veg' | 'sauce';
 
 /** Relative importance; active categories always scale to 100. */
 export const BURGER_SCORE_WEIGHTS: Record<BurgerScoreCategory, number> = {
@@ -19,7 +14,10 @@ export const BURGER_SCORE_WEIGHTS: Record<BurgerScoreCategory, number> = {
 };
 
 const NA_FIELD_BY_CATEGORY: Partial<
-  Record<BurgerScoreCategory, keyof Pick<Burger, 'cheeseNA' | 'vegNA' | 'sauceNA'>>
+  Record<
+    BurgerScoreCategory,
+    keyof Pick<Burger, 'cheeseNA' | 'vegNA' | 'sauceNA'>
+  >
 > = {
   cheese: 'cheeseNA',
   veg: 'vegNA',
@@ -49,7 +47,9 @@ export function calculateScore(item: Burger): number {
   let weightSum = 0;
   let earnedSum = 0;
 
-  for (const category of Object.keys(BURGER_SCORE_WEIGHTS) as BurgerScoreCategory[]) {
+  for (const category of Object.keys(
+    BURGER_SCORE_WEIGHTS
+  ) as BurgerScoreCategory[]) {
     if (!isBurgerScoreCategoryActive(item, category)) continue;
 
     const weight = BURGER_SCORE_WEIGHTS[category];

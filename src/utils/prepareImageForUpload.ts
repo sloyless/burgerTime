@@ -1,15 +1,8 @@
+import imageCompression from 'browser-image-compression';
+
 const MAX_EDGE_PX = 1600;
-const JPEG_QUALITY = 0.82;
+const MAX_SIZE_MB = 1.6;
 const SKIP_IF_UNDER_BYTES = 350_000;
-
-function outputType(file: File): string {
-  if (file.type === 'image/png') return 'image/png';
-  return 'image/jpeg';
-}
-
-function fileExtension(mime: string): string {
-  return mime === 'image/png' ? 'png' : 'jpg';
-}
 
 /**
  * Downscale and re-encode burger photos before upload so list/detail pages
@@ -24,42 +17,22 @@ export async function prepareImageForUpload(file: File): Promise<File> {
     return file;
   }
 
-  let bitmap: ImageBitmap | undefined;
   try {
-    bitmap = await createImageBitmap(file);
+    const compressed = await imageCompression(file, {
+      maxWidthOrHeight: MAX_EDGE_PX,
+      maxSizeMB: MAX_SIZE_MB,
+      initialQuality: 0.82,
+      useWebWorker: true,
+      fileType: file.type === 'image/png' ? 'image/png' : 'image/jpeg',
+      preserveExif: false,
+    });
+
+    if (compressed.size >= file.size) {
+      return file;
+    }
+
+    return compressed;
   } catch {
     return file;
   }
-
-  const longest = Math.max(bitmap.width, bitmap.height);
-  const scale = Math.min(1, MAX_EDGE_PX / longest);
-  const width = Math.max(1, Math.round(bitmap.width * scale));
-  const height = Math.max(1, Math.round(bitmap.height * scale));
-
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    bitmap.close();
-    return file;
-  }
-
-  ctx.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close();
-
-  const mime = outputType(file);
-  const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob(resolve, mime, JPEG_QUALITY);
-  });
-
-  if (!blob || blob.size >= file.size) {
-    return file;
-  }
-
-  const baseName = file.name.replace(/\.[^.]+$/, '') || 'burger';
-  return new File([blob], `${baseName}.${fileExtension(mime)}`, {
-    type: mime,
-    lastModified: Date.now(),
-  });
 }

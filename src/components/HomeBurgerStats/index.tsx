@@ -24,7 +24,7 @@ function StatsCard({
         <FontAwesomeIcon
           icon={icon}
           size="sm"
-          className="size-3.5 text-brand-700"
+          className="text-brand-700 size-3.5"
         />
         {title}
       </h3>

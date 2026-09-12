@@ -15,7 +15,6 @@ import {
   where,
 } from 'firebase/firestore';
 
-import { calculateScore } from 'functions';
 import { database } from 'utils/firebase';
 import { Burger } from 'utils/types';
 import {
@@ -33,15 +32,13 @@ import {
   encodeReviewPageCursor,
   ReviewPageCursor,
 } from './reviewPageCursor';
-import {
-  BurgerCollectionStats,
-  computeBurgerCollectionStats,
-} from './burgerStats';
+import { fetchCollectionStats } from './collectionSummary';
+import { BurgerCollectionStats } from './burgerStats';
 
 const BURGERS_COLLECTION = 'burgers';
 
 function docToBurger(docSnap: QueryDocumentSnapshot<DocumentData>): Burger {
-  const { id: _storedId, ...data } = docSnap.data() as Burger;
+  const data = docSnap.data() as Burger;
   return {
     ...data,
     id: docSnap.id,
@@ -110,80 +107,123 @@ export async function fetchLatestReviewsAfter(
   };
 }
 
-async function resolveStartCursor(
+export type ResolvePageCursorResult = {
+  discoveredCursors: Map<number, string>;
+  startCursor: ReviewPageCursor | undefined;
+};
+
+function encodedCursorForPage(
+  page: number,
+  afterParam?: string,
+  storedCursors?: Map<number, string>
+): string | undefined {
+  if (page <= 1) return undefined;
+  if (afterParam) return afterParam;
+  return storedCursors?.get(page);
+}
+
+/** Resolves start cursor for a page, walking from the nearest stored cursor. */
+export async function resolveReviewPageStartCursor(
   page: number,
   pageSize: number,
-  afterParam?: string
-): Promise<ReviewPageCursor | undefined> {
-  if (page <= 1) return undefined;
+  options?: {
+    afterParam?: string;
+    storedCursors?: Map<number, string>;
+  }
+): Promise<ResolvePageCursorResult> {
+  const discoveredCursors = new Map<number, string>();
 
-  const decoded = afterParam ? decodeReviewPageCursor(afterParam) : null;
-  if (decoded) return decoded;
+  if (page <= 1) {
+    return { startCursor: undefined, discoveredCursors };
+  }
 
+  const encoded = encodedCursorForPage(
+    page,
+    options?.afterParam,
+    options?.storedCursors
+  );
+  if (encoded) {
+    const decoded = decodeReviewPageCursor(encoded);
+    if (decoded) {
+      return { startCursor: decoded, discoveredCursors };
+    }
+  }
+
+  let walkFromPage = 1;
   let cursor: ReviewPageCursor | undefined;
-  for (let p = 1; p < page; p++) {
+
+  if (options?.storedCursors?.size) {
+    let bestPage = 0;
+    for (const knownPage of options.storedCursors.keys()) {
+      if (knownPage < page && knownPage > bestPage) {
+        bestPage = knownPage;
+      }
+    }
+
+    if (bestPage > 1) {
+      const encodedBest = options.storedCursors.get(bestPage);
+      const decodedBest = encodedBest
+        ? decodeReviewPageCursor(encodedBest)
+        : null;
+      if (decodedBest) {
+        walkFromPage = bestPage;
+        cursor = decodedBest;
+      }
+    }
+  }
+
+  for (let p = walkFromPage; p < page; p++) {
     const { items, nextPageCursor } = await fetchLatestReviewsAfter(
       pageSize,
       cursor
     );
     if (!items.length) break;
-    cursor = nextPageCursor ?? undefined;
+
+    if (nextPageCursor) {
+      discoveredCursors.set(p + 1, encodeReviewPageCursor(nextPageCursor));
+      cursor = nextPageCursor;
+    } else {
+      cursor = undefined;
+      break;
+    }
   }
 
-  return cursor;
+  return { startCursor: cursor, discoveredCursors };
 }
 
 export async function fetchLatestReviewsPage(
   page: number,
   pageSize: number,
-  afterParam?: string
-): Promise<LatestReviewsPageResult> {
-  const safePage = Math.max(1, page);
-  const startCursor = await resolveStartCursor(safePage, pageSize, afterParam);
-  return fetchLatestReviewsAfter(pageSize, startCursor);
-}
-
-const ALL_BURGERS_PAGE_SIZE = 500;
-
-/** Full collection read for aggregate stats (paginated by document id). */
-export async function fetchAllBurgers(): Promise<Burger[]> {
-  const col = collection(database, BURGERS_COLLECTION);
-  const items: Burger[] = [];
-  let lastDoc: QueryDocumentSnapshot<DocumentData> | undefined;
-
-  while (true) {
-    const snapshot = await getDocs(
-      lastDoc
-        ? query(
-            col,
-            orderBy(documentId()),
-            startAfter(lastDoc),
-            limit(ALL_BURGERS_PAGE_SIZE)
-          )
-        : query(col, orderBy(documentId()), limit(ALL_BURGERS_PAGE_SIZE))
-    );
-
-    if (snapshot.empty) break;
-
-    items.push(...snapshot.docs.map(docToBurger));
-    lastDoc = snapshot.docs[snapshot.docs.length - 1];
-
-    if (snapshot.docs.length < ALL_BURGERS_PAGE_SIZE) break;
+  options?: {
+    afterParam?: string;
+    storedCursors?: Map<number, string>;
   }
-
-  return items;
+): Promise<LatestReviewsPageResult & ResolvePageCursorResult> {
+  const safePage = Math.max(1, page);
+  const { startCursor, discoveredCursors } = await resolveReviewPageStartCursor(
+    safePage,
+    pageSize,
+    options
+  );
+  const pageResult = await fetchLatestReviewsAfter(pageSize, startCursor);
+  return { ...pageResult, discoveredCursors, startCursor };
 }
 
+/** Top burgers by stored `total` (kept in sync on save). */
 export async function fetchTopTenBurgers(): Promise<Burger[]> {
-  const burgers = await fetchAllBurgers();
-  return burgers
-    .slice()
-    .sort((a, b) => calculateScore(b) - calculateScore(a))
-    .slice(0, 10);
+  const snapshot = await getDocs(
+    query(
+      collection(database, BURGERS_COLLECTION),
+      orderBy('total', 'desc'),
+      limit(10)
+    )
+  );
+  return snapshot.docs.map(docToBurger);
 }
 
 export type HomePageData = {
   count: number;
+  discoveredCursors: Map<number, string>;
   nextPageCursor: ReviewPageCursor | null;
   nextPageCursorEncoded: string | null;
   pageItems: Burger[];
@@ -195,21 +235,19 @@ export type HomePageData = {
 export async function fetchHomePageData(
   page: number,
   pageSize: number,
-  afterParam?: string
+  options?: {
+    afterParam?: string;
+    storedCursors?: Map<number, string>;
+  }
 ): Promise<HomePageData> {
   const safePage = Math.max(1, page);
 
-  const [count, topTen, pageResult, allBurgers] = await Promise.all([
+  const [count, topTen, stats, pageResult] = await Promise.all([
     fetchBurgerReviewCount(),
     fetchTopTenBurgers(),
-    fetchLatestReviewsPage(safePage, pageSize, afterParam),
-    safePage === 1 ? fetchAllBurgers() : Promise.resolve(null),
+    fetchCollectionStats(),
+    fetchLatestReviewsPage(safePage, pageSize, options),
   ]);
-
-  const stats =
-    allBurgers && allBurgers.length > 0
-      ? computeBurgerCollectionStats(allBurgers)
-      : null;
 
   const totalPages = Math.max(1, Math.ceil(count / pageSize));
   const nextPageCursor = pageResult.nextPageCursor;
@@ -217,8 +255,14 @@ export async function fetchHomePageData(
     ? encodeReviewPageCursor(nextPageCursor)
     : null;
 
+  const discoveredCursors = new Map(pageResult.discoveredCursors);
+  if (nextPageCursorEncoded && safePage < totalPages) {
+    discoveredCursors.set(safePage + 1, nextPageCursorEncoded);
+  }
+
   return {
     count,
+    discoveredCursors,
     topTen,
     pageItems: pageResult.items,
     stats,

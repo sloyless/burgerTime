@@ -22,6 +22,8 @@ import { burgerFormImageFromValues } from 'components/BurgerForm/burgerFormImage
 import { useBurgerPhotoUpload } from 'components/BurgerForm/useBurgerPhotoUpload';
 import type { Burger } from 'utils/types';
 import { syncCollectionSummaryAfterCreate } from 'libs/collectionSummary';
+import { syncSearchIndexAfterCreate } from 'libs/searchIndex';
+import { syncSitemapAfterCreate } from 'libs/sitemap';
 import { allocateBurgerSlug, getBurgerPath } from 'utils/burgerSlug';
 import BurgerRules from 'components/BurgerRules';
 import { BURGER_WITH_RULES_MAIN_CLASSNAME } from 'theme/layout';
@@ -69,11 +71,12 @@ const Add: NextPage = () => {
         values.reviewDate
       );
       await setDoc(ref, { ...newBurger, slug });
-      await syncCollectionSummaryAfterCreate({
-        ...newBurger,
-        id: ref.id,
-        slug,
-      });
+      const savedBurger = { ...newBurger, id: ref.id, slug };
+      await syncCollectionSummaryAfterCreate(savedBurger);
+      await Promise.all([
+        syncSearchIndexAfterCreate(savedBurger),
+        syncSitemapAfterCreate(savedBurger),
+      ]);
       await router.push(getBurgerPath({ ...newBurger, id: ref.id, slug }));
     } catch (error) {
       console.error(error);

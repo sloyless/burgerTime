@@ -32,7 +32,17 @@ import {
   encodeReviewPageCursor,
   type ReviewPageCursor,
 } from './reviewPageCursor';
-import { fetchCollectionStats } from './collectionSummary';
+import {
+  fetchCollectionStats,
+  fetchCollectionSummaryDoc,
+  totalReviewCountFromSummary,
+} from './collectionSummary';
+import {
+  buildSearchIndexEntry,
+  burgerSearchHaystack,
+  fetchSearchIndexEntries,
+  searchEntryToBurger,
+} from './searchIndex';
 import type { BurgerCollectionStats } from './burgerStats';
 
 const BURGERS_COLLECTION = 'burgers';
@@ -240,39 +250,26 @@ export async function fetchAllBurgers(): Promise<Burger[]> {
   return items;
 }
 
-function burgerSearchHaystack(burger: Burger): string {
-  return [
-    burger.venue,
-    burger.burgerName,
-    burger.address,
-    burger.notes,
-    burger.cookType,
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase();
-}
-
 /** Case-insensitive search across venue, burger name, location, notes, and cook type. */
 export async function searchBurgers(term: string): Promise<Burger[]> {
   const normalized = term.trim().toLowerCase();
   if (!normalized) return [];
 
   const tokens = normalized.split(/\s+/).filter(Boolean);
-  const all = await fetchAllBurgers();
+  let indexEntries = await fetchSearchIndexEntries();
 
-  return all
-    .filter((burger) => {
-      const haystack = burgerSearchHaystack(burger);
+  if (indexEntries.length === 0) {
+    const all = await fetchAllBurgers();
+    indexEntries = all.map((burger) => buildSearchIndexEntry(burger));
+  }
+
+  return indexEntries
+    .filter((entry) => {
+      const haystack = burgerSearchHaystack(entry);
       return tokens.every((token) => haystack.includes(token));
     })
-    .sort((a, b) => {
-      const aSeconds =
-        (a.timestamp as { seconds?: number } | undefined)?.seconds ?? 0;
-      const bSeconds =
-        (b.timestamp as { seconds?: number } | undefined)?.seconds ?? 0;
-      return bSeconds - aSeconds;
-    });
+    .sort((a, b) => b.timestampSeconds - a.timestampSeconds)
+    .map(searchEntryToBurger);
 }
 
 /** Top burgers by stored `total` (kept in sync on save). */
@@ -308,12 +305,17 @@ export async function fetchHomePageData(
 ): Promise<HomePageData> {
   const safePage = Math.max(1, page);
 
-  const [count, topTen, stats, pageResult] = await Promise.all([
-    fetchBurgerReviewCount(),
+  const [summary, topTen, stats, pageResult] = await Promise.all([
+    fetchCollectionSummaryDoc(),
     fetchTopTenBurgers(),
     fetchCollectionStats(),
     fetchLatestReviewsPage(safePage, pageSize, options),
   ]);
+
+  const count =
+    summary != null
+      ? totalReviewCountFromSummary(summary)
+      : await fetchBurgerReviewCount();
 
   const totalPages = Math.max(1, Math.ceil(count / pageSize));
   const nextPageCursor = pageResult.nextPageCursor;

@@ -16,5 +16,20 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    match /meta/searchIndex {
+      allow read: if true;
+      allow write: if isAdmin();
+
+      match /chunks/{chunkId} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+    }
+
+    match /meta/sitemap {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
   }
 }

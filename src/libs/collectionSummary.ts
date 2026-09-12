@@ -28,6 +28,7 @@ export type CollectionSummaryDoc = {
   eliteCount: number;
   scoreCount: number;
   sumScores: number;
+  totalReviewCount: number;
   venueReviewCounts: Record<string, number>;
   yearCounts: Record<string, number>;
   updatedAt: Timestamp;
@@ -58,6 +59,7 @@ function emptySummary(): CollectionSummaryDoc {
     venueReviewCounts: {},
     sumScores: 0,
     scoreCount: 0,
+    totalReviewCount: 0,
     eliteCount: 0,
     yearCounts: {},
     updatedAt: Timestamp.now(),
@@ -142,12 +144,18 @@ function applyBurgerCreate(summary: CollectionSummaryDoc, burger: Burger) {
   bumpVenue(summary.venueReviewCounts, venueKey(burger.venue), 1);
   bumpYear(summary.yearCounts, reviewYear(burger), 1);
   applyScoreDelta(summary, getDisplayScore(burger), 1);
+  summary.totalReviewCount =
+    (summary.totalReviewCount ?? summary.scoreCount) + 1;
 }
 
 function applyBurgerRemove(summary: CollectionSummaryDoc, burger: Burger) {
   bumpVenue(summary.venueReviewCounts, venueKey(burger.venue), -1);
   bumpYear(summary.yearCounts, reviewYear(burger), -1);
   applyScoreDelta(summary, getDisplayScore(burger), -1);
+  summary.totalReviewCount = Math.max(
+    0,
+    (summary.totalReviewCount ?? summary.scoreCount) - 1
+  );
 }
 
 async function fetchAllBurgersForRebuild(): Promise<Burger[]> {
@@ -178,9 +186,9 @@ async function fetchAllBurgersForRebuild(): Promise<Burger[]> {
   return items;
 }
 
-export async function rebuildCollectionSummary(): Promise<CollectionSummaryDoc> {
-  const burgers = await fetchAllBurgersForRebuild();
-
+export function buildCollectionSummaryFromBurgers(
+  burgers: Burger[]
+): CollectionSummaryDoc {
   const venueReviewCounts: Record<string, number> = {};
   const yearCounts: Record<string, number> = {};
   let sumScores = 0;
@@ -203,28 +211,58 @@ export async function rebuildCollectionSummary(): Promise<CollectionSummaryDoc> 
     if (score >= 90) eliteCount += 1;
   }
 
-  const docBody: CollectionSummaryDoc = {
+  return {
     version: 1,
     venueReviewCounts,
     yearCounts,
     sumScores,
     scoreCount: burgers.length,
+    totalReviewCount: burgers.length,
     eliteCount,
     updatedAt: Timestamp.now(),
   };
+}
 
+export async function writeCollectionSummary(
+  docBody: CollectionSummaryDoc
+): Promise<void> {
   const ref = doc(database, SUMMARY_DOC_PATH);
   await runTransaction(database, async (transaction) => {
     transaction.set(ref, docBody);
   });
+}
 
+export async function rebuildCollectionSummary(): Promise<CollectionSummaryDoc> {
+  const burgers = await fetchAllBurgersForRebuild();
+  const docBody = buildCollectionSummaryFromBurgers(burgers);
+  await writeCollectionSummary(docBody);
   return docBody;
 }
 
-export async function fetchCollectionStats(): Promise<BurgerCollectionStats | null> {
+export async function rebuildCollectionSummaryFromBurgers(
+  burgers: Burger[]
+): Promise<CollectionSummaryDoc> {
+  const docBody = buildCollectionSummaryFromBurgers(burgers);
+  await writeCollectionSummary(docBody);
+  return docBody;
+}
+
+export async function fetchCollectionSummaryDoc(): Promise<CollectionSummaryDoc | null> {
   const snap = await getDoc(doc(database, SUMMARY_DOC_PATH));
   if (!snap.exists()) return null;
-  return summaryDocToStats(snap.data() as CollectionSummaryDoc);
+  return snap.data() as CollectionSummaryDoc;
+}
+
+export async function fetchCollectionStats(): Promise<BurgerCollectionStats | null> {
+  const summary = await fetchCollectionSummaryDoc();
+  if (!summary) return null;
+  return summaryDocToStats(summary);
+}
+
+export function totalReviewCountFromSummary(
+  summary: CollectionSummaryDoc
+): number {
+  return summary.totalReviewCount ?? summary.scoreCount ?? 0;
 }
 
 export async function syncCollectionSummaryAfterCreate(
@@ -233,7 +271,8 @@ export async function syncCollectionSummaryAfterCreate(
   const ref = doc(database, SUMMARY_DOC_PATH);
   const existing = await getDoc(ref);
   if (!existing.exists()) {
-    await rebuildCollectionSummary();
+    const { rebuildSiteMeta } = await import('libs/siteMetaRebuild');
+    await rebuildSiteMeta();
     return;
   }
 
@@ -261,7 +300,8 @@ export async function syncCollectionSummaryAfterUpdate(
   const ref = doc(database, SUMMARY_DOC_PATH);
   const existing = await getDoc(ref);
   if (!existing.exists()) {
-    await rebuildCollectionSummary();
+    const { rebuildSiteMeta } = await import('libs/siteMetaRebuild');
+    await rebuildSiteMeta();
     return;
   }
 
@@ -284,9 +324,8 @@ export async function syncCollectionSummaryAfterUpdate(
   }
 }
 
-/** One-shot backfill when summary doc is missing (e.g. after deploy). */
+/** One-shot backfill when meta docs are missing (admin write required). */
 export async function ensureCollectionSummary(): Promise<void> {
-  const snap = await getDoc(doc(database, SUMMARY_DOC_PATH));
-  if (snap.exists()) return;
-  await rebuildCollectionSummary();
+  const { ensureSiteMeta } = await import('libs/siteMetaRebuild');
+  await ensureSiteMeta();
 }

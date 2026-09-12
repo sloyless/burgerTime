@@ -69,6 +69,9 @@ jobs:
       - name: Typecheck and lint
         run: yarn ci
 
+      - name: Generate sitemap
+        run: yarn generate:sitemap
+
       # Next.js production build runs inside Firebase Hosting deploy (web frameworks).
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0

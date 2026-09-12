@@ -25,6 +25,8 @@ import {
   timestampToDateInputValue,
 } from 'functions';
 import { syncCollectionSummaryAfterUpdate } from 'libs/collectionSummary';
+import { syncSearchIndexAfterUpdate } from 'libs/searchIndex';
+import { syncSitemapAfterUpdate } from 'libs/sitemap';
 import { deleteReplacedBurgerPhotoAfterSave } from 'libs/storage';
 import { database } from 'utils/firebase';
 import type { Burger } from 'utils/types';
@@ -153,6 +155,10 @@ function BurgerEditForm({
       };
 
       await syncCollectionSummaryAfterUpdate(beforeBurger, afterBurger);
+      await Promise.all([
+        syncSearchIndexAfterUpdate(afterBurger),
+        syncSitemapAfterUpdate(afterBurger),
+      ]);
       await deleteReplacedBurgerPhotoAfterSave(initialValues.image, image);
 
       onSaved(slug);

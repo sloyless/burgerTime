@@ -11,6 +11,8 @@ import {
 import {
   getFirestore,
   initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   type Firestore,
 } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
@@ -85,6 +87,9 @@ function initDatabase(): Firestore {
   try {
     return initializeFirestore(app, {
       experimentalAutoDetectLongPolling: true,
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
     });
   } catch {
     return getFirestore(app);

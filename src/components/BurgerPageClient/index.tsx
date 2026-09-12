@@ -136,7 +136,7 @@ function BurgerPageClient() {
 
   const burgerRecord = burger as Burger | undefined;
   const canonicalSlug = burgerRecord
-    ? burgerRecord.slug ?? getCanonicalBurgerSlug(burgerRecord)
+    ? (burgerRecord.slug ?? getCanonicalBurgerSlug(burgerRecord))
     : undefined;
 
   useEffect(() => {
@@ -207,9 +207,7 @@ function BurgerPageClient() {
 
   const waitingForUrl = !urlSegment;
   const loading =
-    waitingForUrl ||
-    resolving ||
-    (Boolean(documentId) && !snapshotLoaded);
+    waitingForUrl || resolving || (Boolean(documentId) && !snapshotLoaded);
   const notFound =
     Boolean(urlSegment) &&
     !loading &&

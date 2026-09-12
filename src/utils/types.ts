@@ -6,6 +6,8 @@ export interface Burger {
   bun?: number;
   burgerName?: string;
   cheese?: number;
+  /** Cheese not on this burger — excluded from score. */
+  cheeseNA?: boolean;
   cookType?: string;
   id?: string;
   image?: string;
@@ -18,5 +20,7 @@ export interface Burger {
   total?: number;
   userId?: string;
   veg?: number;
+  /** Vegetables not on this burger — excluded from score. */
+  vegNA?: boolean;
   venue?: string;
 }

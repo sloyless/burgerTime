@@ -5,15 +5,19 @@ import { Burger } from 'utils/types';
 
 type Props = {
   burger: Burger;
+  className?: string;
 };
 
-function LocationLink({ burger }: Readonly<Props>) {
+function LocationLink({ burger, className }: Readonly<Props>) {
   const googleMapsUrl =
     burger && encodeURIComponent(`${burger.venue}, ${burger.address}`);
 
   return (
     <Link
-      className="line-clamp-1 font-sans text-sm text-stone-600 hover:text-brand-700"
+      className={
+        className ??
+        'line-clamp-1 font-sans text-sm text-stone-600 hover:text-brand-700'
+      }
       href={`https://www.google.com/maps/search/?api=1&query=${googleMapsUrl}`}
       target="_blank"
       rel="nofollow"

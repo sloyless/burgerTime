@@ -112,6 +112,7 @@ function BurgerEditForm({
         bun: values.bun,
         burgerName: values.burgerName,
         cheese: values.cheese,
+        cheeseNA: values.cheeseNA,
         cookType: values.cookType,
         meat: values.meat,
         notes: values.notes,
@@ -121,6 +122,7 @@ function BurgerEditForm({
         timestamp: Timestamp.fromDate(parsedDate),
         total: calculateScore(draft),
         veg: values.veg,
+        vegNA: values.vegNA,
         venue: values.venue,
         ...(values.image ? { image: values.image } : {}),
       });

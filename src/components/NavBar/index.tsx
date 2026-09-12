@@ -1,4 +1,4 @@
-import { MouseEvent, useState } from 'react';
+import { MouseEvent, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -13,11 +13,12 @@ import {
 import { useAuth } from 'context/AuthContext';
 
 import Button from 'components/Button';
+import SiteWordmark from 'components/SiteWordmark';
 import { ADMINUID } from 'functions';
 import { getGoogleSignInHelpMessage } from 'utils/googleSignIn';
 
-const LOGO_SRC = '/logo.png';
 const DEFAULT_AVATAR_SRC = '/favicon.png';
+const HOME_HERO_ID = 'home-hero';
 
 function NavBar() {
   const { message } = App.useApp();
@@ -75,6 +76,48 @@ function NavBar() {
     });
   }
 
+  const isHome = router.pathname === '/';
+  const [homeHeroInView, setHomeHeroInView] = useState(true);
+
+  useEffect(() => {
+    if (!isHome) {
+      setHomeHeroInView(false);
+      return;
+    }
+
+    setHomeHeroInView(true);
+
+    let observer: IntersectionObserver | undefined;
+
+    const attach = () => {
+      const hero = document.getElementById(HOME_HERO_ID);
+      if (!hero) return false;
+
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          setHomeHeroInView(entry.isIntersecting);
+        },
+        { threshold: 0 }
+      );
+      observer.observe(hero);
+      return true;
+    };
+
+    if (!attach()) {
+      const frameId = requestAnimationFrame(() => {
+        attach();
+      });
+      return () => {
+        cancelAnimationFrame(frameId);
+        observer?.disconnect();
+      };
+    }
+
+    return () => observer?.disconnect();
+  }, [isHome, router.asPath]);
+
+  const brandHidden = isHome && homeHeroInView;
+
   const userMenuItems: MenuProps['items'] = [
     {
       key: 'logout',
@@ -86,23 +129,32 @@ function NavBar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/85 backdrop-blur-md">
-      <nav className="mx-auto flex max-w-screen-2xl flex-wrap items-center gap-3 px-4 py-2 sm:px-6 lg:px-8">
+      <nav
+        className={`relative mx-auto flex max-w-screen-2xl flex-wrap items-center justify-end gap-3 px-4 py-2 sm:px-6 lg:px-8`}
+      >
         <Link
           href="/"
-          className="flex items-center gap-2 text-stone-900 hover:text-brand-700"
+          aria-hidden={isHome && brandHidden}
+          tabIndex={isHome && brandHidden ? -1 : undefined}
+          className={`absolute top-1/2 left-4 -translate-y-1/2 sm:left-6 lg:left-8 ${
+            brandHidden ? 'pointer-events-none' : ''
+          }`}
         >
-          <Image
-            width={36}
-            height={30}
-            src={LOGO_SRC}
-            priority
-            alt="BurgerTime"
-            style={{ maxWidth: '100%', height: 'auto' }}
-          />
-          <span className="font-venue text-xl">BurgerTime</span>
+          <span
+            className="inline-block whitespace-nowrap text-stone-900 hover:text-brand-700"
+            style={{
+              opacity: brandHidden ? 0 : 1,
+              transition: isHome ? 'opacity 300ms ease-out' : undefined,
+            }}
+          >
+            <SiteWordmark
+              className="text-xl text-stone-900"
+              priority={!isHome}
+            />
+          </span>
         </Link>
 
-        <div className="ml-auto flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           {navLinks.map((item) => (
             <Link
               key={item.path}

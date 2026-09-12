@@ -7,6 +7,8 @@ import BurgerPriceLegend from 'components/BurgerForm/BurgerPriceLegend';
 import { BURGER_RATING_FIELDS } from 'components/BurgerForm/burgerFormCopy';
 import LocationLink from 'components/LocationLink';
 import ScoreBadge from 'components/ScoreBadge';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBan } from '@fortawesome/free-solid-svg-icons';
 import { calculateTimestamp, getFormattedDate } from 'functions';
 import { Burger } from 'utils/types';
 import { STACK_SPACE_CLASSNAME } from 'theme/layout';
@@ -27,6 +29,12 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
     [BURGER_RATING_FIELDS[4], BURGER_RATING_FIELDS[5]],
   ] as const;
 
+  function isRatingNotApplicable(key: string) {
+    if (key === 'cheese') return Boolean(locationBurger.cheeseNA);
+    if (key === 'veg') return Boolean(locationBurger.vegNA);
+    return false;
+  }
+
   return (
     <Space
       orientation="vertical"
@@ -34,35 +42,49 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
       className={STACK_SPACE_CLASSNAME}
     >
       <Card
-        className="overflow-hidden shadow-sm"
+        className="overflow-hidden border-orange-200/80 shadow-sm"
         styles={{ body: { padding: 0 } }}
       >
-        <div className="p-6">
+        <div className="border-b border-orange-100/90 bg-linear-to-br from-brand-100/70 via-brand-50 to-white px-4 py-3 md:p-6">
           <Row gutter={16} align="top" wrap={false}>
             <Col flex="auto" className="min-w-0">
-              <Space orientation="vertical" size="small" className="w-full">
+              <div className="flex w-full flex-col gap-1">
                 <Typography.Title
                   level={1}
-                  className="font-venue mb-0! text-brand-700!"
+                  className="font-venue m-0! leading-tight text-brand-700!"
                 >
                   {burger.venue}
                 </Typography.Title>
-                {timestampDate ? (
-                  <time
-                    className="block font-sans text-xs text-stone-500"
-                    dateTime={timestampISO}
-                  >
-                    {getFormattedDate(timestampDate)}
-                  </time>
-                ) : null}
-                <Divider className="my-0!" />
-                <LocationLink burger={locationBurger} />
-              </Space>
+                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                  <LocationLink
+                    burger={locationBurger}
+                    className="line-clamp-1 min-w-0 font-sans text-xs text-stone-600 hover:text-brand-700"
+                  />
+                  {timestampDate ? (
+                    <>
+                      <span className="text-stone-300" aria-hidden>
+                        |
+                      </span>
+                      <time
+                        className="shrink-0 font-sans text-xs text-stone-500"
+                        dateTime={timestampISO}
+                      >
+                        {getFormattedDate(timestampDate)}
+                      </time>
+                    </>
+                  ) : null}
+                </div>
+              </div>
             </Col>
-            <Col flex="none">
+            <Col flex="none" className="hidden md:block">
               <ScoreBadge score={score} />
             </Col>
           </Row>
+          {!burger.image ? (
+            <div className="mt-4 md:hidden">
+              <ScoreBadge score={score} />
+            </div>
+          ) : null}
         </div>
         {burger.image ? (
           <div className="relative aspect-5/3 w-full bg-stone-100">
@@ -72,6 +94,9 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
               layout="detail"
               priority
             />
+            <div className="absolute top-2 right-2 z-10 md:hidden">
+              <ScoreBadge score={score} />
+            </div>
           </div>
         ) : null}
       </Card>
@@ -107,9 +132,19 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
                       <Typography.Text strong className="block">
                         {field.label}
                       </Typography.Text>
-                      <BurgerRateField disabled value={burger[field.key] ?? 0}>
-                        {field.description}
-                      </BurgerRateField>
+                      {isRatingNotApplicable(field.key) ? (
+                        <p
+                          className="mb-0! inline-flex items-center gap-2 text-sm text-stone-500"
+                          title="Not on this burger"
+                        >
+                          <FontAwesomeIcon icon={faBan} className="size-4" />
+                          <span>N/A</span>
+                        </p>
+                      ) : (
+                        <BurgerRateField disabled value={burger[field.key] ?? 0}>
+                          {field.description}
+                        </BurgerRateField>
+                      )}
                     </Col>
                   ))}
                 </Row>

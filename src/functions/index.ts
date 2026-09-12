@@ -36,39 +36,16 @@ export function getFormattedDate(
   return formattedDate;
 }
 
-/** Category weights; max total 100 at 5★ each (sauce ×2 = 10). */
-const BURGER_SCORE_WEIGHTS = {
-  appearance: 1,
-  bun: 3,
-  meat: 6,
-  cheese: 5,
-  veg: 3,
-  sauce: 2,
-} as const;
+export {
+  BURGER_SCORE_WEIGHTS,
+  calculateScore,
+  isBurgerScoreCategoryActive,
+} from './burgerScore';
+import { calculateScore } from './burgerScore';
 
-function weightedRating(stars: number | undefined, weight: number) {
-  return (stars ?? 0) * weight;
-}
-
-export function calculateScore(item: Burger) {
-  if (!item) return 0;
-
-  return (
-    weightedRating(item.appearance, BURGER_SCORE_WEIGHTS.appearance) +
-    weightedRating(item.bun, BURGER_SCORE_WEIGHTS.bun) +
-    weightedRating(item.meat, BURGER_SCORE_WEIGHTS.meat) +
-    weightedRating(item.cheese, BURGER_SCORE_WEIGHTS.cheese) +
-    weightedRating(item.veg, BURGER_SCORE_WEIGHTS.veg) +
-    weightedRating(item.sauce, BURGER_SCORE_WEIGHTS.sauce)
-  );
-}
-
-/** Prefer persisted `total`; otherwise derive from star ratings. */
+/** Always derived from current ratings (and N/A flags). */
 export function getDisplayScore(item: Burger) {
   if (!item) return 0;
-  if (typeof item.total === 'number' && !Number.isNaN(item.total)) {
-    return item.total;
-  }
   return calculateScore(item);
 }
 

@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
+import BurgerPhoto from 'components/BurgerPhoto';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 
@@ -20,6 +20,7 @@ type Props = {
   burger: DocumentData;
   compact?: boolean;
   featured?: boolean;
+  imagePriority?: boolean;
   url: string;
 };
 
@@ -27,6 +28,7 @@ function Card({
   burger,
   compact = false,
   featured = false,
+  imagePriority = false,
   url,
 }: Readonly<Props>) {
   if (!burger) return;
@@ -45,12 +47,11 @@ function Card({
         >
           <div className="relative aspect-5/3 w-full shrink-0 bg-stone-100">
             {burger.image ? (
-              <Image
+              <BurgerPhoto
                 src={burger.image}
                 alt={burger.burgerName ?? burger.venue ?? 'Burger'}
-                fill
-                sizes="50vw"
-                className="object-cover"
+                layout="cardCompact"
+                priority={imagePriority}
               />
             ) : null}
             <div className="absolute right-2 bottom-2 z-10">
@@ -94,15 +95,11 @@ function Card({
             href={url}
             title={`${burger.burgerName} at ${burger.venue}`}
           >
-            <Image
+            <BurgerPhoto
               src={burger.image}
               alt={burger.burgerName}
-              fill
-              sizes={
-                featured
-                  ? '(max-width: 1024px) 100vw, 66vw'
-                  : '(max-width: 1024px) 100vw, 35vw'
-              }
+              layout={featured ? 'featured' : 'cardFull'}
+              priority={imagePriority}
               className="hover:scale-1.02 object-cover transition-transform duration-300"
             />
           </Link>

@@ -188,6 +188,7 @@ const Home: NextPage = () => {
             <Card
               key={featuredItem.id}
               featured
+              imagePriority
               burger={featuredItem}
               url={getBurgerPath(featuredItem)}
             />
@@ -267,9 +268,9 @@ const Home: NextPage = () => {
             width={40}
             height={33}
             src="/logo.png"
-            priority
             alt=""
             aria-hidden
+            loading="lazy"
             style={{ maxWidth: '100%', height: 'auto' }}
           />
           <h1 className="font-venue text-3xl text-stone-900 md:text-4xl">

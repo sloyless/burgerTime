@@ -35,6 +35,7 @@ const About: NextPage = () => {
           alt="Burger Time Arcade Game"
           width={300}
           height={300}
+          loading="lazy"
           className="rounded-xl"
           style={{ maxWidth: '100%', height: 'auto' }}
         />

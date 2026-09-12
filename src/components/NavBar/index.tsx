@@ -131,6 +131,7 @@ function NavBar() {
                   width={28}
                   height={28}
                   alt=""
+                  loading="lazy"
                 />
                 <span className="hidden max-w-28 truncate font-sans text-sm text-stone-700 md:inline">
                   {user.displayName}

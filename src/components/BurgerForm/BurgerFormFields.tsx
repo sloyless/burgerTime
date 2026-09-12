@@ -147,6 +147,7 @@ function BurgerFormFields({
             src={imageUrl}
             alt={burgerName || 'Burger'}
             className="w-full"
+            loading="lazy"
             style={{ width: '100%', height: 'auto', display: 'block' }}
           />
         )}

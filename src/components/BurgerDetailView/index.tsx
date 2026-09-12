@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import { Card, Col, Divider, Row, Space, Typography } from 'antd';
+import BurgerPhoto from 'components/BurgerPhoto';
 import { DocumentData } from 'firebase/firestore';
 
 import BurgerRateField from 'components/BurgerRateField';
@@ -65,13 +65,14 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
           </Row>
         </div>
         {burger.image ? (
-          <Image
-            src={burger.image}
-            alt={burger.burgerName}
-            width={500}
-            height={300}
-            style={{ width: '100%', height: 'auto', display: 'block' }}
-          />
+          <div className="relative aspect-5/3 w-full bg-stone-100">
+            <BurgerPhoto
+              src={burger.image}
+              alt={burger.burgerName}
+              layout="detail"
+              priority
+            />
+          </div>
         ) : null}
       </Card>
 

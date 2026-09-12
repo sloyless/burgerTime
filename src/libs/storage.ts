@@ -1,15 +1,17 @@
 import { storage } from '../utils/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { nanoid } from 'nanoid';
+import { prepareImageForUpload } from 'utils/prepareImageForUpload';
 
 export const uploadFile = async (file: File, folder: string) => {
   try {
+    const prepared = await prepareImageForUpload(file);
     const filename = nanoid();
     const storageRef = ref(
       storage,
-      `${folder}${filename}.${file.name.split('.').pop()}`
+      `${folder}${filename}.${prepared.name.split('.').pop()}`
     );
-    const res = await uploadBytes(storageRef, file);
+    const res = await uploadBytes(storageRef, prepared);
 
     return res.metadata.fullPath;
   } catch (error) {

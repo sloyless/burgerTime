@@ -4,7 +4,10 @@ import { DocumentData } from 'firebase/firestore';
 
 import BurgerRateField from 'components/BurgerRateField';
 import BurgerPriceLegend from 'components/BurgerForm/BurgerPriceLegend';
-import { BURGER_RATING_FIELDS } from 'components/BurgerForm/burgerFormCopy';
+import {
+  BURGER_RATING_FIELDS,
+  burgerOptionalRatingNaField,
+} from 'components/BurgerForm/burgerFormCopy';
 import LocationLink from 'components/LocationLink';
 import ScoreBadge from 'components/ScoreBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -30,9 +33,9 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
   ] as const;
 
   function isRatingNotApplicable(key: string) {
-    if (key === 'cheese') return Boolean(locationBurger.cheeseNA);
-    if (key === 'veg') return Boolean(locationBurger.vegNA);
-    return false;
+    const naField = burgerOptionalRatingNaField(key);
+    if (!naField) return false;
+    return Boolean(locationBurger[naField]);
   }
 
   return (

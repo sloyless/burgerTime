@@ -36,6 +36,23 @@ export const BURGER_RATING_FIELDS = [
   },
 ];
 
+export const BURGER_OPTIONAL_RATING_NA_FIELD = {
+  cheese: 'cheeseNA',
+  veg: 'vegNA',
+  sauce: 'sauceNA',
+} as const;
+
+export type BurgerOptionalRatingKey = keyof typeof BURGER_OPTIONAL_RATING_NA_FIELD;
+
+export function burgerOptionalRatingNaField(
+  key: string
+): (typeof BURGER_OPTIONAL_RATING_NA_FIELD)[BurgerOptionalRatingKey] | undefined {
+  if (key in BURGER_OPTIONAL_RATING_NA_FIELD) {
+    return BURGER_OPTIONAL_RATING_NA_FIELD[key as BurgerOptionalRatingKey];
+  }
+  return undefined;
+}
+
 export const COOK_TYPE_OPTIONS = [
   'Grill',
   'Griddle',

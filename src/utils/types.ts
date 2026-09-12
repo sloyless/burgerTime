@@ -15,6 +15,8 @@ export interface Burger {
   notes?: string;
   price?: number;
   sauce?: number;
+  /** Sauces not on this burger — excluded from score. */
+  sauceNA?: boolean;
   slug?: string;
   timestamp?: FieldValue;
   total?: number;

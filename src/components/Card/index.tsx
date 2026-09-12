@@ -21,6 +21,7 @@ type Props = {
   compact?: boolean;
   featured?: boolean;
   imagePriority?: boolean;
+  inTopTen?: boolean;
   url: string;
 };
 
@@ -29,6 +30,7 @@ function Card({
   compact = false,
   featured = false,
   imagePriority = false,
+  inTopTen = false,
   url,
 }: Readonly<Props>) {
   if (!burger) return;
@@ -60,9 +62,19 @@ function Card({
             </div>
           </div>
           <div className="min-w-0 p-3">
-            <h3 className="font-venue line-clamp-2 text-base leading-snug text-brand-700">
-              {burger.venue}
-            </h3>
+            <div className="flex items-start gap-1.5">
+              <h3 className="font-venue line-clamp-2 min-w-0 flex-1 text-base leading-snug text-brand-700">
+                {burger.venue}
+              </h3>
+              {inTopTen ? (
+                <span
+                  className="mt-0.5 shrink-0 text-amber-500"
+                  title="Top 10 all-time"
+                >
+                  <FontAwesomeIcon icon={faStar} className="size-3.5" />
+                </span>
+              ) : null}
+            </div>
             {timestampDate ? (
               <time
                 className="mt-1 block font-sans text-xs text-stone-500"
@@ -112,18 +124,26 @@ function Card({
                 className="block cursor-pointer text-brand-700 hover:text-brand-800"
                 href={getBurgerPath(burger as Burger)}
               >
-                <h3
-                  className={`font-venue leading-tight ${
-                    featured ? 'text-3xl' : 'text-2xl'
-                  }`}
-                >
-                  {burger.venue}
-                  {displayScore > 94 && (
-                    <span className="ml-1 inline-block text-amber-500">
-                      <FontAwesomeIcon icon={faStar} size="sm" />
+                <div className="flex items-start gap-2">
+                  <h3
+                    className={`font-venue min-w-0 flex-1 leading-tight ${
+                      featured ? 'text-3xl' : 'text-2xl'
+                    }`}
+                  >
+                    {burger.venue}
+                  </h3>
+                  {inTopTen ? (
+                    <span
+                      className="mt-1 shrink-0 text-amber-500"
+                      title="Top 10 all-time"
+                    >
+                      <FontAwesomeIcon
+                        icon={faStar}
+                        className={featured ? 'size-5' : 'size-4'}
+                      />
                     </span>
-                  )}
-                </h3>
+                  ) : null}
+                </div>
               </Link>
               {timestampDate ? (
                 <time

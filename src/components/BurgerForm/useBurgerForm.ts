@@ -29,6 +29,7 @@ export function emptyBurgerFormValues(): BurgerFormValues {
     veg: 0,
     vegNA: false,
     sauce: 0,
+    sauceNA: false,
     price: 0,
     image: undefined,
   };
@@ -52,6 +53,7 @@ export function burgerDocumentToFormValues(
     veg: doc.veg ?? 0,
     vegNA: Boolean(doc.vegNA),
     sauce: doc.sauce ?? 0,
+    sauceNA: Boolean(doc.sauceNA),
     price: doc.price ?? 0,
     image: doc.image,
   };
@@ -72,6 +74,7 @@ const BURGER_FORM_VALUE_KEYS: (keyof BurgerFormValues)[] = [
   'veg',
   'vegNA',
   'sauce',
+  'sauceNA',
   'price',
   'image',
 ];
@@ -103,6 +106,7 @@ export function burgerFormValuesToScoreInput(values: BurgerFormValues): Burger {
     sauce: values.sauce,
     veg: values.veg,
     vegNA: values.vegNA,
+    sauceNA: values.sauceNA,
     image: values.image,
   };
 }

@@ -50,7 +50,12 @@ function BurgerEditForm({
   const isFormComplete = useBurgerFormComplete(form);
 
   const syncDirtyState = useCallback(() => {
-    const current = form.getFieldsValue(true) as BurgerFormValues;
+    const current = {
+      ...form.getFieldsValue(true),
+      cheeseNA: Boolean(form.getFieldValue('cheeseNA')),
+      vegNA: Boolean(form.getFieldValue('vegNA')),
+      sauceNA: Boolean(form.getFieldValue('sauceNA')),
+    } as BurgerFormValues;
     const hasFormChanges = !areBurgerFormValuesEqual(current, initialValues);
     setIsDirty(hasFormChanges || Boolean(selectedFile));
   }, [form, initialValues, selectedFile]);
@@ -118,6 +123,7 @@ function BurgerEditForm({
         notes: values.notes,
         price: values.price,
         sauce: values.sauce,
+        sauceNA: values.sauceNA,
         slug,
         timestamp: Timestamp.fromDate(parsedDate),
         total: calculateScore(draft),

@@ -53,8 +53,8 @@ function BurgerRules() {
         </h3>
         <p className="mb-3 text-xs leading-snug text-stone-400">
           0–100 from your star ratings (1★ = 0%, 5★ = 100% per category).
-          Cheese and vegetables can be marked N/A when they&apos;re not on the
-          burger; the rest of the weights scale to 100.
+          Cheese, vegetables, and sauces can be marked N/A when they&apos;re not
+          on the burger; the rest of the weights scale to 100.
         </p>
         <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-stone-400">
           <dt>Appearance</dt>
@@ -68,7 +68,7 @@ function BurgerRules() {
           <dt>Vegetables</dt>
           <dd className="text-right text-stone-200">15% (optional)</dd>
           <dt>Sauces</dt>
-          <dd className="text-right text-stone-200">10%</dd>
+          <dd className="text-right text-stone-200">10% (optional)</dd>
         </dl>
       </div>
     </aside>

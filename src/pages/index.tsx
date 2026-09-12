@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { Pagination, Result } from 'antd';
@@ -24,6 +24,10 @@ import {
   writeStoredPageCursors,
 } from 'libs/reviewPageCursorStorage';
 import { getBurgerPath } from 'utils/burgerSlug';
+import {
+  buildTopTenPathLookup,
+  isBurgerInTopTenLookup,
+} from 'libs/topTenMatch';
 
 const PAGE_SIZE = 25;
 
@@ -45,6 +49,11 @@ const Home: NextPage = () => {
     typeof router.query.after === 'string' ? router.query.after : undefined;
   const totalPages = Math.max(1, Math.ceil(totalReviews / PAGE_SIZE));
   const currentPage = Math.min(Math.max(1, requestedPage), totalPages);
+
+  const topTenPaths = useMemo(
+    () => buildTopTenPathLookup(topTenBurgers),
+    [topTenBurgers]
+  );
 
   const loadHome = useCallback(() => {
     setReloadToken((token) => token + 1);
@@ -197,10 +206,11 @@ const Home: NextPage = () => {
               featured
               imagePriority
               burger={featuredItem}
+              inTopTen={isBurgerInTopTenLookup(featuredItem, topTenPaths)}
               url={getBurgerPath(featuredItem)}
             />
           ) : null}
-          <HomeReviewList listItems={listItems} />
+          <HomeReviewList listItems={listItems} topTenPaths={topTenPaths} />
           {totalPages > 1 && (
             <div className="flex justify-center pt-4 font-sans">
               <Pagination

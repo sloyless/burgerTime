@@ -23,7 +23,11 @@ import Button from 'components/Button';
 
 import BurgerPriceLegend from './BurgerPriceLegend';
 import OptionalRatingFormItem from './OptionalRatingFormItem';
-import { BURGER_RATING_FIELDS, cookTypeSelectOptions } from './burgerFormCopy';
+import {
+  BURGER_RATING_FIELDS,
+  burgerOptionalRatingNaField,
+  cookTypeSelectOptions,
+} from './burgerFormCopy';
 import { STACK_SPACE_CLASSNAME } from 'theme/layout';
 
 import { BurgerFormValues } from './types';
@@ -45,6 +49,7 @@ type Props = {
   score: number;
   selectedFile?: File;
   showRatingIntro?: boolean;
+  onNotifyValuesChange?: () => void;
 };
 
 function BurgerFormFields({
@@ -57,6 +62,7 @@ function BurgerFormFields({
   score,
   selectedFile,
   showRatingIntro = false,
+  onNotifyValuesChange,
 }: Readonly<Props>) {
   const id = (name: string) => `${idPrefix}${name}`;
   const burgerName = Form.useWatch('burgerName', form);
@@ -223,27 +229,20 @@ function BurgerFormFields({
               <Typography.Paragraph type="secondary" className="mb-0!">
                 Rate each category on a 5-star scale. Use the{' '}
                 <span className="whitespace-nowrap">N/A</span> control when
-                cheese or vegetables aren&apos;t on the burger.
+                cheese, vegetables, or sauces aren&apos;t on the burger.
               </Typography.Paragraph>
             ) : null}
-            <Form.Item name="cheeseNA" hidden>
-              <span className="hidden" />
-            </Form.Item>
-            <Form.Item name="vegNA" hidden>
-              <span className="hidden" />
-            </Form.Item>
             <Space orientation="vertical" size="small" className="w-full">
               {ratingPairs.map((pair, rowIndex) => (
                 <Row gutter={[24, 16]} key={rowIndex}>
                   {pair.map((field) => (
                     <Col xs={24} md={12} key={field.key}>
-                      {field.key === 'cheese' || field.key === 'veg' ? (
+                      {burgerOptionalRatingNaField(field.key) ? (
                         <OptionalRatingFormItem
                           field={field}
                           form={form}
-                          naField={
-                            field.key === 'cheese' ? 'cheeseNA' : 'vegNA'
-                          }
+                          naField={burgerOptionalRatingNaField(field.key)!}
+                          onNotifyValuesChange={onNotifyValuesChange}
                           ratingRule={ratingRule}
                         />
                       ) : (

@@ -55,6 +55,7 @@ function BurgerFormContainer({
         isUploading={isUploading}
         onSelectImage={onSelectImage}
         onUploadImage={onUploadImage}
+        onNotifyValuesChange={onValuesChange}
         score={score}
         selectedFile={selectedFile}
         showRatingIntro={showRatingIntro}

@@ -1,12 +1,14 @@
+import { isBurgerInTopTenLookup } from 'libs/topTenMatch';
 import { Burger } from 'utils/types';
 import { getBurgerPath } from 'utils/burgerSlug';
 import Card from 'components/Card';
 
 type Props = {
   listItems: Burger[];
+  topTenPaths: ReadonlySet<string>;
 };
 
-function HomeReviewList({ listItems }: Readonly<Props>) {
+function HomeReviewList({ listItems, topTenPaths }: Readonly<Props>) {
   if (!listItems.length) return null;
 
   return (
@@ -17,6 +19,7 @@ function HomeReviewList({ listItems }: Readonly<Props>) {
             key={`compact-${item.id}`}
             compact
             burger={item}
+            inTopTen={isBurgerInTopTenLookup(item, topTenPaths)}
             url={getBurgerPath(item)}
           />
         ))}
@@ -26,6 +29,7 @@ function HomeReviewList({ listItems }: Readonly<Props>) {
           <Card
             key={`full-${item.id}`}
             burger={item}
+            inTopTen={isBurgerInTopTenLookup(item, topTenPaths)}
             url={getBurgerPath(item)}
           />
         ))}

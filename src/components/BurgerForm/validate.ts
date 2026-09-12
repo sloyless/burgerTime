@@ -23,7 +23,7 @@ export function isBurgerFormComplete(values: BurgerFormValues): boolean {
     hasRating(values.meat) &&
     (values.cheeseNA || hasRating(values.cheese)) &&
     (values.vegNA || hasRating(values.veg)) &&
-    hasRating(values.sauce)
+    (values.sauceNA || hasRating(values.sauce))
   );
 }
 
@@ -42,6 +42,7 @@ export function useBurgerFormComplete(
   const veg = Form.useWatch('veg', form);
   const vegNA = Form.useWatch('vegNA', form);
   const sauce = Form.useWatch('sauce', form);
+  const sauceNA = Form.useWatch('sauceNA', form);
 
   return useMemo(
     () =>
@@ -58,6 +59,7 @@ export function useBurgerFormComplete(
         veg: veg ?? 0,
         vegNA: Boolean(vegNA),
         sauce: sauce ?? 0,
+        sauceNA: Boolean(sauceNA),
         notes: '',
         cookType: '',
         price: 0,
@@ -75,6 +77,7 @@ export function useBurgerFormComplete(
       veg,
       vegNA,
       sauce,
+      sauceNA,
     ]
   );
 }

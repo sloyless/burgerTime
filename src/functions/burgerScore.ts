@@ -18,18 +18,21 @@ export const BURGER_SCORE_WEIGHTS: Record<BurgerScoreCategory, number> = {
   sauce: 2,
 };
 
-const OPTIONAL_CATEGORIES: BurgerScoreCategory[] = ['cheese', 'veg'];
+const NA_FIELD_BY_CATEGORY: Partial<
+  Record<BurgerScoreCategory, keyof Pick<Burger, 'cheeseNA' | 'vegNA' | 'sauceNA'>>
+> = {
+  cheese: 'cheeseNA',
+  veg: 'vegNA',
+  sauce: 'sauceNA',
+};
 
 export function isBurgerScoreCategoryActive(
   burger: Burger,
   category: BurgerScoreCategory
 ): boolean {
-  if (!OPTIONAL_CATEGORIES.includes(category)) return true;
-
-  if (category === 'cheese') return !burger.cheeseNA;
-  if (category === 'veg') return !burger.vegNA;
-
-  return true;
+  const naField = NA_FIELD_BY_CATEGORY[category];
+  if (!naField) return true;
+  return !burger[naField];
 }
 
 function starFactor(stars: number | undefined): number | null {
@@ -39,7 +42,7 @@ function starFactor(stars: number | undefined): number | null {
   return (stars - 1) / 4;
 }
 
-/** 0–100 from weighted 1–5★ ratings; cheese/veg omitted when marked N/A. */
+/** 0–100 from weighted 1–5★ ratings; optional categories omitted when marked N/A. */
 export function calculateScore(item: Burger): number {
   if (!item) return 0;
 

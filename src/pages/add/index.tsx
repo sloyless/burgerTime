@@ -65,6 +65,7 @@ const Add: NextPage = () => {
       notes: values.notes,
       price: values.price,
       sauce: values.sauce,
+      sauceNA: values.sauceNA,
       timestamp: Timestamp.fromDate(dateInputValueToUtcDate(values.reviewDate)),
       userId: user?.uid,
       veg: values.veg,

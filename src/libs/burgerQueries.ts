@@ -41,8 +41,9 @@ import {
 const BURGERS_COLLECTION = 'burgers';
 
 function docToBurger(docSnap: QueryDocumentSnapshot<DocumentData>): Burger {
+  const { id: _storedId, ...data } = docSnap.data() as Burger;
   return {
-    ...(docSnap.data() as Burger),
+    ...data,
     id: docSnap.id,
   };
 }

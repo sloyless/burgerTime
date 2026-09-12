@@ -24,13 +24,6 @@ function BurgerOptionalRateField({
   return (
     <div>
       <div className="flex items-center gap-3">
-        <div className={na ? 'pointer-events-none opacity-40' : 'min-w-0 flex-1'}>
-          <BurgerRateField
-            disabled={disabled || na}
-            value={value}
-            onChange={onChange}
-          />
-        </div>
         <button
           type="button"
           aria-label={na ? 'Mark as applicable' : 'Not applicable'}
@@ -46,6 +39,13 @@ function BurgerOptionalRateField({
         >
           <FontAwesomeIcon icon={faBan} className="size-4" />
         </button>
+        <div className={na ? 'opacity-50' : undefined}>
+          <BurgerRateField
+            disabled={disabled}
+            value={value}
+            onChange={onChange}
+          />
+        </div>
       </div>
       {children ? (
         <div className="mt-2 space-y-2 text-sm text-stone-500">{children}</div>

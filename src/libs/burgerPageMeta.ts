@@ -1,6 +1,5 @@
 import { calculateTimestamp, getDisplayScore } from 'functions';
 import { getBurgerPath, getCanonicalBurgerSlug } from 'utils/burgerSlug';
-import type { ServerBurger } from 'utils/serverBurger';
 import { Burger } from 'utils/types';
 
 export type BurgerPageMetaFields = {
@@ -15,10 +14,8 @@ export type BurgerPageMetaFields = {
   noIndex?: boolean;
 };
 
-type BurgerLike = ServerBurger | Burger;
-
 export function buildBurgerPageMeta(
-  burger: BurgerLike,
+  burger: Burger,
   urlSegment: string,
   options?: { noIndex?: boolean }
 ): BurgerPageMetaFields {

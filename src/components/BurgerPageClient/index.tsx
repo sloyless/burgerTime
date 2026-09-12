@@ -8,7 +8,6 @@ import { Result } from 'antd';
 
 import { Layout } from 'layout';
 import { resolveBurgerDocumentId } from 'libs/burgerQueries';
-import type { ServerBurger } from 'utils/serverBurger';
 import { database } from 'utils/firebase';
 import { Burger } from 'utils/types';
 import { allocateBurgerSlug, getCanonicalBurgerSlug } from 'utils/burgerSlug';
@@ -28,48 +27,31 @@ import PageLoading from 'components/PageLoading';
 
 type Props = {
   slug: string;
-  initialBurger: ServerBurger | null;
 };
 
-function BurgerPageClient({
-  slug: slugFromServer,
-  initialBurger,
-}: Readonly<Props>) {
+function BurgerPageClient({ slug: slugProp }: Readonly<Props>) {
   const router = useRouter();
   const urlSegment =
     (typeof router.query.slug === 'string' ? router.query.slug : undefined) ??
-    slugFromServer;
+    slugProp;
   const { user } = useAuth();
 
-  const seededBurger =
-    initialBurger && slugFromServer === urlSegment ? initialBurger : null;
-
-  const [documentId, setDocumentId] = useState(seededBurger?.id);
-  const [resolving, setResolving] = useState(!seededBurger);
+  const [documentId, setDocumentId] = useState<string | undefined>();
+  const [resolving, setResolving] = useState(true);
   const [resolveFailed, setResolveFailed] = useState(false);
-  const [burger, setBurger] = useState<DocumentData | undefined>(
-    seededBurger ?? undefined
-  );
-  const [snapshotLoaded, setSnapshotLoaded] = useState(Boolean(seededBurger));
+  const [burger, setBurger] = useState<DocumentData | undefined>();
+  const [snapshotLoaded, setSnapshotLoaded] = useState(false);
   const [snapshotError, setSnapshotError] = useState(false);
   const [listenKey, setListenKey] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editBaseline, setEditBaseline] = useState<DocumentData | null>(null);
-  const documentIdRef = useRef<string | undefined>(seededBurger?.id);
+  const documentIdRef = useRef<string | undefined>(undefined);
   const slugBackfillAttemptedRef = useRef<Set<string>>(new Set());
 
   const isAdmin = user?.uid === ADMINUID;
 
   useEffect(() => {
     if (!urlSegment) return;
-
-    if (seededBurger?.id && slugFromServer === urlSegment) {
-      documentIdRef.current = seededBurger.id;
-      setDocumentId(seededBurger.id);
-      setBurger(seededBurger);
-      setResolving(false);
-      return;
-    }
 
     let cancelled = false;
     setResolving(true);
@@ -109,7 +91,7 @@ function BurgerPageClient({
     return () => {
       cancelled = true;
     };
-  }, [urlSegment, slugFromServer, seededBurger]);
+  }, [urlSegment]);
 
   useEffect(() => {
     if (!documentId) {

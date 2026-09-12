@@ -1,10 +1,9 @@
 import PageMeta from 'components/PageMeta';
 import { buildBurgerPageMeta } from 'libs/burgerPageMeta';
-import type { ServerBurger } from 'utils/serverBurger';
 import { Burger } from 'utils/types';
 
 type Props = {
-  burger: ServerBurger | Burger;
+  burger: Burger;
   noIndex?: boolean;
   urlSegment: string;
 };

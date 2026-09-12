@@ -1,10 +1,9 @@
-import type { GetServerSideProps } from 'next';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 
 import PageMeta from 'components/PageMeta';
 import PageLoading from 'components/PageLoading';
 import { Layout } from 'layout';
-import { isValidBurgerUrlSegment } from 'utils/burgerSlug';
 
 const BurgerPageClient = dynamic(() => import('components/BurgerPageClient'), {
   ssr: false,
@@ -16,38 +15,35 @@ const BurgerPageClient = dynamic(() => import('components/BurgerPageClient'), {
   ),
 });
 
-type PageProps = {
-  slug: string;
-};
+export default function BurgerPage() {
+  const router = useRouter();
+  const slug =
+    typeof router.query.slug === 'string' ? router.query.slug : '';
 
-export default function BurgerPage({ slug }: PageProps) {
+  const canonicalPath = slug ? `/burger/${slug}` : '/burger';
+
+  if (!router.isReady) {
+    return (
+      <Layout padding={false}>
+        <PageMeta title="Burger review" canonicalPath={canonicalPath} />
+        <PageLoading tip="Loading review…" />
+      </Layout>
+    );
+  }
+
+  if (!slug) {
+    return (
+      <Layout padding={false}>
+        <PageMeta title="Burger review" noIndex />
+        <PageLoading tip="Loading review…" />
+      </Layout>
+    );
+  }
+
   return (
     <>
-      <PageMeta title="Burger review" canonicalPath={`/burger/${slug}`} />
-      <BurgerPageClient slug={slug} initialBurger={null} />
+      <PageMeta title="Burger review" canonicalPath={canonicalPath} />
+      <BurgerPageClient slug={slug} />
     </>
   );
 }
-
-/** Slug validation only — data loads on the client (Firestore rules allow public read). */
-export const getServerSideProps: GetServerSideProps<PageProps> = async (
-  context
-) => {
-  const raw = context.params?.slug;
-  if (!raw || typeof raw !== 'string') {
-    return { notFound: true };
-  }
-
-  let slug: string;
-  try {
-    slug = decodeURIComponent(raw);
-  } catch {
-    return { notFound: true };
-  }
-
-  if (!isValidBurgerUrlSegment(slug)) {
-    return { notFound: true };
-  }
-
-  return { props: { slug } };
-};

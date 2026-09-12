@@ -42,16 +42,17 @@ function Card({
       <article className="flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition-shadow hover:shadow-md">
         <Link
           href={url}
-          className="flex min-h-0 flex-1 cursor-pointer flex-col"
+          className="group flex min-h-0 flex-1 cursor-pointer flex-col"
           title={`${burger.burgerName} at ${burger.venue}`}
         >
-          <div className="relative aspect-5/3 w-full shrink-0 bg-stone-100">
+          <div className="relative aspect-5/3 w-full shrink-0 overflow-hidden bg-stone-100">
             {burger.image ? (
               <BurgerPhoto
                 src={burger.image}
                 alt={burger.burgerName ?? burger.venue ?? 'Burger'}
                 layout="cardCompact"
                 priority={imagePriority}
+                className="group-hover:scale-1.02 object-cover transition-transform duration-300"
               />
             ) : null}
             <div className="absolute right-2 bottom-2 z-10">
@@ -87,7 +88,7 @@ function Card({
       <div className={featured ? '' : 'lg:flex lg:min-h-48 lg:items-stretch'}>
         {burger.image && (
           <Link
-            className={`relative block aspect-5/3 w-full cursor-pointer overflow-hidden bg-stone-100 ${
+            className={`group relative block aspect-5/3 w-full cursor-pointer overflow-hidden bg-stone-100 ${
               featured
                 ? ''
                 : 'lg:aspect-auto lg:h-full lg:min-h-48 lg:w-2/5 lg:shrink-0'
@@ -100,7 +101,7 @@ function Card({
               alt={burger.burgerName}
               layout={featured ? 'featured' : 'cardFull'}
               priority={imagePriority}
-              className="hover:scale-1.02 object-cover transition-transform duration-300"
+              className="group-hover:scale-1.02 object-cover transition-transform duration-300"
             />
           </Link>
         )}
@@ -138,8 +139,8 @@ function Card({
             <ScoreBadge score={displayScore} />
           </div>
           <p
-            className={`mt-4 line-clamp-2 min-w-0 text-stone-700 ${
-              featured ? 'text-lg' : 'text-sm'
+            className={`mt-4 min-w-0 text-stone-700 ${
+              featured ? 'text-lg' : 'line-clamp-2 text-sm'
             }`}
           >
             <span className="font-bold text-stone-900 italic">

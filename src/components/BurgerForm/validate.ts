@@ -21,8 +21,8 @@ export function isBurgerFormComplete(values: BurgerFormValues): boolean {
     hasRating(values.appearance) &&
     hasRating(values.bun) &&
     hasRating(values.meat) &&
-    hasRating(values.cheese) &&
-    hasRating(values.veg) &&
+    (values.cheeseNA || hasRating(values.cheese)) &&
+    (values.vegNA || hasRating(values.veg)) &&
     hasRating(values.sauce)
   );
 }
@@ -38,7 +38,9 @@ export function useBurgerFormComplete(
   const bun = Form.useWatch('bun', form);
   const meat = Form.useWatch('meat', form);
   const cheese = Form.useWatch('cheese', form);
+  const cheeseNA = Form.useWatch('cheeseNA', form);
   const veg = Form.useWatch('veg', form);
+  const vegNA = Form.useWatch('vegNA', form);
   const sauce = Form.useWatch('sauce', form);
 
   return useMemo(
@@ -52,7 +54,9 @@ export function useBurgerFormComplete(
         bun: bun ?? 0,
         meat: meat ?? 0,
         cheese: cheese ?? 0,
+        cheeseNA: Boolean(cheeseNA),
         veg: veg ?? 0,
+        vegNA: Boolean(vegNA),
         sauce: sauce ?? 0,
         notes: '',
         cookType: '',
@@ -67,7 +71,9 @@ export function useBurgerFormComplete(
       bun,
       meat,
       cheese,
+      cheeseNA,
       veg,
+      vegNA,
       sauce,
     ]
   );

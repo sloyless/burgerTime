@@ -16,8 +16,7 @@ const ProtectedRoute = ({
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  const allowed =
-    Boolean(user) && (!requireAdmin || user?.uid === ADMINUID);
+  const allowed = Boolean(user) && (!requireAdmin || user?.uid === ADMINUID);
 
   useEffect(() => {
     if (!loading && !allowed) {

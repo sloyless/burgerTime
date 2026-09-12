@@ -25,7 +25,9 @@ export function emptyBurgerFormValues(): BurgerFormValues {
     bun: 0,
     meat: 0,
     cheese: 0,
+    cheeseNA: false,
     veg: 0,
+    vegNA: false,
     sauce: 0,
     price: 0,
     image: undefined,
@@ -46,7 +48,9 @@ export function burgerDocumentToFormValues(
     bun: doc.bun ?? 0,
     meat: doc.meat ?? 0,
     cheese: doc.cheese ?? 0,
+    cheeseNA: Boolean(doc.cheeseNA),
     veg: doc.veg ?? 0,
+    vegNA: Boolean(doc.vegNA),
     sauce: doc.sauce ?? 0,
     price: doc.price ?? 0,
     image: doc.image,
@@ -64,7 +68,9 @@ const BURGER_FORM_VALUE_KEYS: (keyof BurgerFormValues)[] = [
   'bun',
   'meat',
   'cheese',
+  'cheeseNA',
   'veg',
+  'vegNA',
   'sauce',
   'price',
   'image',
@@ -77,6 +83,9 @@ export function areBurgerFormValuesEqual(
   return BURGER_FORM_VALUE_KEYS.every((key) => {
     const left = a[key];
     const right = b[key];
+    if (typeof left === 'boolean' || typeof right === 'boolean') {
+      return Boolean(left) === Boolean(right);
+    }
     if (typeof left === 'number' || typeof right === 'number') {
       return (left ?? 0) === (right ?? 0);
     }
@@ -89,9 +98,11 @@ export function burgerFormValuesToScoreInput(values: BurgerFormValues): Burger {
     appearance: values.appearance,
     bun: values.bun,
     cheese: values.cheese,
+    cheeseNA: values.cheeseNA,
     meat: values.meat,
     sauce: values.sauce,
     veg: values.veg,
+    vegNA: values.vegNA,
     image: values.image,
   };
 }

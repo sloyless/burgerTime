@@ -12,7 +12,9 @@ export type BurgerFormValues = {
   bun: number;
   meat: number;
   cheese: number;
+  cheeseNA: boolean;
   veg: number;
+  vegNA: boolean;
   sauce: number;
   price: number;
   image?: string;

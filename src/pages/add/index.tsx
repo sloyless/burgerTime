@@ -58,6 +58,7 @@ const Add: NextPage = () => {
       bun: values.bun,
       burgerName: values.burgerName,
       cheese: values.cheese,
+      cheeseNA: values.cheeseNA,
       cookType: values.cookType,
       image: values.image,
       meat: values.meat,
@@ -67,6 +68,7 @@ const Add: NextPage = () => {
       timestamp: Timestamp.fromDate(dateInputValueToUtcDate(values.reviewDate)),
       userId: user?.uid,
       veg: values.veg,
+      vegNA: values.vegNA,
       venue: values.venue,
     };
     newBurger.total = calculateScore(newBurger);

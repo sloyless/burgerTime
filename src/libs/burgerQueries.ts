@@ -15,6 +15,7 @@ import {
   where,
 } from 'firebase/firestore';
 
+import { calculateScore } from 'functions';
 import { database } from 'utils/firebase';
 import { Burger } from 'utils/types';
 import {
@@ -32,6 +33,10 @@ import {
   encodeReviewPageCursor,
   ReviewPageCursor,
 } from './reviewPageCursor';
+import {
+  BurgerCollectionStats,
+  computeBurgerCollectionStats,
+} from './burgerStats';
 
 const BURGERS_COLLECTION = 'burgers';
 
@@ -138,14 +143,42 @@ export async function fetchLatestReviewsPage(
 }
 
 export async function fetchTopTenBurgers(): Promise<Burger[]> {
-  const snapshot = await getDocs(
-    query(
-      collection(database, BURGERS_COLLECTION),
-      orderBy('total', 'desc'),
-      limit(10)
-    )
-  );
-  return snapshot.docs.map(docToBurger);
+  const burgers = await fetchAllBurgers();
+  return burgers
+    .slice()
+    .sort((a, b) => calculateScore(b) - calculateScore(a))
+    .slice(0, 10);
+}
+
+const ALL_BURGERS_PAGE_SIZE = 500;
+
+/** Full collection read for aggregate stats (paginated by document id). */
+export async function fetchAllBurgers(): Promise<Burger[]> {
+  const col = collection(database, BURGERS_COLLECTION);
+  const items: Burger[] = [];
+  let lastDoc: QueryDocumentSnapshot<DocumentData> | undefined;
+
+  while (true) {
+    const snapshot = await getDocs(
+      lastDoc
+        ? query(
+            col,
+            orderBy(documentId()),
+            startAfter(lastDoc),
+            limit(ALL_BURGERS_PAGE_SIZE)
+          )
+        : query(col, orderBy(documentId()), limit(ALL_BURGERS_PAGE_SIZE))
+    );
+
+    if (snapshot.empty) break;
+
+    items.push(...snapshot.docs.map(docToBurger));
+    lastDoc = snapshot.docs[snapshot.docs.length - 1];
+
+    if (snapshot.docs.length < ALL_BURGERS_PAGE_SIZE) break;
+  }
+
+  return items;
 }
 
 export type HomePageData = {
@@ -153,6 +186,7 @@ export type HomePageData = {
   nextPageCursor: ReviewPageCursor | null;
   nextPageCursorEncoded: string | null;
   pageItems: Burger[];
+  stats: BurgerCollectionStats | null;
   topTen: Burger[];
   totalPages: number;
 };
@@ -164,11 +198,17 @@ export async function fetchHomePageData(
 ): Promise<HomePageData> {
   const safePage = Math.max(1, page);
 
-  const [count, topTen, pageResult] = await Promise.all([
+  const [count, topTen, pageResult, allBurgers] = await Promise.all([
     fetchBurgerReviewCount(),
     fetchTopTenBurgers(),
     fetchLatestReviewsPage(safePage, pageSize, afterParam),
+    safePage === 1 ? fetchAllBurgers() : Promise.resolve(null),
   ]);
+
+  const stats =
+    allBurgers && allBurgers.length > 0
+      ? computeBurgerCollectionStats(allBurgers)
+      : null;
 
   const totalPages = Math.max(1, Math.ceil(count / pageSize));
   const nextPageCursor = pageResult.nextPageCursor;
@@ -180,6 +220,7 @@ export async function fetchHomePageData(
     count,
     topTen,
     pageItems: pageResult.items,
+    stats,
     totalPages,
     nextPageCursor,
     nextPageCursorEncoded,
@@ -192,7 +233,9 @@ export async function resolveBurgerDocumentId(
 ): Promise<string | null> {
   const cachedId = getCachedBurgerDocId(urlSegment);
   if (cachedId) {
-    const cachedSnap = await getDoc(doc(database, BURGERS_COLLECTION, cachedId));
+    const cachedSnap = await getDoc(
+      doc(database, BURGERS_COLLECTION, cachedId)
+    );
     if (cachedSnap.exists()) {
       return cachedId;
     }

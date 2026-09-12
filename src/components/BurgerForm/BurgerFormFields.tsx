@@ -22,6 +22,7 @@ import ScoreBadge from 'components/ScoreBadge';
 import Button from 'components/Button';
 
 import BurgerPriceLegend from './BurgerPriceLegend';
+import OptionalRatingFormItem from './OptionalRatingFormItem';
 import { BURGER_RATING_FIELDS, cookTypeSelectOptions } from './burgerFormCopy';
 import { STACK_SPACE_CLASSNAME } from 'theme/layout';
 
@@ -220,21 +221,40 @@ function BurgerFormFields({
             </Typography.Title>
             {showRatingIntro ? (
               <Typography.Paragraph type="secondary" className="mb-0!">
-                Rate each category on a 5-star scale.
+                Rate each category on a 5-star scale. Use the{' '}
+                <span className="whitespace-nowrap">N/A</span> control when
+                cheese or vegetables aren&apos;t on the burger.
               </Typography.Paragraph>
             ) : null}
+            <Form.Item name="cheeseNA" hidden>
+              <span className="hidden" />
+            </Form.Item>
+            <Form.Item name="vegNA" hidden>
+              <span className="hidden" />
+            </Form.Item>
             <Space orientation="vertical" size="small" className="w-full">
               {ratingPairs.map((pair, rowIndex) => (
                 <Row gutter={[24, 16]} key={rowIndex}>
                   {pair.map((field) => (
                     <Col xs={24} md={12} key={field.key}>
-                      <Form.Item
-                        name={field.key}
-                        label={field.label}
-                        rules={[ratingRule(field.label)]}
-                      >
-                        <BurgerRateField>{field.description}</BurgerRateField>
-                      </Form.Item>
+                      {field.key === 'cheese' || field.key === 'veg' ? (
+                        <OptionalRatingFormItem
+                          field={field}
+                          form={form}
+                          naField={
+                            field.key === 'cheese' ? 'cheeseNA' : 'vegNA'
+                          }
+                          ratingRule={ratingRule}
+                        />
+                      ) : (
+                        <Form.Item
+                          name={field.key}
+                          label={field.label}
+                          rules={[ratingRule(field.label)]}
+                        >
+                          <BurgerRateField>{field.description}</BurgerRateField>
+                        </Form.Item>
+                      )}
                     </Col>
                   ))}
                 </Row>

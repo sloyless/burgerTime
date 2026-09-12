@@ -51,19 +51,24 @@ function BurgerRules() {
         <h3 className="mb-2 font-serif text-base font-bold text-white">
           Score breakdown
         </h3>
+        <p className="mb-3 text-xs leading-snug text-stone-400">
+          0–100 from your star ratings (1★ = 0%, 5★ = 100% per category).
+          Cheese and vegetables can be marked N/A when they&apos;re not on the
+          burger; the rest of the weights scale to 100.
+        </p>
         <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-stone-400">
           <dt>Appearance</dt>
-          <dd className="text-right text-stone-200">5 pts max</dd>
+          <dd className="text-right text-stone-200">5% weight</dd>
           <dt>Bun</dt>
-          <dd className="text-right text-stone-200">15 pts max</dd>
+          <dd className="text-right text-stone-200">15%</dd>
           <dt>Meat</dt>
-          <dd className="text-right text-stone-200">30 pts max</dd>
+          <dd className="text-right text-stone-200">30%</dd>
           <dt>Cheese</dt>
-          <dd className="text-right text-stone-200">25 pts max</dd>
+          <dd className="text-right text-stone-200">25% (optional)</dd>
           <dt>Vegetables</dt>
-          <dd className="text-right text-stone-200">15 pts max</dd>
+          <dd className="text-right text-stone-200">15% (optional)</dd>
           <dt>Sauces</dt>
-          <dd className="text-right text-stone-200">10 pts max</dd>
+          <dd className="text-right text-stone-200">10%</dd>
         </dl>
       </div>
     </aside>

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { NextPage } from 'next';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { Pagination, Result } from 'antd';
 import { Layout } from 'layout';
@@ -16,7 +15,10 @@ import Button from 'components/Button';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
+import HomeBurgerStats from 'components/HomeBurgerStats';
+import SiteWordmark from 'components/SiteWordmark';
 import { fetchHomePageData } from 'libs/burgerQueries';
+import type { BurgerCollectionStats } from 'libs/burgerStats';
 import {
   readStoredPageCursors,
   writeStoredPageCursors,
@@ -32,6 +34,8 @@ const Home: NextPage = () => {
   const [reloadToken, setReloadToken] = useState(0);
   const [pageItems, setPageItems] = useState<Burger[]>([]);
   const [topTenBurgers, setTopTenBurgers] = useState<Burger[]>([]);
+  const [collectionStats, setCollectionStats] =
+    useState<BurgerCollectionStats | null>(null);
   const [totalReviews, setTotalReviews] = useState(0);
   const pageCursorsRef = useRef<Map<number, string>>(new Map());
   const cursorsHydratedRef = useRef(false);
@@ -117,6 +121,9 @@ const Home: NextPage = () => {
 
         setTotalReviews(data.count);
         setTopTenBurgers(data.topTen);
+        if (data.stats) {
+          setCollectionStats(data.stats);
+        }
         setPageItems(data.count > 0 ? data.pageItems : []);
       } catch (error) {
         if (!cancelled) {
@@ -213,47 +220,39 @@ const Home: NextPage = () => {
           <div className="lg:hidden">
             <Divider />
           </div>
-          <div className="lg:sticky lg:top-24">
-            <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-              <h3 className="mb-4 flex items-center gap-2 font-serif text-xl font-bold text-stone-900">
-                <FontAwesomeIcon
-                  icon={faStar}
-                  size="sm"
-                  className="size-3.5 text-amber-500"
-                />
-                Top 10 all-time
-              </h3>
-              <ol className="list-decimal space-y-3 ps-5 font-sans text-sm">
-                {topTenBurgers.map((burger) => (
-                  <li key={burger.id} className="text-stone-800">
-                    <Link
-                      href={getBurgerPath(burger)}
-                      className="block hover:text-brand-700"
-                    >
-                      <span className="font-venue">{burger.venue}</span>
-                      <span className="mt-0.5 line-clamp-1 block text-stone-500">
-                        {burger.address}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-            </div>
+          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+            <h3 className="mb-4 flex items-center gap-2 font-serif text-xl font-bold text-stone-900">
+              <FontAwesomeIcon
+                icon={faStar}
+                size="sm"
+                className="size-3.5 text-amber-500"
+              />
+              Top 10 all-time
+            </h3>
+            <ol className="list-decimal space-y-3 ps-5 font-sans text-sm">
+              {topTenBurgers.map((burger) => (
+                <li key={burger.id} className="text-stone-800">
+                  <Link
+                    href={getBurgerPath(burger)}
+                    className="block hover:text-brand-700"
+                  >
+                    <span className="font-venue">{burger.venue}</span>
+                    <span className="mt-0.5 line-clamp-1 block text-stone-500">
+                      {burger.address}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
           </div>
+          {collectionStats ? <HomeBurgerStats stats={collectionStats} /> : null}
         </aside>
       </>
     );
   } else {
     content = (
       <div className="mx-auto max-w-md text-center">
-        <Image
-          className="mx-auto my-5"
-          width={120}
-          height={96}
-          src="/logo.png"
-          alt="BurgerTime"
-          style={{ maxWidth: '100%', height: 'auto' }}
-        />
+        <SiteWordmark className="mx-auto my-5 text-4xl text-stone-900" />
         <EmptyState message="Rate some burgers!" title="No burgers yet" />
       </div>
     );
@@ -262,27 +261,22 @@ const Home: NextPage = () => {
   return (
     <Layout>
       <PageMeta title="BurgerTime" />
-      <header className="pt-4 pb-2 text-center md:pt-6">
-        <div className="mb-1 flex items-center justify-center gap-3">
-          <Image
-            width={40}
-            height={33}
-            src="/logo.png"
-            alt=""
-            aria-hidden
-            loading="lazy"
-            style={{ maxWidth: '100%', height: 'auto' }}
-          />
-          <h1 className="font-venue text-3xl text-stone-900 md:text-4xl">
-            BurgerTime
-          </h1>
-        </div>
-        <p className="mx-auto mb-3 max-w-2xl text-sm text-stone-600 md:text-base">
-          One man&apos;s journey to eat every cheeseburger in the world.{' '}
-          <em className="text-stone-500">(Mostly NYC.)</em>
-        </p>
-      </header>
-      <Divider compact />
+      <div id="home-hero">
+        <header className="pt-4 pb-2 text-center md:pt-6">
+          <div className="mb-1 flex justify-center">
+            <SiteWordmark
+              as="h1"
+              className="text-3xl text-stone-900 md:text-4xl"
+              priority
+            />
+          </div>
+          <p className="mx-auto mb-3 max-w-2xl text-sm text-stone-600 md:text-base">
+            One man&apos;s journey to eat every cheeseburger in the world.{' '}
+            <em className="text-stone-500">(Mostly NYC.)</em>
+          </p>
+        </header>
+        <Divider compact />
+      </div>
       <main className="min-w-0 pb-12 lg:flex lg:gap-8">{content}</main>
     </Layout>
   );

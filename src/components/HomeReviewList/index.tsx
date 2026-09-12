@@ -11,7 +11,7 @@ function HomeReviewList({ listItems }: Readonly<Props>) {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 lg:hidden [content-visibility:auto]">
+      <div className="grid grid-cols-2 gap-3 [content-visibility:auto] lg:hidden">
         {listItems.map((item) => (
           <Card
             key={`compact-${item.id}`}
@@ -21,7 +21,7 @@ function HomeReviewList({ listItems }: Readonly<Props>) {
           />
         ))}
       </div>
-      <div className="hidden flex-col gap-8 lg:flex [content-visibility:auto]">
+      <div className="hidden flex-col gap-8 [content-visibility:auto] lg:flex">
         {listItems.map((item) => (
           <Card
             key={`full-${item.id}`}

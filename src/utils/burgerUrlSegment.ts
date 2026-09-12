@@ -1,6 +1,40 @@
-/** Pure URL helpers — safe to import from getServerSideProps / server code (no Firebase client). */
+/** Pure URL helpers — safe on server (no Firebase client). */
+
+import type { NextRouter } from 'next/router';
 
 const FIRESTORE_ID_PATTERN = /^[a-zA-Z0-9]{20}$/;
+
+const BURGER_DETAIL_PATH = /^\/burger\/([^/]+)$/;
+
+/** Read slug from `/burger/{segment}` (static export + Hosting rewrite). */
+export function getBurgerUrlSegmentFromAsPath(asPath: string): string {
+  const pathOnly = asPath.split('?')[0].split('#')[0];
+  const match = pathOnly.match(BURGER_DETAIL_PATH);
+  if (!match) return '';
+  let segment: string;
+  try {
+    segment = decodeURIComponent(match[1]);
+  } catch {
+    segment = match[1];
+  }
+  return segment === '[slug]' ? '' : segment;
+}
+
+export function getBurgerUrlSegmentFromRouter(
+  router: NextRouter,
+  fallback = ''
+): string {
+  const fromQuery = router.query.slug;
+  if (
+    typeof fromQuery === 'string' &&
+    fromQuery.length > 0 &&
+    fromQuery !== '[slug]'
+  ) {
+    return fromQuery;
+  }
+  const fromPath = getBurgerUrlSegmentFromAsPath(router.asPath);
+  return fromPath || fallback;
+}
 
 export function looksLikeFirestoreDocumentId(value: string): boolean {
   return FIRESTORE_ID_PATTERN.test(value);

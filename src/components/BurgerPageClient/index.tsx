@@ -8,6 +8,7 @@ import { Result } from 'antd';
 
 import { Layout } from 'layout';
 import { resolveBurgerDocumentId } from 'libs/burgerQueries';
+import { getBurgerUrlSegmentFromRouter } from 'utils/burgerUrlSegment';
 import { database } from 'utils/firebase';
 import { Burger } from 'utils/types';
 import { allocateBurgerSlug, getCanonicalBurgerSlug } from 'utils/burgerSlug';
@@ -31,9 +32,7 @@ type Props = {
 
 function BurgerPageClient({ slug: slugProp }: Readonly<Props>) {
   const router = useRouter();
-  const urlSegment =
-    (typeof router.query.slug === 'string' ? router.query.slug : undefined) ??
-    slugProp;
+  const urlSegment = getBurgerUrlSegmentFromRouter(router, slugProp);
   const { user } = useAuth();
 
   const [documentId, setDocumentId] = useState<string | undefined>();

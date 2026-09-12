@@ -4,11 +4,11 @@ import BurgerPageClient from 'components/BurgerPageClient';
 import PageMeta from 'components/PageMeta';
 import PageLoading from 'components/PageLoading';
 import { Layout } from 'layout';
+import { getBurgerUrlSegmentFromRouter } from 'utils/burgerUrlSegment';
 
 export default function BurgerPage() {
   const router = useRouter();
-  const slug =
-    typeof router.query.slug === 'string' ? router.query.slug : '';
+  const slug = router.isReady ? getBurgerUrlSegmentFromRouter(router) : '';
 
   const canonicalPath = slug ? `/burger/${slug}` : '/burger';
 

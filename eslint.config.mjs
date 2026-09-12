@@ -19,10 +19,7 @@ export default defineConfig([
       },
     },
     rules: {
-      'tailwindcss/no-custom-classname': [
-        'warn',
-        { whitelist: ['box-shadow'] },
-      ],
+      'tailwindcss/no-custom-classname': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-shadow': 'error',
       '@typescript-eslint/no-use-before-define': 'error',

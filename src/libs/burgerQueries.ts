@@ -142,14 +142,6 @@ export async function fetchLatestReviewsPage(
   return fetchLatestReviewsAfter(pageSize, startCursor);
 }
 
-export async function fetchTopTenBurgers(): Promise<Burger[]> {
-  const burgers = await fetchAllBurgers();
-  return burgers
-    .slice()
-    .sort((a, b) => calculateScore(b) - calculateScore(a))
-    .slice(0, 10);
-}
-
 const ALL_BURGERS_PAGE_SIZE = 500;
 
 /** Full collection read for aggregate stats (paginated by document id). */
@@ -179,6 +171,14 @@ export async function fetchAllBurgers(): Promise<Burger[]> {
   }
 
   return items;
+}
+
+export async function fetchTopTenBurgers(): Promise<Burger[]> {
+  const burgers = await fetchAllBurgers();
+  return burgers
+    .slice()
+    .sort((a, b) => calculateScore(b) - calculateScore(a))
+    .slice(0, 10);
 }
 
 export type HomePageData = {

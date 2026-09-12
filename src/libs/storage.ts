@@ -4,7 +4,10 @@ import { nanoid } from 'nanoid';
 
 import { prepareImageForUpload } from 'utils/prepareImageForUpload';
 import { storage } from '../utils/firebase';
-import { storagePathFromDownloadUrl } from './storagePaths';
+import {
+  isBurgerStoragePhotoUrl,
+  storagePathFromDownloadUrl,
+} from './storagePaths';
 
 function isObjectNotFound(error: unknown): boolean {
   return (
@@ -20,7 +23,12 @@ export const uploadFile = async (file: File, folder: string) => {
       storage,
       `${folder}${filename}.${prepared.name.split('.').pop()}`
     );
-    const res = await uploadBytes(storageRef, prepared);
+    const contentType =
+      prepared.type && prepared.type.startsWith('image/')
+        ? prepared.type
+        : 'image/jpeg';
+
+    const res = await uploadBytes(storageRef, prepared, { contentType });
 
     return res.metadata.fullPath;
   } catch (error) {
@@ -69,7 +77,11 @@ export async function uploadBurgerPhotoReplacingPrevious(
   const imagePath = await uploadFile(file, 'burgers/');
   const url = await getFile(imagePath);
 
-  if (previousImageUrl && previousImageUrl !== url) {
+  if (
+    previousImageUrl &&
+    previousImageUrl !== url &&
+    isBurgerStoragePhotoUrl(previousImageUrl)
+  ) {
     const isCommitted =
       options?.retainCommittedUrl != null &&
       previousImageUrl === options.retainCommittedUrl;

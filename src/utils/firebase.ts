@@ -93,7 +93,7 @@ function initDatabase(): Firestore {
 
 export const database = initDatabase();
 
-const STORAGE_FOLDER_PATH = 'gs://burgertime-48011.appspot.com';
-export const storage = getStorage(app, STORAGE_FOLDER_PATH);
+/** Use the bucket from Firebase config so upload URLs match `storageBucket` in the console. */
+export const storage = getStorage(app);
 
 export { PROJECT_AUTH_HANDLER_HOST };

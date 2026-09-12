@@ -18,6 +18,7 @@ import {
   timestampToDateInputValue,
 } from 'functions';
 import { syncCollectionSummaryAfterUpdate } from 'libs/collectionSummary';
+import { burgerImageReferencesEqual } from 'libs/burgerImageUrl';
 import { deleteBurgerPhotoByUrl, uploadBurgerPhotoReplacingPrevious } from 'libs/storage';
 import { database } from 'utils/firebase';
 import { Burger } from 'utils/types';
@@ -74,7 +75,9 @@ function BurgerEditForm({
       const url = await uploadBurgerPhotoReplacingPrevious(file, previousUrl, {
         retainCommittedUrl: initialValues.image,
       });
-      form.setFieldValue('image', url);
+      form.setFields([
+        { name: 'image', value: url, touched: true },
+      ]);
       syncDirtyState();
     } catch (error) {
       console.error('Image upload failed:', error);
@@ -163,8 +166,11 @@ function BurgerEditForm({
       await syncCollectionSummaryAfterUpdate(beforeBurger, afterBurger);
 
       const previousImage = initialValues.image;
-      const nextImage = image;
-      if (previousImage && previousImage !== nextImage) {
+      if (
+        previousImage &&
+        image &&
+        !burgerImageReferencesEqual(previousImage, image)
+      ) {
         await deleteBurgerPhotoByUrl(previousImage);
       }
 

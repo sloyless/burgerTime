@@ -209,6 +209,72 @@ export async function fetchLatestReviewsPage(
   return { ...pageResult, discoveredCursors, startCursor };
 }
 
+const ALL_BURGERS_PAGE_SIZE = 500;
+
+/** Paginated full collection read (search, admin tools). */
+export async function fetchAllBurgers(): Promise<Burger[]> {
+  const col = collection(database, BURGERS_COLLECTION);
+  const items: Burger[] = [];
+  let lastDoc: QueryDocumentSnapshot<DocumentData> | undefined;
+
+  while (true) {
+    const snapshot = await getDocs(
+      lastDoc
+        ? query(
+            col,
+            orderBy(documentId()),
+            startAfter(lastDoc),
+            limit(ALL_BURGERS_PAGE_SIZE)
+          )
+        : query(col, orderBy(documentId()), limit(ALL_BURGERS_PAGE_SIZE))
+    );
+
+    if (snapshot.empty) break;
+
+    items.push(...snapshot.docs.map(docToBurger));
+    lastDoc = snapshot.docs[snapshot.docs.length - 1];
+
+    if (snapshot.docs.length < ALL_BURGERS_PAGE_SIZE) break;
+  }
+
+  return items;
+}
+
+function burgerSearchHaystack(burger: Burger): string {
+  return [
+    burger.venue,
+    burger.burgerName,
+    burger.address,
+    burger.notes,
+    burger.cookType,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+}
+
+/** Case-insensitive search across venue, burger name, location, notes, and cook type. */
+export async function searchBurgers(term: string): Promise<Burger[]> {
+  const normalized = term.trim().toLowerCase();
+  if (!normalized) return [];
+
+  const tokens = normalized.split(/\s+/).filter(Boolean);
+  const all = await fetchAllBurgers();
+
+  return all
+    .filter((burger) => {
+      const haystack = burgerSearchHaystack(burger);
+      return tokens.every((token) => haystack.includes(token));
+    })
+    .sort((a, b) => {
+      const aSeconds =
+        (a.timestamp as { seconds?: number } | undefined)?.seconds ?? 0;
+      const bSeconds =
+        (b.timestamp as { seconds?: number } | undefined)?.seconds ?? 0;
+      return bSeconds - aSeconds;
+    });
+}
+
 /** Top burgers by stored `total` (kept in sync on save). */
 export async function fetchTopTenBurgers(): Promise<Burger[]> {
   const snapshot = await getDocs(

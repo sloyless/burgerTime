@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Form, Input } from 'antd';
+import { Form } from 'antd';
 import type { FormInstance } from 'antd';
 
 import BurgerFormFields from './BurgerFormFields';
@@ -38,14 +38,20 @@ function BurgerFormContainer({
       form={form}
       layout="vertical"
       initialValues={initialValues}
-      onFinish={onFinish}
+      onFinish={(values) => {
+        const image = form.getFieldValue('image') as string | undefined;
+        onFinish({
+          ...values,
+          image: image ?? values.image,
+        });
+      }}
       onValuesChange={onValuesChange}
       requiredMark={false}
       scrollToFirstError
       className="max-w-full min-w-0"
     >
-      <Form.Item name="image" hidden>
-        <Input type="hidden" />
+      <Form.Item name="image" hidden preserve>
+        <input type="hidden" aria-hidden />
       </Form.Item>
       <BurgerFormFields
         form={form}

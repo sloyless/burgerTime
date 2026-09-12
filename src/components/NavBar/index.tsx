@@ -7,6 +7,7 @@ import type { MenuProps } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBurger,
+  faMagnifyingGlass,
   faRightFromBracket,
   faUtensils,
 } from '@fortawesome/free-solid-svg-icons';
@@ -59,6 +60,12 @@ function NavBar() {
   }
 
   const navLinks = [
+    {
+      title: 'Search',
+      path: '/search',
+      icon: faMagnifyingGlass,
+      active: router.pathname === '/search',
+    },
     {
       title: 'About',
       path: '/about',

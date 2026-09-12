@@ -1,4 +1,7 @@
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
+
+import { resolveBurgerImageUrl } from 'libs/burgerImageUrl';
 
 const LAYOUT = {
   cardCompact: {
@@ -37,10 +40,29 @@ function BurgerPhoto({
   className = 'object-cover',
 }: Readonly<Props>) {
   const { fill, sizes } = LAYOUT[layout];
+  const [resolvedSrc, setResolvedSrc] = useState<string | undefined>(src);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void resolveBurgerImageUrl(src).then((url) => {
+      if (!cancelled) {
+        setResolvedSrc(url);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [src]);
+
+  if (!resolvedSrc) {
+    return null;
+  }
 
   return (
     <Image
-      src={src}
+      src={resolvedSrc}
       alt={alt}
       fill={fill}
       sizes={sizes}

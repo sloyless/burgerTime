@@ -41,7 +41,7 @@ const Add: NextPage = () => {
     try {
       const previousUrl = form.getFieldValue('image');
       const url = await uploadBurgerPhotoReplacingPrevious(file, previousUrl);
-      form.setFieldValue('image', url);
+      form.setFields([{ name: 'image', value: url, touched: true }]);
     } catch (error) {
       console.error('Image upload failed:', error);
       message.error('Photo upload failed.', 5);

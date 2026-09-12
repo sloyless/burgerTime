@@ -7,8 +7,8 @@ import { useRouter } from 'next/router';
 import { Result } from 'antd';
 
 import { Layout } from 'layout';
+import { useBurgerUrlSegment } from 'hooks/useBurgerUrlSegment';
 import { resolveBurgerDocumentId } from 'libs/burgerQueries';
-import { getBurgerUrlSegmentFromRouter } from 'utils/burgerUrlSegment';
 import { database } from 'utils/firebase';
 import { Burger } from 'utils/types';
 import { allocateBurgerSlug, getCanonicalBurgerSlug } from 'utils/burgerSlug';
@@ -26,13 +26,9 @@ import Button from 'components/Button';
 import { useAuth } from 'context/AuthContext';
 import PageLoading from 'components/PageLoading';
 
-type Props = {
-  slug: string;
-};
-
-function BurgerPageClient({ slug: slugProp }: Readonly<Props>) {
+function BurgerPageClient() {
   const router = useRouter();
-  const urlSegment = getBurgerUrlSegmentFromRouter(router, slugProp);
+  const urlSegment = useBurgerUrlSegment();
   const { user } = useAuth();
 
   const [documentId, setDocumentId] = useState<string | undefined>();
@@ -176,13 +172,12 @@ function BurgerPageClient({ slug: slugProp }: Readonly<Props>) {
   }, [isAdmin, resolving, burgerRecord, documentId]);
 
   useEffect(() => {
-    if (resolving || !canonicalSlug || !urlSegment) return;
-    if (urlSegment !== canonicalSlug) {
-      void router.replace(`/burger/${canonicalSlug}`, undefined, {
-        shallow: true,
-      });
-    }
-  }, [resolving, canonicalSlug, urlSegment, router]);
+    if (resolving || !burgerRecord || !urlSegment) return;
+    const targetPath = getBurgerPath(burgerRecord);
+    const targetSegment = targetPath.replace(/^\/burger\//, '');
+    if (!targetSegment || urlSegment === targetSegment) return;
+    void router.replace(targetPath);
+  }, [resolving, burgerRecord, urlSegment, router]);
 
   function openEdit() {
     if (!burgerRecord || !isAdmin) return;
@@ -200,7 +195,7 @@ function BurgerPageClient({ slug: slugProp }: Readonly<Props>) {
     setEditBaseline(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (slug && urlSegment !== slug) {
-      void router.replace(`/burger/${slug}`, undefined, { shallow: true });
+      void router.replace(`/burger/${slug}`);
     }
   }
 
@@ -210,8 +205,13 @@ function BurgerPageClient({ slug: slugProp }: Readonly<Props>) {
     setListenKey((key) => key + 1);
   }
 
-  const loading = resolving || (Boolean(documentId) && !snapshotLoaded);
+  const waitingForUrl = !urlSegment;
+  const loading =
+    waitingForUrl ||
+    resolving ||
+    (Boolean(documentId) && !snapshotLoaded);
   const notFound =
+    Boolean(urlSegment) &&
     !loading &&
     !resolveFailed &&
     !snapshotError &&

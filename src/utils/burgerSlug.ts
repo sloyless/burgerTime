@@ -36,6 +36,10 @@ export function generateBurgerSlugBase(
   return `${base}-${reviewDateYmd}`;
 }
 
+/**
+ * URL segment for a burger (no `/burger/` prefix). Must stay in sync with
+ * `getBurgerPath` — links, redirects, and Firestore resolve all depend on this.
+ */
 export function getCanonicalBurgerSlug(burger: Burger): string {
   if (burger.slug) {
     return burger.slug;
@@ -45,12 +49,16 @@ export function getCanonicalBurgerSlug(burger: Burger): string {
     burger.timestamp as { seconds?: number }
   );
   if (!reviewDateYmd) {
+    if (burger.id && looksLikeFirestoreDocumentId(burger.id)) {
+      return burger.id;
+    }
     return slugifyPart(burger.venue ?? 'burger-review') || 'burger-review';
   }
 
   return generateBurgerSlugBase(burger.venue, burger.burgerName, reviewDateYmd);
 }
 
+/** Public href for a burger detail page. */
 export function getBurgerPath(burger: Burger): string {
   if (!burger.id) return '/';
 

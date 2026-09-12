@@ -1,6 +1,4 @@
-/** Pure URL helpers — safe on server (no Firebase client). */
-
-import type { NextRouter } from 'next/router';
+/** Pure URL path helpers (no Firebase). Detail pages read the segment via `useBurgerUrlSegment`. */
 
 const FIRESTORE_ID_PATTERN = /^[a-zA-Z0-9]{20}$/;
 
@@ -18,22 +16,6 @@ export function getBurgerUrlSegmentFromAsPath(asPath: string): string {
     segment = match[1];
   }
   return segment === '[slug]' ? '' : segment;
-}
-
-export function getBurgerUrlSegmentFromRouter(
-  router: NextRouter,
-  fallback = ''
-): string {
-  const fromQuery = router.query.slug;
-  if (
-    typeof fromQuery === 'string' &&
-    fromQuery.length > 0 &&
-    fromQuery !== '[slug]'
-  ) {
-    return fromQuery;
-  }
-  const fromPath = getBurgerUrlSegmentFromAsPath(router.asPath);
-  return fromPath || fallback;
 }
 
 export function looksLikeFirestoreDocumentId(value: string): boolean {

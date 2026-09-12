@@ -15,7 +15,7 @@ type Props = {
   isUploading: boolean;
   onFinish: (values: BurgerFormValues) => void;
   onValuesChange?: () => void;
-  onImageFile: (file: File) => void;
+  onImageFile: (file: File) => Promise<void>;
   showRatingIntro?: boolean;
 };
 

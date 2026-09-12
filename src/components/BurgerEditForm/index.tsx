@@ -18,7 +18,7 @@ import {
   timestampToDateInputValue,
 } from 'functions';
 import { syncCollectionSummaryAfterUpdate } from 'libs/collectionSummary';
-import { getFile, uploadFile } from 'libs/storage';
+import { deleteBurgerPhotoByUrl, uploadBurgerPhotoReplacingPrevious } from 'libs/storage';
 import { database } from 'utils/firebase';
 import { Burger } from 'utils/types';
 import { allocateBurgerSlug } from 'utils/burgerSlug';
@@ -69,16 +69,17 @@ function BurgerEditForm({
   const uploadImage = async (file: File) => {
     setIsUploading(true);
     try {
-      const imagePath = await uploadFile(file, 'burgers/');
-      const url = await getFile(imagePath);
+      const previousUrl =
+        form.getFieldValue('image') ?? initialValues.image;
+      const url = await uploadBurgerPhotoReplacingPrevious(file, previousUrl, {
+        retainCommittedUrl: initialValues.image,
+      });
       form.setFieldValue('image', url);
       syncDirtyState();
     } catch (error) {
       console.error('Image upload failed:', error);
-      message.error(
-        'Photo upload failed. Try again or pick a different image.',
-        6
-      );
+      message.error('Photo upload failed.', 5);
+      throw error;
     } finally {
       setIsUploading(false);
     }
@@ -157,6 +158,13 @@ function BurgerEditForm({
       };
 
       await syncCollectionSummaryAfterUpdate(beforeBurger, afterBurger);
+
+      const previousImage = initialValues.image;
+      const nextImage = values.image;
+      if (previousImage && previousImage !== nextImage) {
+        await deleteBurgerPhotoByUrl(previousImage);
+      }
+
       onSaved(slug);
     } catch (error) {
       console.error('Failed to update burger:', error);

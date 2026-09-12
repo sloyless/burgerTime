@@ -24,7 +24,7 @@ import BurgerEditForm from 'components/BurgerEditForm';
 import BurgerDetailView from 'components/BurgerDetailView';
 import Button from 'components/Button';
 import { useAuth } from 'context/AuthContext';
-import PageLoading from 'components/PageLoading';
+import BurgerDetailSkeleton from 'components/BurgerDetailSkeleton';
 
 function BurgerPageClient() {
   const router = useRouter();
@@ -223,7 +223,7 @@ function BurgerPageClient() {
           title="Burger review"
           canonicalPath={`/burger/${urlSegment}`}
         />
-        <PageLoading tip="Loading review…" />
+        <BurgerDetailSkeleton />
       </Layout>
     );
   }

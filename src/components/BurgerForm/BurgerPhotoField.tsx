@@ -1,7 +1,15 @@
 import Image from 'next/image';
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+} from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Spin, Typography } from 'antd';
+
+import Button from 'components/Button';
 
 const ACCEPT = {
   'image/jpeg': ['.jpg', '.jpeg'],
@@ -17,7 +25,7 @@ type Props = {
   alt: string;
   imageUrl?: string;
   isUploading: boolean;
-  onImageFile: (file: File) => void;
+  onImageFile: (file: File) => Promise<void>;
 };
 
 function BurgerPhotoField({
@@ -27,6 +35,9 @@ function BurgerPhotoField({
   onImageFile,
 }: Readonly<Props>) {
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | undefined>();
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const pendingFileRef = useRef<File | null>(null);
+  const imageUrlWhenUploadStartedRef = useRef<string | undefined>(undefined);
 
   const revokeLocalPreview = useCallback((url: string | undefined) => {
     if (url?.startsWith('blob:')) {
@@ -35,7 +46,13 @@ function BurgerPhotoField({
   }, []);
 
   useEffect(() => {
-    if (!imageUrl) return;
+    if (!imageUrl || imageUrl === imageUrlWhenUploadStartedRef.current) {
+      return;
+    }
+
+    pendingFileRef.current = null;
+    setUploadError(null);
+    imageUrlWhenUploadStartedRef.current = undefined;
     setLocalPreviewUrl((prev) => {
       revokeLocalPreview(prev);
       return undefined;
@@ -51,19 +68,36 @@ function BurgerPhotoField({
 
   const displaySrc = localPreviewUrl ?? imageUrl;
 
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      const file = acceptedFiles[0];
-      if (!file) return;
+  const runUpload = useCallback(
+    async (file: File) => {
+      pendingFileRef.current = file;
+      setUploadError(null);
+      imageUrlWhenUploadStartedRef.current = imageUrl;
 
       const nextPreview = URL.createObjectURL(file);
       setLocalPreviewUrl((prev) => {
         revokeLocalPreview(prev);
         return nextPreview;
       });
-      onImageFile(file);
+
+      try {
+        await onImageFile(file);
+      } catch {
+        setUploadError(
+          'Photo upload failed. Check your connection and try again.'
+        );
+      }
     },
-    [onImageFile, revokeLocalPreview]
+    [imageUrl, onImageFile, revokeLocalPreview]
+  );
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const file = acceptedFiles[0];
+      if (!file) return;
+      void runUpload(file);
+    },
+    [runUpload]
   );
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } =
@@ -77,10 +111,29 @@ function BurgerPhotoField({
 
   const rejectionMessage = fileRejections[0]?.errors[0]?.message;
 
+  function handleRetryClick(event: MouseEvent) {
+    event.stopPropagation();
+    const file = pendingFileRef.current;
+    if (!file || isUploading) return;
+    void runUpload(file);
+  }
+
+  function handleChooseDifferentClick(event: MouseEvent) {
+    event.stopPropagation();
+    pendingFileRef.current = null;
+    setUploadError(null);
+    setLocalPreviewUrl((prev) => {
+      revokeLocalPreview(prev);
+      return undefined;
+    });
+  }
+
+  const rootProps = getRootProps();
+
   return (
     <div className="border-t border-stone-200">
       <div
-        {...getRootProps()}
+        {...rootProps}
         className={[
           'relative outline-none',
           isUploading ? 'cursor-wait' : 'cursor-pointer',
@@ -120,11 +173,11 @@ function BurgerPhotoField({
               <div className="absolute inset-0 flex items-center justify-center bg-stone-900/45 px-4 text-center text-sm font-medium text-white">
                 Drop to replace photo
               </div>
-            ) : (
+            ) : !uploadError ? (
               <div className="absolute inset-x-0 bottom-0 border-t border-stone-200/80 bg-stone-900/55 px-4 py-2 text-center text-sm text-white opacity-0 transition-opacity hover:opacity-100">
                 Click or drag to replace photo
               </div>
-            )}
+            ) : null}
           </div>
         ) : (
           <div className="flex min-h-48 flex-col items-center justify-center gap-2 px-6 py-10 text-center">
@@ -148,6 +201,37 @@ function BurgerPhotoField({
           </div>
         )}
       </div>
+
+      {uploadError ? (
+        <div
+          className="flex flex-col gap-3 border-t border-stone-200 bg-red-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+          role="alert"
+        >
+          <Typography.Text className="text-sm text-red-800">
+            {uploadError}
+          </Typography.Text>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              status="primary"
+              disabled={isUploading}
+              loading={isUploading}
+              onClick={handleRetryClick}
+            >
+              Retry upload
+            </Button>
+            <Button
+              type="button"
+              status="link"
+              disabled={isUploading}
+              onClick={handleChooseDifferentClick}
+            >
+              Choose a different photo
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
       {rejectionMessage ? (
         <p className="border-t border-stone-200 bg-red-50 px-4 py-2 text-sm text-red-700">
           {rejectionMessage}

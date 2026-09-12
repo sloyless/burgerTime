@@ -8,7 +8,7 @@ import { App, Form } from 'antd';
 import { useAuth } from 'context/AuthContext';
 import { calculateScore, dateInputValueToUtcDate } from 'functions';
 import { database } from 'utils/firebase';
-import { getFile, uploadFile } from 'libs/storage';
+import { uploadBurgerPhotoReplacingPrevious } from 'libs/storage';
 
 import { Layout } from 'layout';
 
@@ -39,15 +39,13 @@ const Add: NextPage = () => {
   const uploadImage = async (file: File) => {
     setIsUploading(true);
     try {
-      const imagePath = await uploadFile(file, 'burgers/');
-      const url = await getFile(imagePath);
+      const previousUrl = form.getFieldValue('image');
+      const url = await uploadBurgerPhotoReplacingPrevious(file, previousUrl);
       form.setFieldValue('image', url);
     } catch (error) {
       console.error('Image upload failed:', error);
-      message.error(
-        'Photo upload failed. Try again or pick a different image.',
-        6
-      );
+      message.error('Photo upload failed.', 5);
+      throw error;
     } finally {
       setIsUploading(false);
     }

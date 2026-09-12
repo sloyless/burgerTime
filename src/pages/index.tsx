@@ -10,7 +10,7 @@ import PageMeta from 'components/PageMeta';
 import { Burger } from 'utils/types';
 import Card from 'components/Card';
 import EmptyState from 'components/EmptyState';
-import PageLoading from 'components/PageLoading';
+import HomePageSkeleton from 'components/HomePageSkeleton';
 import Button from 'components/Button';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -187,11 +187,7 @@ const Home: NextPage = () => {
 
   let content;
   if (loading) {
-    content = (
-      <div className="w-full min-w-0 flex-1">
-        <PageLoading tip="Loading reviews…" />
-      </div>
-    );
+    content = <HomePageSkeleton />;
   } else if (loadError) {
     content = (
       <div className="flex w-full flex-1 justify-center py-12 font-sans">

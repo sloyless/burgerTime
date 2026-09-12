@@ -40,7 +40,7 @@ type Props = {
   idPrefix?: string;
   imageUrl?: string;
   isUploading: boolean;
-  onImageFile: (file: File) => void;
+  onImageFile: (file: File) => Promise<void>;
   score: number;
   showRatingIntro?: boolean;
   onNotifyValuesChange?: () => void;

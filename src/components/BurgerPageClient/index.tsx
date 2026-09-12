@@ -298,13 +298,10 @@ function BurgerPageClient({
   }
 
   const score = burgerRecord ? getDisplayScore(burgerRecord) : 0;
-  const serverRenderedMeta = Boolean(
-    initialBurger && slugFromServer === urlSegment
-  );
 
   return (
     <Layout padding={false}>
-      {burgerRecord && (!serverRenderedMeta || snapshotLoaded) ? (
+      {burgerRecord ? (
         <BurgerPageMeta
           burger={{ ...burgerRecord, id: documentId, slug: canonicalSlug }}
           urlSegment={urlSegment}

@@ -1,4 +1,4 @@
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 
 export const ADMINUID =
   process.env.NEXT_PUBLIC_ADMIN_UID ?? 'HN7f9PmeCgg3nd8WRFb6EhJVPnl2';

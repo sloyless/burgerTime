@@ -10,7 +10,7 @@ import SectionHeading from 'components/SectionHeading';
 import Bone from 'components/Skeleton/Bone';
 import { searchBurgers } from 'libs/burgerQueries';
 import { Layout } from 'layout';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 import { getBurgerPath } from 'utils/burgerSlug';
 
 const { Search } = Input;

@@ -1,11 +1,11 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Form } from 'antd';
 import type { FormInstance } from 'antd';
 
 import BurgerFormFields from './BurgerFormFields';
 import { useBurgerFormScore } from './useBurgerFormScore';
 import { burgerFormImageFromValues } from './burgerFormImage';
-import { BurgerFormValues } from './types';
+import type { BurgerFormValues } from './types';
 
 type Props = {
   children?: ReactNode;

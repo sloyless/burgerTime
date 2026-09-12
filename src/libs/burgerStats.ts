@@ -1,5 +1,5 @@
 import { calculateTimestamp, getDisplayScore } from 'functions';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 
 export type BurgerCollectionStats = {
   uniqueVenues: number;

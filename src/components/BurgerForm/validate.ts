@@ -1,7 +1,7 @@
-import { Form, FormInstance } from 'antd';
+import { Form, type FormInstance } from 'antd';
 import { useMemo } from 'react';
 
-import { BurgerFormValues } from './types';
+import type { BurgerFormValues } from './types';
 
 function hasText(value: string | undefined): boolean {
   return Boolean(value?.trim());

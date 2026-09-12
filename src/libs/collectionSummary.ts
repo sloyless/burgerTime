@@ -2,13 +2,13 @@ import {
   collection,
   doc,
   documentId,
-  DocumentData,
+  type DocumentData,
   getDoc,
   getDocs,
   limit,
   orderBy,
   query,
-  QueryDocumentSnapshot,
+  type QueryDocumentSnapshot,
   runTransaction,
   startAfter,
   Timestamp,
@@ -16,9 +16,9 @@ import {
 
 import { calculateTimestamp, getDisplayScore } from 'functions';
 import { database } from 'utils/firebase';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 
-import { BurgerCollectionStats } from './burgerStats';
+import type { BurgerCollectionStats } from './burgerStats';
 
 const BURGERS_COLLECTION = 'burgers';
 const SUMMARY_DOC_PATH = 'meta/collectionSummary';

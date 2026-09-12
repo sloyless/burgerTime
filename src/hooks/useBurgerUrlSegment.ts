@@ -1,7 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/router';
 
 import { getBurgerUrlSegmentFromAsPath } from 'utils/burgerUrlSegment';
+
+function getServerSnapshot(): string {
+  return '';
+}
 
 /**
  * Burger detail URLs on Firebase static hosting must be read from the browser
@@ -10,20 +14,21 @@ import { getBurgerUrlSegmentFromAsPath } from 'utils/burgerUrlSegment';
  */
 export function useBurgerUrlSegment(): string {
   const router = useRouter();
-  const [segment, setSegment] = useState('');
 
-  const sync = useCallback(() => {
-    if (typeof window === 'undefined') return;
-    setSegment(getBurgerUrlSegmentFromAsPath(window.location.pathname));
+  const subscribe = useCallback(
+    (onStoreChange: () => void) => {
+      router.events.on('routeChangeComplete', onStoreChange);
+      return () => {
+        router.events.off('routeChangeComplete', onStoreChange);
+      };
+    },
+    [router.events]
+  );
+
+  const getSnapshot = useCallback(() => {
+    if (typeof window === 'undefined') return '';
+    return getBurgerUrlSegmentFromAsPath(window.location.pathname);
   }, []);
 
-  useEffect(() => {
-    sync();
-    router.events.on('routeChangeComplete', sync);
-    return () => {
-      router.events.off('routeChangeComplete', sync);
-    };
-  }, [router.events, sync]);
-
-  return segment;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

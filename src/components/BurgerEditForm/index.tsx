@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { doc, DocumentData, Timestamp, updateDoc } from 'firebase/firestore';
+import {
+  doc,
+  type DocumentData,
+  Timestamp,
+  updateDoc,
+} from 'firebase/firestore';
 import { App, Form } from 'antd';
 
 import Button from 'components/Button';
@@ -8,7 +13,7 @@ import {
   BurgerFormContainer,
   burgerDocumentToFormValues,
   burgerFormValuesToScoreInput,
-  BurgerFormValues,
+  type BurgerFormValues,
   useBurgerFormComplete,
 } from 'components/BurgerForm';
 import { burgerFormImageFromValues } from 'components/BurgerForm/burgerFormImage';
@@ -22,7 +27,7 @@ import {
 import { syncCollectionSummaryAfterUpdate } from 'libs/collectionSummary';
 import { deleteReplacedBurgerPhotoAfterSave } from 'libs/storage';
 import { database } from 'utils/firebase';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 import { allocateBurgerSlug } from 'utils/burgerSlug';
 
 type Props = {
@@ -45,7 +50,7 @@ function BurgerEditForm({
 
   const initialValues = useMemo(
     () => burgerDocumentToFormValues(initial),
-    [initial, burgerId]
+    [initial]
   );
 
   const imageUrl = Form.useWatch('image', form) ?? initialValues.image;

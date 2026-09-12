@@ -1,6 +1,6 @@
 import PageMeta from 'components/PageMeta';
 import { buildBurgerPageMeta } from 'libs/burgerPageMeta';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 
 type Props = {
   burger: Burger;

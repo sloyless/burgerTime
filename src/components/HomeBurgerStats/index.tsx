@@ -3,7 +3,7 @@ import { faChartColumn } from '@fortawesome/free-solid-svg-icons';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import type { ReactNode } from 'react';
 
-import { BurgerCollectionStats, formatStatScore } from 'libs/burgerStats';
+import { type BurgerCollectionStats, formatStatScore } from 'libs/burgerStats';
 
 type Props = {
   stats: BurgerCollectionStats;
@@ -24,7 +24,7 @@ function StatsCard({
         <FontAwesomeIcon
           icon={icon}
           size="sm"
-          className="text-brand-700 size-3.5"
+          className="size-3.5 text-brand-700"
         />
         {title}
       </h3>

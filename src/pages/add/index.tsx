@@ -15,12 +15,12 @@ import Button from 'components/Button';
 import {
   BurgerFormContainer,
   emptyBurgerFormValues,
-  BurgerFormValues,
+  type BurgerFormValues,
   useBurgerFormComplete,
 } from 'components/BurgerForm';
 import { burgerFormImageFromValues } from 'components/BurgerForm/burgerFormImage';
 import { useBurgerPhotoUpload } from 'components/BurgerForm/useBurgerPhotoUpload';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 import { syncCollectionSummaryAfterCreate } from 'libs/collectionSummary';
 import { allocateBurgerSlug, getBurgerPath } from 'utils/burgerSlug';
 import BurgerRules from 'components/BurgerRules';

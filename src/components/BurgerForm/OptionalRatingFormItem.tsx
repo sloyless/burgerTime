@@ -2,7 +2,7 @@ import { Checkbox, Form } from 'antd';
 import type { FormInstance, Rule } from 'antd/es/form';
 
 import BurgerOptionalRateField from './BurgerOptionalRateField';
-import { BurgerFormValues, BurgerRatingKey } from './types';
+import type { BurgerFormValues, BurgerRatingKey } from './types';
 
 type RatingInputProps = {
   description: string;

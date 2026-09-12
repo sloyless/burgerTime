@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { doc, DocumentData, onSnapshot, updateDoc } from 'firebase/firestore';
+import {
+  doc,
+  type DocumentData,
+  onSnapshot,
+  updateDoc,
+} from 'firebase/firestore';
 import BurgerPageMeta from 'components/BurgerPageMeta';
 import PageMeta from 'components/PageMeta';
 import { useRouter } from 'next/router';
@@ -10,7 +15,7 @@ import { Layout } from 'layout';
 import { useBurgerUrlSegment } from 'hooks/useBurgerUrlSegment';
 import { resolveBurgerDocumentId } from 'libs/burgerQueries';
 import { database } from 'utils/firebase';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 import { allocateBurgerSlug, getCanonicalBurgerSlug } from 'utils/burgerSlug';
 import {
   ADMINUID,
@@ -26,17 +31,26 @@ import Button from 'components/Button';
 import { useAuth } from 'context/AuthContext';
 import BurgerDetailSkeleton from 'components/BurgerDetailSkeleton';
 
+type UrlResolution = {
+  segment: string;
+  documentId: string | null;
+  status: 'ok' | 'not_found' | 'error';
+};
+
+type BurgerSnapshot = {
+  key: string;
+  burger?: DocumentData;
+  loaded: boolean;
+  error: boolean;
+};
+
 function BurgerPageClient() {
   const router = useRouter();
   const urlSegment = useBurgerUrlSegment();
   const { user } = useAuth();
 
-  const [documentId, setDocumentId] = useState<string | undefined>();
-  const [resolving, setResolving] = useState(true);
-  const [resolveFailed, setResolveFailed] = useState(false);
-  const [burger, setBurger] = useState<DocumentData | undefined>();
-  const [snapshotLoaded, setSnapshotLoaded] = useState(false);
-  const [snapshotError, setSnapshotError] = useState(false);
+  const [resolution, setResolution] = useState<UrlResolution | null>(null);
+  const [snapshot, setSnapshot] = useState<BurgerSnapshot | null>(null);
   const [listenKey, setListenKey] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editBaseline, setEditBaseline] = useState<DocumentData | null>(null);
@@ -45,42 +59,57 @@ function BurgerPageClient() {
 
   const isAdmin = user?.uid === ADMINUID;
 
+  const resolutionComplete =
+    Boolean(urlSegment) && resolution?.segment === urlSegment;
+  const resolving = Boolean(urlSegment) && !resolutionComplete;
+  const resolveFailed = resolutionComplete && resolution?.status === 'error';
+  const documentId =
+    resolutionComplete && resolution?.status === 'ok' && resolution.documentId
+      ? resolution.documentId
+      : undefined;
+
+  const snapshotKey = documentId ? `${documentId}:${listenKey}` : '';
+  const snapshotLoaded =
+    Boolean(documentId) && snapshot?.key === snapshotKey && snapshot.loaded;
+  const snapshotError =
+    Boolean(documentId) && snapshot?.key === snapshotKey && snapshot.error;
+  const burger = snapshot?.key === snapshotKey ? snapshot.burger : undefined;
+
   useEffect(() => {
     if (!urlSegment) return;
 
     let cancelled = false;
-    setResolving(true);
-    setResolveFailed(false);
 
     void resolveBurgerDocumentId(urlSegment)
       .then((resolvedId) => {
         if (cancelled) return;
 
         if (!resolvedId) {
-          setDocumentId(undefined);
           documentIdRef.current = undefined;
-          setBurger(undefined);
-          setResolving(false);
-          return;
-        }
-
-        if (resolvedId === documentIdRef.current) {
-          setResolving(false);
+          setResolution({
+            segment: urlSegment,
+            documentId: null,
+            status: 'not_found',
+          });
           return;
         }
 
         documentIdRef.current = resolvedId;
-        setDocumentId(resolvedId);
-        setResolving(false);
+        setResolution({
+          segment: urlSegment,
+          documentId: resolvedId,
+          status: 'ok',
+        });
       })
       .catch((error) => {
         if (cancelled) return;
         console.error('Failed to resolve burger URL:', error);
-        setDocumentId(undefined);
         documentIdRef.current = undefined;
-        setBurger(undefined);
-        setResolveFailed(true);
-        setResolving(false);
+        setResolution({
+          segment: urlSegment,
+          documentId: null,
+          status: 'error',
+        });
       });
 
     return () => {
@@ -89,20 +118,13 @@ function BurgerPageClient() {
   }, [urlSegment]);
 
   useEffect(() => {
-    if (!documentId) {
-      setSnapshotLoaded(false);
-      setSnapshotError(false);
-      return;
-    }
+    if (!documentId) return;
 
-    setSnapshotLoaded(false);
-    setSnapshotError(false);
-
+    const key = `${documentId}:${listenKey}`;
     let timedOut = false;
     const timeoutId = window.setTimeout(() => {
       timedOut = true;
-      setSnapshotError(true);
-      setSnapshotLoaded(true);
+      setSnapshot({ key, loaded: true, error: true, burger: undefined });
       console.warn('Burger snapshot timed out');
     }, 12_000);
 
@@ -111,20 +133,31 @@ function BurgerPageClient() {
       (docSnap) => {
         if (timedOut) return;
         window.clearTimeout(timeoutId);
-        setSnapshotLoaded(true);
-        setSnapshotError(false);
         if (docSnap.exists()) {
-          setBurger({ ...docSnap.data(), id: docSnap.id });
+          setSnapshot({
+            key,
+            loaded: true,
+            error: false,
+            burger: { ...docSnap.data(), id: docSnap.id },
+          });
         } else {
-          setBurger(undefined);
+          setSnapshot({
+            key,
+            loaded: true,
+            error: false,
+            burger: undefined,
+          });
         }
       },
       (error) => {
         window.clearTimeout(timeoutId);
-        setSnapshotLoaded(true);
-        setSnapshotError(true);
         console.error('Failed to load burger:', error);
-        setBurger(undefined);
+        setSnapshot({
+          key,
+          loaded: true,
+          error: true,
+          burger: undefined,
+        });
       }
     );
 
@@ -200,8 +233,6 @@ function BurgerPageClient() {
   }
 
   function retrySnapshot() {
-    setSnapshotError(false);
-    setSnapshotLoaded(false);
     setListenKey((key) => key + 1);
   }
 
@@ -265,7 +296,7 @@ function BurgerPageClient() {
             extra={
               <Link
                 href="/"
-                className="text-brand-700 hover:text-brand-800 font-medium"
+                className="font-medium text-brand-700 hover:text-brand-800"
               >
                 Back to home
               </Link>

@@ -1,5 +1,5 @@
 import { isBurgerInTopTenLookup } from 'libs/topTenMatch';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 import { getBurgerPath } from 'utils/burgerSlug';
 import Card from 'components/Card';
 

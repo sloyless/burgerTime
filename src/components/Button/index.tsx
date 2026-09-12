@@ -1,4 +1,4 @@
-import { MouseEventHandler, ReactNode } from 'react';
+import type { MouseEventHandler, ReactNode } from 'react';
 import Link from 'next/link';
 import { Button as AntButton } from 'antd';
 

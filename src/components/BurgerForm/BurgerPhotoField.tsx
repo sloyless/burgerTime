@@ -10,7 +10,6 @@ import { useDropzone } from 'react-dropzone';
 import { Spin, Typography } from 'antd';
 
 import Button from 'components/Button';
-import { burgerImageReferencesEqual } from 'libs/burgerPhotoRefs';
 import {
   formatMaxBurgerPhotoUploadSize,
   MAX_BURGER_PHOTO_UPLOAD_BYTES,
@@ -32,7 +31,7 @@ type Props = {
   onImageFile: (file: File) => Promise<void>;
 };
 
-function BurgerPhotoField({
+function BurgerPhotoFieldInner({
   alt,
   imageUrl,
   isUploading,
@@ -41,30 +40,12 @@ function BurgerPhotoField({
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | undefined>();
   const [uploadError, setUploadError] = useState<string | null>(null);
   const pendingFileRef = useRef<File | null>(null);
-  const committedImageUrlRef = useRef<string | undefined>(imageUrl);
 
   const revokeLocalPreview = useCallback((url: string | undefined) => {
     if (url?.startsWith('blob:')) {
       URL.revokeObjectURL(url);
     }
   }, []);
-
-  useEffect(() => {
-    if (
-      !imageUrl ||
-      burgerImageReferencesEqual(imageUrl, committedImageUrlRef.current)
-    ) {
-      return;
-    }
-
-    pendingFileRef.current = null;
-    setUploadError(null);
-    committedImageUrlRef.current = imageUrl;
-    setLocalPreviewUrl((prev) => {
-      revokeLocalPreview(prev);
-      return undefined;
-    });
-  }, [imageUrl, revokeLocalPreview]);
 
   useEffect(
     () => () => {
@@ -246,6 +227,11 @@ function BurgerPhotoField({
       ) : null}
     </div>
   );
+}
+
+function BurgerPhotoField(props: Readonly<Props>) {
+  const resetKey = props.imageUrl ?? '';
+  return <BurgerPhotoFieldInner key={resetKey} {...props} />;
 }
 
 export default BurgerPhotoField;

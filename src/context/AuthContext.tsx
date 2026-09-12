@@ -1,6 +1,6 @@
 import {
   createContext,
-  ReactNode,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
@@ -11,8 +11,8 @@ import {
   getRedirectResult,
   onAuthStateChanged,
   signOut,
-  User,
-  UserCredential,
+  type User,
+  type UserCredential,
 } from 'firebase/auth';
 import { auth } from 'utils/firebase';
 import { signInWithGoogle } from 'utils/googleSignIn';

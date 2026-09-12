@@ -10,10 +10,10 @@ import {
   getFormattedDate,
 } from 'functions';
 
-import { DocumentData } from 'firebase/firestore';
+import type { DocumentData } from 'firebase/firestore';
 import LocationLink from 'components/LocationLink';
 import ScoreBadge from 'components/ScoreBadge';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 import { getBurgerPath } from 'utils/burgerSlug';
 
 type Props = {
@@ -63,7 +63,7 @@ function Card({
           </div>
           <div className="min-w-0 p-3">
             <div className="flex items-start gap-1.5">
-              <h3 className="font-venue text-brand-700 line-clamp-2 min-w-0 flex-1 text-base leading-snug">
+              <h3 className="font-venue line-clamp-2 min-w-0 flex-1 text-base leading-snug text-brand-700">
                 {burger.venue}
               </h3>
               {inTopTen ? (
@@ -121,7 +121,7 @@ function Card({
           <div className="flex min-w-0 flex-row gap-4">
             <div className="min-w-0 flex-1">
               <Link
-                className="text-brand-700 hover:text-brand-800 block cursor-pointer"
+                className="block cursor-pointer text-brand-700 hover:text-brand-800"
                 href={getBurgerPath(burger as Burger)}
               >
                 <div className="flex items-start gap-2">

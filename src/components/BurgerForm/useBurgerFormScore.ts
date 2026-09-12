@@ -8,7 +8,7 @@ import {
   burgerFormValuesToScoreInput,
   emptyBurgerFormValues,
 } from './useBurgerForm';
-import { BurgerFormValues } from './types';
+import type { BurgerFormValues } from './types';
 
 export function useBurgerFormScore(form: FormInstance<BurgerFormValues>) {
   const watched = Form.useWatch([], form);

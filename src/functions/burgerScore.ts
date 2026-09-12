@@ -1,4 +1,4 @@
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 
 export type BurgerScoreCategory =
   'appearance' | 'bun' | 'meat' | 'cheese' | 'veg' | 'sauce';

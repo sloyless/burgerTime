@@ -35,7 +35,7 @@ type Props = {
   className?: string;
 };
 
-function BurgerPhoto({
+function BurgerPhotoInner({
   src,
   alt,
   layout,
@@ -48,11 +48,7 @@ function BurgerPhoto({
   );
 
   useEffect(() => {
-    const immediate = resolveBurgerImageUrlSync(src);
-    if (immediate) {
-      setResolvedSrc(immediate);
-      return;
-    }
+    if (resolveBurgerImageUrlSync(src)) return;
 
     let cancelled = false;
     void resolveBurgerImageUrl(src).then((url) => {
@@ -82,6 +78,10 @@ function BurgerPhoto({
       className={className}
     />
   );
+}
+
+function BurgerPhoto(props: Readonly<Props>) {
+  return <BurgerPhotoInner key={props.src} {...props} />;
 }
 
 export default BurgerPhoto;

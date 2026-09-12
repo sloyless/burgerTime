@@ -7,7 +7,7 @@ import Divider from 'components/Divider';
 import SectionHeading from 'components/SectionHeading';
 import HomeReviewList from 'components/HomeReviewList';
 import PageMeta from 'components/PageMeta';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 import Card from 'components/Card';
 import EmptyState from 'components/EmptyState';
 import HomePageSkeleton from 'components/HomePageSkeleton';
@@ -255,7 +255,7 @@ const Home: NextPage = () => {
                 <li key={burger.id} className="text-stone-800">
                   <Link
                     href={getBurgerPath(burger)}
-                    className="hover:text-brand-700 block"
+                    className="block hover:text-brand-700"
                   >
                     <span className="font-venue">{burger.venue}</span>
                     <span className="mt-0.5 line-clamp-1 block text-stone-500">

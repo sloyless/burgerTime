@@ -1,9 +1,9 @@
-import { DocumentData } from 'firebase/firestore';
+import type { DocumentData } from 'firebase/firestore';
 
 import { timestampToDateInputValue } from 'functions';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 
-import { BurgerFormValues } from './types';
+import type { BurgerFormValues } from './types';
 
 function defaultReviewDate(): string {
   const now = new Date();

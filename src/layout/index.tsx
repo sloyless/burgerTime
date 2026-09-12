@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import NavBar from 'components/NavBar';
 import Divider from 'components/Divider';
 import { GoogleAnalytics } from '@next/third-parties/google';

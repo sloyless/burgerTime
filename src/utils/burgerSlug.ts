@@ -7,7 +7,7 @@ import {
   isValidBurgerUrlSegment,
   looksLikeFirestoreDocumentId,
 } from 'utils/burgerUrlSegment';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 
 export {
   extractLegacyDocumentIdFromSlug,

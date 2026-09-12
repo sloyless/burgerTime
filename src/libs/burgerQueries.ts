@@ -2,21 +2,21 @@ import {
   collection,
   doc,
   documentId,
-  DocumentData,
+  type DocumentData,
   getCountFromServer,
   getDoc,
   getDocs,
   limit,
   orderBy,
   query,
-  QueryDocumentSnapshot,
+  type QueryDocumentSnapshot,
   startAfter,
   Timestamp,
   where,
 } from 'firebase/firestore';
 
 import { database } from 'utils/firebase';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 import {
   extractLegacyDocumentIdFromSlug,
   getCanonicalBurgerSlug,
@@ -30,10 +30,10 @@ import {
 import {
   decodeReviewPageCursor,
   encodeReviewPageCursor,
-  ReviewPageCursor,
+  type ReviewPageCursor,
 } from './reviewPageCursor';
 import { fetchCollectionStats } from './collectionSummary';
-import { BurgerCollectionStats } from './burgerStats';
+import type { BurgerCollectionStats } from './burgerStats';
 
 const BURGERS_COLLECTION = 'burgers';
 

@@ -1,5 +1,5 @@
 import { getBurgerPath } from 'utils/burgerSlug';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 
 /** Paths (`/burger/...`) for burgers in the current top-10 list. */
 export function buildTopTenPathLookup(burgers: Burger[]): ReadonlySet<string> {

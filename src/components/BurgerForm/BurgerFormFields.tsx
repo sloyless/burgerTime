@@ -26,7 +26,7 @@ import {
 } from './burgerFormCopy';
 import { STACK_SPACE_CLASSNAME } from 'theme/layout';
 
-import { BurgerFormValues } from './types';
+import type { BurgerFormValues } from './types';
 
 const ratingRule = (label: string) => ({
   validator: (_: unknown, value: number) =>

@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect, useState } from 'react';
+import { type MouseEvent, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -148,7 +148,7 @@ function NavBar() {
           }`}
         >
           <span
-            className="hover:text-brand-700 inline-block whitespace-nowrap text-stone-900"
+            className="inline-block whitespace-nowrap text-stone-900 hover:text-brand-700"
             style={{
               opacity: brandHidden ? 0 : 1,
               transition: isHome ? 'opacity 300ms ease-out' : undefined,
@@ -170,7 +170,7 @@ function NavBar() {
               className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-sans text-sm font-medium transition-colors ${
                 item.active
                   ? 'bg-brand-50 text-brand-700'
-                  : 'hover:text-brand-700 text-stone-600 hover:bg-stone-100'
+                  : 'text-stone-600 hover:bg-stone-100 hover:text-brand-700'
               }`}
             >
               <FontAwesomeIcon icon={item.icon} className="size-4" />

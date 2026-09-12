@@ -2,7 +2,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
-  UserCredential,
+  type UserCredential,
 } from 'firebase/auth';
 
 import { auth } from 'utils/firebase';

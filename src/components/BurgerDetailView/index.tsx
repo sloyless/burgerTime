@@ -1,6 +1,6 @@
 import { Card, Col, Divider, Row, Space, Typography } from 'antd';
 import BurgerPhoto from 'components/BurgerPhoto';
-import { DocumentData } from 'firebase/firestore';
+import type { DocumentData } from 'firebase/firestore';
 
 import BurgerRateField from 'components/BurgerRateField';
 import BurgerPriceLegend from 'components/BurgerForm/BurgerPriceLegend';
@@ -13,7 +13,7 @@ import ScoreBadge from 'components/ScoreBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBan } from '@fortawesome/free-solid-svg-icons';
 import { calculateTimestamp, getFormattedDate } from 'functions';
-import { Burger } from 'utils/types';
+import type { Burger } from 'utils/types';
 import { STACK_SPACE_CLASSNAME } from 'theme/layout';
 
 type Props = {
@@ -48,20 +48,20 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
         className="overflow-hidden border-orange-200/80 shadow-sm"
         styles={{ body: { padding: 0 } }}
       >
-        <div className="from-brand-100/70 via-brand-50 border-b border-orange-100/90 bg-linear-to-br to-white px-4 py-3 md:p-6">
+        <div className="border-b border-orange-100/90 bg-linear-to-br from-brand-100/70 via-brand-50 to-white px-4 py-3 md:p-6">
           <Row gutter={16} align="top" wrap={false}>
             <Col flex="auto" className="min-w-0">
               <div className="flex w-full flex-col gap-1">
                 <Typography.Title
                   level={1}
-                  className="font-venue text-brand-700! m-0! leading-tight"
+                  className="font-venue m-0! leading-tight text-brand-700!"
                 >
                   {burger.venue}
                 </Typography.Title>
                 <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                   <LocationLink
                     burger={locationBurger}
-                    className="hover:text-brand-700 line-clamp-1 min-w-0 font-sans text-xs text-stone-600"
+                    className="line-clamp-1 min-w-0 font-sans text-xs text-stone-600 hover:text-brand-700"
                   />
                   {timestampDate ? (
                     <>

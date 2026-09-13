@@ -51,7 +51,7 @@ function BurgerFormContainer({
       className="max-w-full min-w-0"
     >
       <Form.Item name="image" hidden preserve>
-        <input type="hidden" aria-hidden />
+        <input type="hidden" aria-hidden="true" />
       </Form.Item>
       <BurgerFormFields
         form={form}

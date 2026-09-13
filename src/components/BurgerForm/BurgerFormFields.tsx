@@ -93,7 +93,6 @@ function BurgerFormFields({
                   <Input
                     id={id('venue')}
                     placeholder="Shake Shack"
-                    variant="borderless"
                     className="font-venue px-0! text-2xl! text-orange-700! md:text-3xl!"
                   />
                 </Form.Item>
@@ -152,8 +151,7 @@ function BurgerFormFields({
           <Input
             id={id('burgerName')}
             placeholder="Shackburger"
-            variant="borderless"
-            className="px-0! text-xl! font-bold! italic! md:text-2xl!"
+            className="px-0! text-xl! font-bold! md:text-2xl!"
           />
         </Form.Item>
         <Form.Item name="notes" label="Notes">

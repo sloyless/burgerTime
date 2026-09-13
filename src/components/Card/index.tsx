@@ -63,7 +63,7 @@ function Card({
           </div>
           <div className="min-w-0 p-3">
             <div className="flex items-start gap-1.5">
-              <h3 className="font-venue line-clamp-2 min-w-0 flex-1 text-base leading-snug text-brand-700">
+              <h3 className="font-venue text-brand-700 line-clamp-2 min-w-0 flex-1 text-base leading-snug">
                 {burger.venue}
               </h3>
               {inTopTen ? (
@@ -121,7 +121,7 @@ function Card({
           <div className="flex min-w-0 flex-row gap-4">
             <div className="min-w-0 flex-1">
               <Link
-                className="block cursor-pointer text-brand-700 hover:text-brand-800"
+                className="text-brand-700 hover:text-brand-800 block cursor-pointer"
                 href={getBurgerPath(burger as Burger)}
               >
                 <div className="flex items-start gap-2">
@@ -163,7 +163,7 @@ function Card({
               featured ? 'text-lg' : 'line-clamp-2 text-sm'
             }`}
           >
-            <span className="font-bold text-stone-900 italic">
+            <span className="font-bold text-stone-900">
               {burger.burgerName}
             </span>
             {burger?.notes && <span>: {burger.notes}</span>}

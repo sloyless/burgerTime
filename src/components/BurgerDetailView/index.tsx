@@ -48,20 +48,20 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
         className="overflow-hidden border-orange-200/80 shadow-sm"
         styles={{ body: { padding: 0 } }}
       >
-        <div className="border-b border-orange-100/90 bg-linear-to-br from-brand-100/70 via-brand-50 to-white px-4 py-3 md:p-6">
+        <div className="from-brand-100/70 via-brand-50 border-b border-orange-100/90 bg-linear-to-br to-white px-4 py-3 md:p-6">
           <Row gutter={16} align="top" wrap={false}>
             <Col flex="auto" className="min-w-0">
               <div className="flex w-full flex-col gap-1">
                 <Typography.Title
                   level={1}
-                  className="font-venue m-0! leading-tight text-brand-700!"
+                  className="font-venue text-brand-700! m-0! leading-tight"
                 >
                   {burger.venue}
                 </Typography.Title>
                 <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                   <LocationLink
                     burger={locationBurger}
-                    className="line-clamp-1 min-w-0 font-sans text-xs text-stone-600 hover:text-brand-700"
+                    className="hover:text-brand-700 line-clamp-1 min-w-0 font-sans text-xs text-stone-600"
                   />
                   {timestampDate ? (
                     <>
@@ -111,7 +111,7 @@ function BurgerDetailView({ burger, score }: Readonly<Props>) {
           className={STACK_SPACE_CLASSNAME}
         >
           <div>
-            <Typography.Title level={3} className="mt-0! font-serif! italic!">
+            <Typography.Title level={3} className="mt-0! font-serif!">
               {burger.burgerName}
             </Typography.Title>
             {burger.notes ? (

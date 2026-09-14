@@ -82,12 +82,13 @@ jobs:
         run: yarn generate:sitemap
 
       # Next.js production build runs inside Firebase Hosting deploy (web frameworks).
+      # We invoke the CLI directly: action-hosting-deploy can fail *after* a successful
+      # deploy with "Failed to list functions" if the service account lacks
+      # cloudfunctions.functions.list (SSR uses Cloud Functions / Cloud Run).
       - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BURGERTIME_48011 }}
-          projectId: burgertime-48011
-          firebaseToolsVersion: '15.30.0'
-          channelId: ${{ inputs.channelId }}
-          disableComment: ${{ inputs.disableComment }}
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BURGERTIME_48011 }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-sa.json
+        run: |
+          printf '%s\n' "$FIREBASE_SERVICE_ACCOUNT" > "$GOOGLE_APPLICATION_CREDENTIALS"
+          npx firebase-tools@15.30.0 deploy --only hosting --project burgertime-48011 --non-interactive

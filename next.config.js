@@ -2,8 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['antd'],
-  // Hosting SSR: keep Admin SDK external; avoid bundling client Firebase into the server graph.
-  serverExternalPackages: ['firebase-admin', 'firebase', '@firebase/app', '@firebase/firestore'],
+  // Hosting SSR: keep Admin SDK external (webpack build — see scripts/wrap-next-bin-for-hosting.sh).
+  serverExternalPackages: ['firebase-admin'],
   experimental: {
     optimizePackageImports: ['antd', '@fortawesome/free-solid-svg-icons'],
   },

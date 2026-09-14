@@ -1,22 +1,26 @@
-import { getApps, initializeApp } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import * as admin from 'firebase-admin';
 
 /**
- * Must run at module load — conditional/lazy init is tree-shaken in the Hosting
- * SSR bundle and causes "default Firebase app does not exist" in production.
+ * Unconditional init — `if (!getApps().length)` is tree-shaken in Firebase Hosting SSR
+ * bundles and causes "default Firebase app does not exist" on dynamic routes.
  * @see https://github.com/firebase/firebase-tools/issues/8244
  */
-if (!getApps().length) {
-  initializeApp({
+try {
+  admin.initializeApp({
     projectId:
       process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ??
       process.env.GCLOUD_PROJECT ??
       process.env.GOOGLE_CLOUD_PROJECT ??
       'burgertime-48011',
   });
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  if (!message.includes('already exists')) {
+    throw error;
+  }
 }
 
 /** Pages Router: import only from `getServerSideProps` (never from client components). */
 export function getAdminFirestore() {
-  return getFirestore();
+  return admin.firestore();
 }

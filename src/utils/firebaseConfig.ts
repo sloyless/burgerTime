@@ -1,4 +1,7 @@
-import { PROJECT_AUTH_HANDLER_HOST, resolveClientAuthDomain } from 'utils/firebaseAuthDomain';
+import {
+  PROJECT_AUTH_HANDLER_HOST,
+  resolveClientAuthDomain,
+} from 'utils/firebaseAuthDomain';
 
 /** Shared Firebase web config (client + `initializeServerApp` on the server). */
 export function getFirebaseWebConfig() {

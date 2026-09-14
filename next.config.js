@@ -5,18 +5,8 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['antd', '@fortawesome/free-solid-svg-icons'],
   },
-  async rewrites() {
-    return {
-      afterFiles: [
-        {
-          source: '/burger/:slug',
-          destination: '/burger/[slug].html',
-        },
-      ],
-    };
-  },
   images: {
-    // Required for Firebase Hosting without the Next.js SSR Cloud Function.
+    // Avoids an extra Hosting image-optimization Cloud Function on Firebase.
     unoptimized: true,
     remotePatterns: [
       {

@@ -18,41 +18,15 @@ import {
 } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
+import { getFirebaseWebConfig } from 'utils/firebaseConfig';
+import { PROJECT_AUTH_HANDLER_HOST } from 'utils/firebaseAuthDomain';
 import { isIosWebKit } from 'utils/isIosWebKit';
 
-const PROJECT_AUTH_HANDLER_HOST = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
-  ? `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}.firebaseapp.com`
-  : 'burgertime-48011.firebaseapp.com';
+export { PROJECT_AUTH_HANDLER_HOST };
 
-const CUSTOM_SITE_HOSTS = new Set(['burgertime.app', 'www.burgertime.app']);
-
-/** Use the site hostname as authDomain on production (OAuth return stays on-site). */
-export function resolveClientAuthDomain(): string {
-  const configured =
-    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? PROJECT_AUTH_HANDLER_HOST;
-
-  if (typeof window === 'undefined') {
-    return configured;
-  }
-
-  const hostname = window.location.hostname;
-  if (CUSTOM_SITE_HOSTS.has(hostname)) {
-    return hostname === 'www.burgertime.app' ? 'burgertime.app' : hostname;
-  }
-
-  return configured;
-}
-
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: resolveClientAuthDomain(),
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
-
-export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+export const app = getApps().length
+  ? getApp()
+  : initializeApp(getFirebaseWebConfig());
 
 function initAuth(): Auth {
   if (typeof window === 'undefined') {
@@ -107,5 +81,3 @@ export const database = initDatabase();
 
 /** Use the bucket from Firebase config so upload URLs match `storageBucket` in the console. */
 export const storage = getStorage(app);
-
-export { PROJECT_AUTH_HANDLER_HOST };

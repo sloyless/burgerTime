@@ -5,3 +5,4 @@ public
 .firebase
 .github
 .next
+next-env.d.ts

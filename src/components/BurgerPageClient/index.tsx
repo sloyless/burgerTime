@@ -15,6 +15,7 @@ import { Layout } from 'layout';
 import { useBurgerUrlSegment } from 'hooks/useBurgerUrlSegment';
 import { resolveBurgerDocumentId } from 'libs/burgerQueries';
 import { database } from 'utils/firebase';
+import type { ServerBurger } from 'utils/serverBurger';
 import type { Burger } from 'utils/types';
 import { allocateBurgerSlug, getCanonicalBurgerSlug } from 'utils/burgerSlug';
 import {
@@ -44,17 +45,50 @@ type BurgerSnapshot = {
   error: boolean;
 };
 
-function BurgerPageClient() {
+type Props = {
+  slug: string;
+  initialBurger: ServerBurger | null;
+};
+
+function BurgerPageClient({
+  slug: slugFromServer,
+  initialBurger,
+}: Readonly<Props>) {
   const router = useRouter();
-  const urlSegment = useBurgerUrlSegment();
+  const urlSegmentFromPath = useBurgerUrlSegment();
+  const slugFromRouter =
+    typeof router.query.slug === 'string' && router.query.slug !== '[slug]'
+      ? router.query.slug
+      : '';
+  const urlSegment = slugFromRouter || slugFromServer || urlSegmentFromPath;
   const { user } = useAuth();
 
-  const [resolution, setResolution] = useState<UrlResolution | null>(null);
-  const [snapshot, setSnapshot] = useState<BurgerSnapshot | null>(null);
+  const seededBurger =
+    initialBurger && slugFromServer === urlSegment ? initialBurger : null;
+
+  const [resolution, setResolution] = useState<UrlResolution | null>(() =>
+    seededBurger
+      ? {
+          segment: urlSegment,
+          documentId: seededBurger.id,
+          status: 'ok',
+        }
+      : null
+  );
+  const [snapshot, setSnapshot] = useState<BurgerSnapshot | null>(() =>
+    seededBurger
+      ? {
+          key: `${seededBurger.id}:0`,
+          loaded: true,
+          error: false,
+          burger: seededBurger,
+        }
+      : null
+  );
   const [listenKey, setListenKey] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editBaseline, setEditBaseline] = useState<DocumentData | null>(null);
-  const documentIdRef = useRef<string | undefined>(undefined);
+  const documentIdRef = useRef<string | undefined>(seededBurger?.id);
   const slugBackfillAttemptedRef = useRef<Set<string>>(new Set());
 
   const isAdmin = user?.uid === ADMINUID;
@@ -77,6 +111,11 @@ function BurgerPageClient() {
 
   useEffect(() => {
     if (!urlSegment) return;
+
+    if (seededBurger?.id && slugFromServer === urlSegment) {
+      documentIdRef.current = seededBurger.id;
+      return;
+    }
 
     let cancelled = false;
 
@@ -115,7 +154,7 @@ function BurgerPageClient() {
     return () => {
       cancelled = true;
     };
-  }, [urlSegment]);
+  }, [urlSegment, seededBurger, slugFromServer]);
 
   useEffect(() => {
     if (!documentId) return;
@@ -247,13 +286,19 @@ function BurgerPageClient() {
     !burgerRecord &&
     (!documentId || snapshotLoaded);
 
+  const serverRenderedMeta = Boolean(
+    initialBurger && slugFromServer === urlSegment
+  );
+
   if (loading) {
     return (
       <Layout padding={false}>
-        <PageMeta
-          title="Burger review"
-          canonicalPath={`/burger/${urlSegment}`}
-        />
+        {!serverRenderedMeta ? (
+          <PageMeta
+            title="Burger review"
+            canonicalPath={`/burger/${urlSegment}`}
+          />
+        ) : null}
         <BurgerDetailSkeleton />
       </Layout>
     );
@@ -311,7 +356,7 @@ function BurgerPageClient() {
 
   return (
     <Layout padding={false}>
-      {burgerRecord ? (
+      {burgerRecord && (!serverRenderedMeta || snapshotLoaded) ? (
         <BurgerPageMeta
           burger={{ ...burgerRecord, id: documentId, slug: canonicalSlug }}
           urlSegment={urlSegment}

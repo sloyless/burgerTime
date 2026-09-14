@@ -3455,6 +3455,7 @@ __metadata:
     eslint: "npm:^9.39.5"
     eslint-config-next: "npm:^16.3.5"
     eslint-config-prettier: "npm:^10.1.8"
+    eslint-plugin-react-hooks: "npm:^7.0.0"
     eslint-plugin-tailwindcss: "npm:^4.4.0"
     firebase: "npm:^12.19.0"
     lint-staged: "npm:^17.5.1"

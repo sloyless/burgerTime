@@ -23,6 +23,7 @@ burgertime-admin.json
 storage.rules
 firestore.rules
 database.rules
+database.rules.json
 
 # Eslint cache
 .eslintcache

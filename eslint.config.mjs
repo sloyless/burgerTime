@@ -2,7 +2,10 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
 import prettier from 'eslint-config-prettier/flat';
+import esPluginReact from 'eslint-plugin-react';
+import eslintPluginReactHooks from 'eslint-plugin-react-hooks';
 import eslintPluginTailwindcss from 'eslint-plugin-tailwindcss';
+
 const unusedVarsRule = [
   'error',
   {
@@ -19,9 +22,14 @@ export default defineConfig([
     eslintPluginTailwindcss.configs.recommended,
   {
     plugins: {
+      react: esPluginReact,
+      'react-hooks': eslintPluginReactHooks,
       tailwindcss: eslintPluginTailwindcss,
     },
     settings: {
+      react: {
+        version: 'detect',
+      },
       tailwindcss: {
         cssConfigPath: './src/styles/globals.css',
       },

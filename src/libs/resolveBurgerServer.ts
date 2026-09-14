@@ -10,6 +10,7 @@ import {
   where,
 } from 'firebase/firestore';
 
+import { resolveBurgerByUrlSegmentAdmin } from 'libs/resolveBurgerAdmin';
 import {
   extractLegacyDocumentIdFromSlug,
   looksLikeFirestoreDocumentId,
@@ -22,8 +23,8 @@ const BURGERS_COLLECTION = 'burgers';
 function isFirebaseManagedServerRuntime(): boolean {
   return Boolean(
     process.env.K_SERVICE ||
-    process.env.FUNCTION_TARGET ||
-    process.env.FIREBASE_CONFIG
+      process.env.FUNCTION_TARGET ||
+      process.env.FIREBASE_CONFIG
   );
 }
 
@@ -68,8 +69,6 @@ export async function resolveBurgerByUrlSegment(
   req: IncomingMessage
 ): Promise<ServerBurger | null> {
   if (isFirebaseManagedServerRuntime()) {
-    const { resolveBurgerByUrlSegmentAdmin } =
-      await import('./resolveBurgerAdmin');
     return resolveBurgerByUrlSegmentAdmin(urlSegment);
   }
 

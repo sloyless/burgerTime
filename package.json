@@ -4,7 +4,7 @@
   "scripts": {
     "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true",
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
@@ -27,7 +27,6 @@
     "dayjs": "^1.11.23",
     "firebase": "^12.19.0",
     "firebase-admin": "^13.6.0",
-    "firebase-frameworks": "^0.11.8",
     "nanoid": "^5.1.5",
     "next": "16.3.4",
     "react": "^19.3.0",

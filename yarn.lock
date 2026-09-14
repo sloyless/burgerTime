@@ -1173,32 +1173,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/accept@npm:^6.0.1":
-  version: 6.0.3
-  resolution: "@hapi/accept@npm:6.0.3"
-  dependencies:
-    "@hapi/boom": "npm:^10.0.1"
-    "@hapi/hoek": "npm:^11.0.2"
-  checksum: 10c0/6860dc50c337c6f4fcf8597c10e74ca4a481d3925075860110b641a0e670a036cdecccb49049745dc1c7ab219a1538ae56c40a38420c7f4aceef13cadd56cb1d
-  languageName: node
-  linkType: hard
-
-"@hapi/boom@npm:^10.0.1":
-  version: 10.0.1
-  resolution: "@hapi/boom@npm:10.0.1"
-  dependencies:
-    "@hapi/hoek": "npm:^11.0.2"
-  checksum: 10c0/e4ae8a69bb67c5687320d320a0706ac66e797a659c19fb1c9b909eaefe3b41780e4ecd4382de1297b10c33e9db81f79667324576b9153f57b0cf701293b908d0
-  languageName: node
-  linkType: hard
-
-"@hapi/hoek@npm:^11.0.2":
-  version: 11.0.7
-  resolution: "@hapi/hoek@npm:11.0.7"
-  checksum: 10c0/39a4a3ae9526ed66509f6d03c6eb43179a2590df6e98443328c966cfa5e7cbb9d340f61fdbe0afe092662d5377d5a611c3303c808fee26a9c9cfd6bd3737dc1c
-  languageName: node
-  linkType: hard
-
 "@humanfs/core@npm:^0.19.2":
   version: 0.19.2
   resolution: "@humanfs/core@npm:0.19.2"
@@ -3596,7 +3570,6 @@ __metadata:
     eslint-plugin-tailwindcss: "npm:^4.4.0"
     firebase: "npm:^12.19.0"
     firebase-admin: "npm:^13.6.0"
-    firebase-frameworks: "npm:^0.11.8"
     lint-staged: "npm:^17.5.1"
     nanoid: "npm:^5.1.5"
     next: "npm:16.3.4"
@@ -3769,13 +3742,6 @@ __metadata:
   version: 2.0.0
   resolution: "convert-source-map@npm:2.0.0"
   checksum: 10c0/8f2f7a27a1a011cc6cc88cc4da2d7d0cfa5ee0369508baae3d98c260bb3ac520691464e5bbe4ae7cdf09860c1d69ecc6f70c63c6e7c7f7e3f18ec08484dc7d9b
-  languageName: node
-  linkType: hard
-
-"cookie@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "cookie@npm:0.5.0"
-  checksum: 10c0/c01ca3ef8d7b8187bae434434582288681273b5a9ed27521d4d7f9f7928fe0c920df0decd9f9d3bbd2d14ac432b8c8cf42b98b3bdd5bfe0e6edddeebebe8b61d
   languageName: node
   linkType: hard
 
@@ -4694,27 +4660,6 @@ __metadata:
     "@google-cloud/storage":
       optional: true
   checksum: 10c0/a647d91f05a644931ec27c217ebf2143841153f220b041ee97fd64bf402c08552f604112694c2597135fd84275144c2f19fc92920f8e01cb0caef4240b1e4974
-  languageName: node
-  linkType: hard
-
-"firebase-frameworks@npm:^0.11.8":
-  version: 0.11.8
-  resolution: "firebase-frameworks@npm:0.11.8"
-  dependencies:
-    "@hapi/accept": "npm:^6.0.1"
-    cookie: "npm:^0.5.0"
-    lru-cache: "npm:^7.14.0"
-    tslib: "npm:^2.3.1"
-  peerDependencies:
-    firebase: ^9.9.0 || ^10.0.0 || ^11.0.0 || ^12.0.0
-    firebase-admin: ^11.0.1 || ^12.0.0 || ^13.0.0
-    sharp: ^0.32 || ^0.33
-  peerDependenciesMeta:
-    firebase:
-      optional: true
-    sharp:
-      optional: true
-  checksum: 10c0/ba11e4b44beb7e48c6b30cd0aabce9597d068809384ff180795b6fdfded13a76c17324f69f50597e5bc7c8d962efe9277a4e2ba85a0469ae84699ee0019a8991
   languageName: node
   linkType: hard
 
@@ -6064,13 +6009,6 @@ __metadata:
   dependencies:
     yallist: "npm:^3.0.2"
   checksum: 10c0/89b2ef2ef45f543011e38737b8a8622a2f8998cddf0e5437174ef8f1f70a8b9d14a918ab3e232cb3ba343b7abddffa667f0b59075b2b80e6b4d63c3de6127482
-  languageName: node
-  linkType: hard
-
-"lru-cache@npm:^7.14.0":
-  version: 7.18.3
-  resolution: "lru-cache@npm:7.18.3"
-  checksum: 10c0/b3a452b491433db885beed95041eb104c157ef7794b9c9b4d647be503be91769d11206bb573849a16b4cc0d03cbd15ffd22df7960997788b74c1d399ac7a4fed
   languageName: node
   linkType: hard
 
@@ -7657,7 +7595,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.1.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0, tslib@npm:^2.7.0, tslib@npm:^2.8.0, tslib@npm:^2.8.1":
+"tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.7.0, tslib@npm:^2.8.0, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62

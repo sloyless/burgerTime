@@ -18,6 +18,11 @@ import { faStar } from '@fortawesome/free-solid-svg-icons';
 import HomeBurgerStats from 'components/HomeBurgerStats';
 import SiteWordmark from 'components/SiteWordmark';
 import { fetchHomePageData } from 'libs/burgerQueries';
+import {
+  HOME_PAGE_SIZE,
+  type HomePageInitialData,
+  type HomePageProps,
+} from 'libs/homePageTypes';
 import type { BurgerCollectionStats } from 'libs/burgerStats';
 import {
   readStoredPageCursors,
@@ -28,8 +33,11 @@ import {
   buildTopTenPathLookup,
   isBurgerInTopTenLookup,
 } from 'libs/topTenMatch';
+import { serverBurgerToBurger } from 'utils/serverBurger';
 
-const PAGE_SIZE = 25;
+export { getHomeStaticProps as getStaticProps } from 'libs/homePageServerProps';
+
+const PAGE_SIZE = HOME_PAGE_SIZE;
 
 function homeReviewListPath(
   page: number,
@@ -43,26 +51,54 @@ function homeReviewListPath(
   return `/?page=${page}`;
 }
 
-const Home: NextPage = () => {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
-  const [reloadToken, setReloadToken] = useState(0);
-  const [pageItems, setPageItems] = useState<Burger[]>([]);
-  const [topTenBurgers, setTopTenBurgers] = useState<Burger[]>([]);
-  const [collectionStats, setCollectionStats] =
-    useState<BurgerCollectionStats | null>(null);
-  const [totalReviews, setTotalReviews] = useState(0);
-  const [listPagination, setListPagination] = useState<{
-    prev?: string;
-    next?: string;
-  }>();
-  const pageCursorsRef = useRef<Map<number, string>>(new Map());
-  const cursorsHydratedRef = useRef(false);
+function burgersFromInitial(initial: HomePageInitialData): {
+  pageItems: Burger[];
+  topTen: Burger[];
+} {
+  return {
+    pageItems: initial.pageItems.map(serverBurgerToBurger),
+    topTen: initial.topTen.map(serverBurgerToBurger),
+  };
+}
 
+function useInitialHomePage(initialHome: HomePageInitialData | null) {
+  const router = useRouter();
   const requestedPage = Number(router.query.page) || 1;
   const afterParam =
     typeof router.query.after === 'string' ? router.query.after : undefined;
+  const useServerPageOne =
+    initialHome != null && requestedPage <= 1 && !afterParam;
+
+  return { requestedPage, afterParam, useServerPageOne };
+}
+
+const Home: NextPage<HomePageProps> = ({ initialHome }) => {
+  const router = useRouter();
+  const { requestedPage, afterParam, useServerPageOne } =
+    useInitialHomePage(initialHome);
+
+  const seeded = useServerPageOne && initialHome ? initialHome : null;
+  const seededBurgers = seeded ? burgersFromInitial(seeded) : null;
+
+  const [loading, setLoading] = useState(!useServerPageOne);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
+  const [pageItems, setPageItems] = useState<Burger[]>(
+    () => seededBurgers?.pageItems ?? []
+  );
+  const [topTenBurgers, setTopTenBurgers] = useState<Burger[]>(
+    () => seededBurgers?.topTen ?? []
+  );
+  const [collectionStats, setCollectionStats] =
+    useState<BurgerCollectionStats | null>(() => seeded?.stats ?? null);
+  const [totalReviews, setTotalReviews] = useState(() => seeded?.count ?? 0);
+  const [listPagination, setListPagination] = useState<
+    HomePageInitialData['listPagination']
+  >(() => seeded?.listPagination);
+  const pageCursorsRef = useRef<Map<number, string>>(new Map());
+  const cursorsHydratedRef = useRef(false);
+  const skippedInitialClientFetchRef = useRef(false);
+
   const totalPages = Math.max(1, Math.ceil(totalReviews / PAGE_SIZE));
   const currentPage = Math.min(Math.max(1, requestedPage), totalPages);
 
@@ -81,7 +117,11 @@ const Home: NextPage = () => {
     for (const [page, cursor] of readStoredPageCursors()) {
       pageCursorsRef.current.set(page, cursor);
     }
-  }, []);
+    if (seeded?.nextPageCursorEncoded) {
+      pageCursorsRef.current.set(2, seeded.nextPageCursorEncoded);
+      writeStoredPageCursors(pageCursorsRef.current);
+    }
+  }, [seeded?.nextPageCursorEncoded]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -104,8 +144,18 @@ const Home: NextPage = () => {
   useEffect(() => {
     if (!router.isReady) return;
 
-    let cancelled = false;
     const page = Math.max(1, requestedPage);
+
+    if (
+      reloadToken === 0 &&
+      page <= 1 &&
+      !afterParam &&
+      initialHome &&
+      !skippedInitialClientFetchRef.current
+    ) {
+      skippedInitialClientFetchRef.current = true;
+      return;
+    }
 
     if (page > 1 && !afterParam) {
       const cursor =
@@ -116,6 +166,7 @@ const Home: NextPage = () => {
       }
     }
 
+    let cancelled = false;
     setLoading(true);
     setLoadError(false);
 
@@ -209,7 +260,14 @@ const Home: NextPage = () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
     };
-  }, [router.isReady, requestedPage, afterParam, reloadToken, router]);
+  }, [
+    router.isReady,
+    requestedPage,
+    afterParam,
+    reloadToken,
+    router,
+    initialHome,
+  ]);
 
   function goToPage(page: number) {
     if (page === 1) {

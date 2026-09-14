@@ -1,0 +1,12 @@
+name: Setup Yarn
+description: Use the Yarn version from package.json (Corepack), not global Yarn 1.x
+runs:
+  using: composite
+  steps:
+    - name: Activate Yarn from packageManager
+      shell: bash
+      run: |
+        npm uninstall -g yarn 2>/dev/null || true
+        corepack enable
+        corepack prepare "$(node -p "require('./package.json').packageManager")" --activate
+        yarn --version

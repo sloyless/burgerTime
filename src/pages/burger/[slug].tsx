@@ -5,7 +5,7 @@ import BurgerPageMeta from 'components/BurgerPageMeta';
 import PageMeta from 'components/PageMeta';
 import BurgerDetailSkeleton from 'components/BurgerDetailSkeleton';
 import { Layout } from 'layout';
-import { resolveBurgerByUrlSegment } from 'libs/resolveBurgerServer';
+import { resolveBurgerByUrlSegmentAdmin } from 'libs/resolveBurgerAdmin';
 import { getBurgerPath } from 'utils/burgerPaths';
 import { isValidBurgerUrlSegment } from 'utils/burgerUrlSegment';
 import type { ServerBurger } from 'utils/serverBurger';
@@ -61,7 +61,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   }
 
   try {
-    const burger = await resolveBurgerByUrlSegment(slug, context.req);
+    const burger = await resolveBurgerByUrlSegmentAdmin(slug);
     if (!burger) {
       return { notFound: true };
     }

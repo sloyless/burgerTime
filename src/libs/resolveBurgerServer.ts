@@ -19,8 +19,15 @@ import { docToServerBurger, type ServerBurger } from 'utils/serverBurger';
 
 const BURGERS_COLLECTION = 'burgers';
 
-/** Pages Router: call only from `getServerSideProps`. */
-export async function resolveBurgerByUrlSegment(
+function isFirebaseManagedServerRuntime(): boolean {
+  return Boolean(
+    process.env.K_SERVICE ||
+    process.env.FUNCTION_TARGET ||
+    process.env.FIREBASE_CONFIG
+  );
+}
+
+async function resolveBurgerByUrlSegmentClient(
   urlSegment: string,
   req: IncomingMessage
 ): Promise<ServerBurger | null> {
@@ -53,4 +60,18 @@ export async function resolveBurgerByUrlSegment(
   }
 
   return null;
+}
+
+/** Pages Router: call only from `getServerSideProps`. */
+export async function resolveBurgerByUrlSegment(
+  urlSegment: string,
+  req: IncomingMessage
+): Promise<ServerBurger | null> {
+  if (isFirebaseManagedServerRuntime()) {
+    const { resolveBurgerByUrlSegmentAdmin } =
+      await import('./resolveBurgerAdmin');
+    return resolveBurgerByUrlSegmentAdmin(urlSegment);
+  }
+
+  return resolveBurgerByUrlSegmentClient(urlSegment, req);
 }

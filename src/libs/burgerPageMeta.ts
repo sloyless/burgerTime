@@ -1,5 +1,5 @@
 import { calculateTimestamp, getDisplayScore } from 'functions';
-import { getBurgerPath, getCanonicalBurgerSlug } from 'utils/burgerSlug';
+import { getBurgerPath, getCanonicalBurgerSlug } from 'utils/burgerPaths';
 import type { Burger } from 'utils/types';
 
 export type BurgerPageMetaFields = {

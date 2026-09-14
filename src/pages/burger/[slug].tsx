@@ -6,7 +6,7 @@ import PageMeta from 'components/PageMeta';
 import BurgerDetailSkeleton from 'components/BurgerDetailSkeleton';
 import { Layout } from 'layout';
 import { resolveBurgerByUrlSegment } from 'libs/resolveBurgerServer';
-import { getBurgerPath } from 'utils/burgerSlug';
+import { getBurgerPath } from 'utils/burgerPaths';
 import { isValidBurgerUrlSegment } from 'utils/burgerUrlSegment';
 import type { ServerBurger } from 'utils/serverBurger';
 import { serverBurgerToBurger } from 'utils/serverBurger';

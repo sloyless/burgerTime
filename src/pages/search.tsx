@@ -15,59 +15,82 @@ import { getBurgerPath } from 'utils/burgerSlug';
 
 const { Search } = Input;
 
+type SearchFetchState = {
+  term: string;
+  status: 'idle' | 'loading' | 'done' | 'error';
+  results: Burger[];
+};
+
+const idleFetch: SearchFetchState = {
+  term: '',
+  status: 'idle',
+  results: [],
+};
+
 const SearchPage: NextPage = () => {
   const router = useRouter();
+  const urlQ =
+    router.isReady && typeof router.query.q === 'string' ? router.query.q : '';
+  const submittedQuery = urlQ.trim();
+
   const [draftQuery, setDraftQuery] = useState('');
-  const [submittedQuery, setSubmittedQuery] = useState('');
-  const [results, setResults] = useState<Burger[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState(false);
+  const [lastSyncedUrlQ, setLastSyncedUrlQ] = useState<string | null>(null);
+  if (router.isReady && lastSyncedUrlQ !== urlQ) {
+    setLastSyncedUrlQ(urlQ);
+    setDraftQuery(urlQ);
+  }
 
-  useEffect(() => {
-    if (!router.isReady) return;
-    const q = typeof router.query.q === 'string' ? router.query.q : '';
-    setDraftQuery(q);
-    setSubmittedQuery(q.trim());
-  }, [router.isReady, router.query.q]);
+  const [fetch, setFetch] = useState<SearchFetchState>(idleFetch);
 
-  useEffect(() => {
-    if (!router.isReady) return;
-
-    const term = submittedQuery;
-    if (!term) {
-      setResults([]);
-      setLoadError(false);
-      setLoading(false);
-      return;
+  if (router.isReady) {
+    if (!submittedQuery) {
+      if (fetch.status !== 'idle' || fetch.term !== '') {
+        setFetch(idleFetch);
+      }
+    } else if (
+      submittedQuery !== fetch.term ||
+      (fetch.term === submittedQuery && fetch.status === 'idle')
+    ) {
+      setFetch({
+        term: submittedQuery,
+        status: 'loading',
+        results: [],
+      });
     }
+  }
 
+  useEffect(() => {
+    if (fetch.status !== 'loading') return;
+
+    const term = fetch.term;
     let cancelled = false;
-    setLoading(true);
-    setLoadError(false);
 
-    void (async () => {
-      try {
-        const items = await searchBurgers(term);
+    void searchBurgers(term)
+      .then((items) => {
         if (!cancelled) {
-          setResults(items);
+          setFetch({ term, status: 'done', results: items });
         }
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error('Search failed:', error);
         if (!cancelled) {
-          setLoadError(true);
-          setResults([]);
+          setFetch({ term, status: 'error', results: [] });
         }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [router.isReady, submittedQuery]);
+  }, [fetch.status, fetch.term]);
+
+  const loading = fetch.status === 'loading';
+  const loadError = fetch.status === 'error';
+  const results = fetch.status === 'done' ? fetch.results : [];
+
+  const retrySearch = useCallback(() => {
+    if (!submittedQuery) return;
+    setFetch({ term: submittedQuery, status: 'loading', results: [] });
+  }, [submittedQuery]);
 
   const runSearch = useCallback(
     (value: string) => {
@@ -119,11 +142,7 @@ const SearchPage: NextPage = () => {
           title="Search failed"
           subTitle="Check your connection and try again."
           extra={
-            <Button
-              type="button"
-              status="primary"
-              onClick={() => runSearch(submittedQuery)}
-            >
+            <Button type="button" status="primary" onClick={retrySearch}>
               Try again
             </Button>
           }

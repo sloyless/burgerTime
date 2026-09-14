@@ -88,11 +88,8 @@ function NavBar() {
 
   useEffect(() => {
     if (!isHome) {
-      setHomeHeroInView(false);
       return;
     }
-
-    setHomeHeroInView(true);
 
     let observer: IntersectionObserver | undefined;
 

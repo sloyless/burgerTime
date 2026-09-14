@@ -4,7 +4,11 @@ import {
   initializeServerApp,
   type FirebaseServerAppSettings,
 } from 'firebase/app';
-import { getFirestore, type Firestore } from 'firebase/firestore';
+import {
+  getFirestore,
+  initializeFirestore,
+  type Firestore,
+} from 'firebase/firestore';
 
 import { getFirebaseWebConfig } from 'utils/firebaseConfig';
 
@@ -23,5 +27,12 @@ export function getServerFirestore(req: IncomingMessage): Firestore {
   }
 
   const serverApp = initializeServerApp(getFirebaseWebConfig(), settings);
-  return getFirestore(serverApp);
+
+  try {
+    return initializeFirestore(serverApp, {
+      experimentalForceLongPolling: true,
+    });
+  } catch {
+    return getFirestore(serverApp);
+  }
 }

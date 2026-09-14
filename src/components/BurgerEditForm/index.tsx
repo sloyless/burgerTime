@@ -55,6 +55,12 @@ function BurgerEditForm({
     [initial]
   );
 
+  const [dirtyBaseline, setDirtyBaseline] = useState(initialValues);
+  if (dirtyBaseline !== initialValues) {
+    setDirtyBaseline(initialValues);
+    setIsDirty(false);
+  }
+
   const imageUrl = Form.useWatch('image', form) ?? initialValues.image;
   const isFormComplete = useBurgerFormComplete(form);
 
@@ -70,7 +76,6 @@ function BurgerEditForm({
 
   useEffect(() => {
     form.setFieldsValue(initialValues);
-    setIsDirty(false);
   }, [form, initialValues]);
 
   const { isUploading, uploadImage } = useBurgerPhotoUpload({

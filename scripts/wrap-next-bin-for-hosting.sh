@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Firebase Hosting web frameworks invoke `next build` directly (Turbopack on Next 16).
-# Wrap the CLI so deploy uses webpack — required for serverExternalPackages / Admin SSR.
+# Firebase web frameworks run `next build` (Turbopack on Next 16). Force webpack for Hosting SSR.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

@@ -22,6 +22,8 @@ type Props = {
   type?: OgType;
   /** Override canonical path (defaults to current route without query string). */
   canonicalPath?: string;
+  /** rel=prev / rel=next for paginated lists. Paths are site-relative. */
+  pagination?: { prev?: string; next?: string };
 };
 
 function PageMeta({
@@ -31,6 +33,7 @@ function PageMeta({
   imageAlt,
   jsonLd,
   noIndex = false,
+  pagination,
   publishedTime,
   title,
   type = 'website',
@@ -53,6 +56,12 @@ function PageMeta({
       <meta name="description" content={description} />
       {noIndex ? <meta name="robots" content="noindex, nofollow" /> : null}
       <link rel="canonical" href={canonicalUrl} />
+      {pagination?.prev ? (
+        <link rel="prev" href={toAbsoluteUrl(pagination.prev)} />
+      ) : null}
+      {pagination?.next ? (
+        <link rel="next" href={toAbsoluteUrl(pagination.next)} />
+      ) : null}
 
       <meta property="og:site_name" content={getSiteName()} />
       <meta property="og:locale" content="en_US" />

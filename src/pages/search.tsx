@@ -175,6 +175,7 @@ const SearchPage: NextPage = () => {
       <PageMeta
         title="Search reviews"
         description="Search BurgerTime reviews by venue, burger, location, and more."
+        canonicalPath="/search"
         noIndex
       />
       <main className="py-8 pb-12">

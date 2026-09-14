@@ -1,4 +1,4 @@
-import type { DocumentData, Timestamp } from 'firebase/firestore';
+import type { DocumentData, Timestamp } from 'firebase-admin/firestore';
 
 import type { Burger } from 'utils/types';
 
@@ -13,6 +13,7 @@ export type ServerBurger = {
   cheeseNA?: boolean;
   cookType?: string;
   image?: string;
+  imageCard?: string;
   meat?: number;
   notes?: string;
   price?: number;
@@ -36,6 +37,7 @@ const SERVER_BURGER_KEYS = [
   'cheeseNA',
   'cookType',
   'image',
+  'imageCard',
   'meat',
   'notes',
   'price',
@@ -52,14 +54,14 @@ const SERVER_BURGER_KEYS = [
 >;
 
 function serializeTimestamp(
-  value: Timestamp | { seconds?: number } | undefined
+  value: Timestamp | { seconds?: number; _seconds?: number } | undefined
 ): { seconds: number } | undefined {
   if (!value) return undefined;
-  if (typeof (value as Timestamp).toJSON === 'function') {
-    const json = (value as Timestamp).toJSON();
-    if (json && typeof json.seconds === 'number') {
-      return { seconds: json.seconds };
-    }
+  if (typeof (value as Timestamp).seconds === 'number') {
+    return { seconds: (value as Timestamp).seconds };
+  }
+  if (typeof (value as { _seconds?: number })._seconds === 'number') {
+    return { seconds: (value as { _seconds: number })._seconds };
   }
   if (typeof (value as { seconds?: number }).seconds === 'number') {
     return { seconds: (value as { seconds: number }).seconds };

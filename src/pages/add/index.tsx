@@ -18,7 +18,7 @@ import {
   type BurgerFormValues,
   useBurgerFormComplete,
 } from 'components/BurgerForm';
-import { burgerFormImageFromValues } from 'components/BurgerForm/burgerFormImage';
+import { burgerFormImagesFromValues } from 'components/BurgerForm/burgerFormImage';
 import { useBurgerPhotoUpload } from 'components/BurgerForm/useBurgerPhotoUpload';
 import type { Burger } from 'utils/types';
 import { syncCollectionSummaryAfterCreate } from 'libs/collectionSummary';
@@ -39,7 +39,7 @@ const Add: NextPage = () => {
   const { isUploading, uploadImage } = useBurgerPhotoUpload({ form, message });
 
   async function handleFinish(values: BurgerFormValues) {
-    const image = burgerFormImageFromValues(values);
+    const { image, imageCard } = burgerFormImagesFromValues(values);
     const newBurger: Burger = {
       address: values.address,
       appearance: values.appearance,
@@ -49,6 +49,7 @@ const Add: NextPage = () => {
       cheeseNA: values.cheeseNA,
       cookType: values.cookType,
       image,
+      ...(imageCard ? { imageCard } : {}),
       meat: values.meat,
       notes: values.notes,
       price: values.price,

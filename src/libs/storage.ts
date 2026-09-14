@@ -7,10 +7,14 @@ import {
 } from 'firebase/storage';
 import { nanoid } from 'nanoid';
 
-import { prepareImageForUpload } from 'utils/prepareImageForUpload';
+import {
+  prepareBurgerCardImage,
+  prepareBurgerDetailImage,
+} from 'utils/prepareImageForUpload';
 import { storage } from '../utils/firebase';
 import {
   burgerImageReferencesEqual,
+  companionCardStoragePath,
   isBurgerStorageObjectPath,
   isBurgerStoragePhotoUrl,
   storagePathFromDownloadUrl,
@@ -18,20 +22,15 @@ import {
 
 const BURGER_PHOTO_FOLDER = 'burgers/';
 
+export type BurgerPhotoUrls = {
+  image: string;
+  imageCard?: string;
+};
+
 function isObjectNotFound(error: unknown): boolean {
   return (
     error instanceof FirebaseError && error.code === 'storage/object-not-found'
   );
-}
-
-function uploadExtension(file: File): string {
-  const fromName = file.name.split('.').pop()?.toLowerCase();
-  if (fromName && /^[a-z0-9]+$/.test(fromName)) {
-    return fromName;
-  }
-  if (file.type === 'image/png') return 'png';
-  if (file.type === 'image/webp') return 'webp';
-  return 'jpg';
 }
 
 function storagePathFromReference(reference: string): string | null {
@@ -41,32 +40,7 @@ function storagePathFromReference(reference: string): string | null {
   return storagePathFromDownloadUrl(reference);
 }
 
-export async function uploadBurgerPhoto(file: File): Promise<string> {
-  const prepared = await prepareImageForUpload(file);
-  const storageRef = ref(
-    storage,
-    `${BURGER_PHOTO_FOLDER}${nanoid()}.${uploadExtension(prepared)}`
-  );
-  const contentType =
-    prepared.type && prepared.type.startsWith('image/')
-      ? prepared.type
-      : 'image/jpeg';
-
-  await uploadBytes(storageRef, prepared, { contentType });
-  return getDownloadURL(storageRef);
-}
-
-export const getFile = async (path: string) =>
-  getDownloadURL(ref(storage, path));
-
-export async function deleteBurgerPhoto(
-  reference: string | undefined
-): Promise<void> {
-  if (!reference) return;
-
-  const path = storagePathFromReference(reference);
-  if (!path) return;
-
+async function deleteStoragePath(path: string): Promise<void> {
   try {
     await deleteObject(ref(storage, path));
   } catch (error) {
@@ -76,20 +50,78 @@ export async function deleteBurgerPhoto(
   }
 }
 
+export async function deleteBurgerPhoto(
+  reference: string | undefined
+): Promise<void> {
+  if (!reference) return;
+
+  const path = storagePathFromReference(reference);
+  if (!path) return;
+
+  await deleteStoragePath(path);
+
+  const cardPath = companionCardStoragePath(path);
+  if (cardPath) {
+    await deleteStoragePath(cardPath);
+  }
+}
+
+export async function uploadBurgerPhoto(file: File): Promise<BurgerPhotoUrls> {
+  const [detailFile, cardFile] = await Promise.all([
+    prepareBurgerDetailImage(file),
+    prepareBurgerCardImage(file),
+  ]);
+
+  const id = nanoid();
+  const detailType =
+    detailFile.type && detailFile.type.startsWith('image/')
+      ? detailFile.type
+      : 'image/webp';
+  const cardType =
+    cardFile.type && cardFile.type.startsWith('image/')
+      ? cardFile.type
+      : 'image/webp';
+  const detailExt =
+    detailFile.name.split('.').pop()?.toLowerCase() ||
+    (detailType === 'image/png' ? 'png' : 'webp');
+  const cardExt =
+    cardFile.name.split('.').pop()?.toLowerCase() ||
+    (cardType === 'image/png' ? 'png' : 'webp');
+
+  const detailRef = ref(storage, `${BURGER_PHOTO_FOLDER}${id}.${detailExt}`);
+  const cardRef = ref(storage, `${BURGER_PHOTO_FOLDER}${id}_card.${cardExt}`);
+
+  await Promise.all([
+    uploadBytes(detailRef, detailFile, { contentType: detailType }),
+    uploadBytes(cardRef, cardFile, { contentType: cardType }),
+  ]);
+
+  const [image, imageCard] = await Promise.all([
+    getDownloadURL(detailRef),
+    getDownloadURL(cardRef),
+  ]);
+
+  return { image, imageCard };
+}
+
+export const getFile = async (path: string) =>
+  getDownloadURL(ref(storage, path));
+
 type ReplacePreviousOptions = {
   retainCommittedUrl?: string;
+  previousImageCard?: string;
 };
 
 export async function uploadBurgerPhotoReplacingPrevious(
   file: File,
   previousReference?: string,
   options?: ReplacePreviousOptions
-): Promise<string> {
-  const url = await uploadBurgerPhoto(file);
+): Promise<BurgerPhotoUrls> {
+  const urls = await uploadBurgerPhoto(file);
 
   if (
     previousReference &&
-    !burgerImageReferencesEqual(previousReference, url) &&
+    !burgerImageReferencesEqual(previousReference, urls.image) &&
     (isBurgerStoragePhotoUrl(previousReference) ||
       isBurgerStorageObjectPath(previousReference))
   ) {
@@ -101,12 +133,29 @@ export async function uploadBurgerPhotoReplacingPrevious(
     }
   }
 
-  return url;
+  const prevCard = options?.previousImageCard;
+  if (
+    prevCard &&
+    urls.imageCard &&
+    !burgerImageReferencesEqual(prevCard, urls.imageCard) &&
+    (isBurgerStoragePhotoUrl(prevCard) || isBurgerStorageObjectPath(prevCard))
+  ) {
+    const retainCard =
+      options?.retainCommittedUrl != null &&
+      burgerImageReferencesEqual(prevCard, options.retainCommittedUrl);
+    if (!retainCard) {
+      await deleteBurgerPhoto(prevCard);
+    }
+  }
+
+  return urls;
 }
 
 export async function deleteReplacedBurgerPhotoAfterSave(
   previousImage: string | undefined,
-  nextImage: string | undefined
+  nextImage: string | undefined,
+  previousImageCard?: string,
+  nextImageCard?: string
 ): Promise<void> {
   if (
     previousImage &&
@@ -114,5 +163,11 @@ export async function deleteReplacedBurgerPhotoAfterSave(
     !burgerImageReferencesEqual(previousImage, nextImage)
   ) {
     await deleteBurgerPhoto(previousImage);
+  } else if (
+    previousImageCard &&
+    nextImageCard &&
+    !burgerImageReferencesEqual(previousImageCard, nextImageCard)
+  ) {
+    await deleteBurgerPhoto(previousImageCard);
   }
 }

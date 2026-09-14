@@ -16,7 +16,7 @@ import {
   type BurgerFormValues,
   useBurgerFormComplete,
 } from 'components/BurgerForm';
-import { burgerFormImageFromValues } from 'components/BurgerForm/burgerFormImage';
+import { burgerFormImagesFromValues } from 'components/BurgerForm/burgerFormImage';
 import { useBurgerPhotoUpload } from 'components/BurgerForm/useBurgerPhotoUpload';
 import {
   calculateScore,
@@ -82,6 +82,7 @@ function BurgerEditForm({
     form,
     message,
     retainCommittedUrl: initialValues.image,
+    retainCommittedImageCard: initialValues.imageCard,
     onUploaded: syncDirtyState,
   });
 
@@ -94,8 +95,8 @@ function BurgerEditForm({
       ? dateInputValueToUtcDate(values.reviewDate)
       : (fallbackDate ?? new Date());
 
-    const image = burgerFormImageFromValues(values);
-    const valuesWithImage: BurgerFormValues = { ...values, image };
+    const { image, imageCard } = burgerFormImagesFromValues(values);
+    const valuesWithImage: BurgerFormValues = { ...values, image, imageCard };
     const draft = burgerFormValuesToScoreInput(valuesWithImage);
 
     setSaving(true);
@@ -134,6 +135,7 @@ function BurgerEditForm({
         vegNA: values.vegNA,
         venue: values.venue,
         ...(image ? { image } : {}),
+        ...(imageCard ? { imageCard } : {}),
       });
 
       const afterBurger: Burger = {
@@ -157,6 +159,7 @@ function BurgerEditForm({
         vegNA: values.vegNA,
         venue: values.venue,
         image: image ?? beforeBurger.image,
+        imageCard: imageCard ?? beforeBurger.imageCard,
       };
 
       await syncCollectionSummaryAfterUpdate(beforeBurger, afterBurger);
@@ -164,7 +167,12 @@ function BurgerEditForm({
         syncSearchIndexAfterUpdate(afterBurger),
         syncSitemapAfterUpdate(afterBurger),
       ]);
-      await deleteReplacedBurgerPhotoAfterSave(initialValues.image, image);
+      await deleteReplacedBurgerPhotoAfterSave(
+        initialValues.image,
+        image,
+        initialValues.imageCard,
+        imageCard
+      );
 
       onSaved(slug);
     } catch (error) {

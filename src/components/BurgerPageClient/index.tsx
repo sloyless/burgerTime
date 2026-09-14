@@ -3,6 +3,7 @@ import Link from 'next/link';
 import {
   doc,
   type DocumentData,
+  getDoc,
   onSnapshot,
   updateDoc,
 } from 'firebase/firestore';
@@ -160,6 +161,48 @@ function BurgerPageClient({
     if (!documentId) return;
 
     const key = `${documentId}:${listenKey}`;
+
+    if (!isAdmin) {
+      if (snapshot?.key === key && snapshot.loaded) {
+        return;
+      }
+
+      let cancelled = false;
+      void getDoc(doc(database, 'burgers', documentId))
+        .then((docSnap) => {
+          if (cancelled) return;
+          if (docSnap.exists()) {
+            setSnapshot({
+              key,
+              loaded: true,
+              error: false,
+              burger: { ...docSnap.data(), id: docSnap.id },
+            });
+          } else {
+            setSnapshot({
+              key,
+              loaded: true,
+              error: false,
+              burger: undefined,
+            });
+          }
+        })
+        .catch((error) => {
+          if (cancelled) return;
+          console.error('Failed to load burger:', error);
+          setSnapshot({
+            key,
+            loaded: true,
+            error: true,
+            burger: undefined,
+          });
+        });
+
+      return () => {
+        cancelled = true;
+      };
+    }
+
     let timedOut = false;
     const timeoutId = window.setTimeout(() => {
       timedOut = true;
@@ -204,7 +247,7 @@ function BurgerPageClient({
       window.clearTimeout(timeoutId);
       unsub();
     };
-  }, [documentId, listenKey]);
+  }, [documentId, isAdmin, listenKey, snapshot?.key, snapshot?.loaded]);
 
   const burgerRecord = burger as Burger | undefined;
   const canonicalSlug = burgerRecord

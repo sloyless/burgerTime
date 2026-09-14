@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import NavBar from 'components/NavBar';
 import Divider from 'components/Divider';
-import { GoogleAnalytics } from '@next/third-parties/google';
 import { config } from '@fortawesome/fontawesome-svg-core';
 config.autoAddCss = false;
 
@@ -27,7 +26,6 @@ export const Layout = ({ children, padding = true }: LayoutProps) => {
           Loyless
         </p>
       </footer>
-      <GoogleAnalytics gaId="G-4H0QMV5XVK" />
     </>
   );
 };

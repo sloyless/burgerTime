@@ -11,6 +11,8 @@ export interface Burger {
   cookType?: string;
   id?: string;
   image?: string;
+  /** Smaller WebP for list/card layouts (optional; older reviews use `image` only). */
+  imageCard?: string;
   meat?: number;
   notes?: string;
   price?: number;

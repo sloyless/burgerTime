@@ -58,6 +58,31 @@ export function burgerImageReferencesEqual(
   return keyA != null && keyA === keyB;
 }
 
+/** Card variant path for uploads named `{id}.webp` → `{id}_card.webp`. */
+export function companionCardStoragePath(mainPath: string): string | null {
+  if (!mainPath.startsWith(BURGER_PHOTO_PREFIX)) return null;
+  if (mainPath.includes('_card.')) return null;
+  const match = mainPath.match(/^(.+)\.(webp|jpe?g|png)$/i);
+  if (!match) return null;
+  return `${match[1]}_card.${match[2]}`;
+}
+
+export type BurgerPhotoLayout =
+  'cardCompact' | 'cardFull' | 'featured' | 'detail';
+
+/** List/card layouts prefer the smaller `imageCard` when present. */
+export function pickBurgerImageReference(
+  burger: { image?: string; imageCard?: string },
+  layout: BurgerPhotoLayout
+): string | undefined {
+  const image = burger.image?.trim();
+  const imageCard = burger.imageCard?.trim();
+  if (layout === 'detail') {
+    return image || imageCard;
+  }
+  return imageCard || image;
+}
+
 export function resolveBurgerImageUrlSync(
   value: string | undefined
 ): string | undefined {

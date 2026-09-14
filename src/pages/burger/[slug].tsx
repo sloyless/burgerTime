@@ -1,15 +1,13 @@
-import type { GetServerSideProps } from 'next';
 import dynamic from 'next/dynamic';
 
 import BurgerPageMeta from 'components/BurgerPageMeta';
 import PageMeta from 'components/PageMeta';
 import BurgerDetailSkeleton from 'components/BurgerDetailSkeleton';
 import { Layout } from 'layout';
-import { resolveBurgerByUrlSegmentAdmin } from 'libs/resolveBurgerAdmin';
-import { getBurgerPath } from 'utils/burgerPaths';
-import { isValidBurgerUrlSegment } from 'utils/burgerUrlSegment';
-import type { ServerBurger } from 'utils/serverBurger';
+import type { BurgerDetailPageProps } from 'libs/burgerDetailPageProps';
 import { serverBurgerToBurger } from 'utils/serverBurger';
+
+export { getBurgerDetailServerSideProps as getServerSideProps } from 'libs/burgerDetailPageProps';
 
 const BurgerPageClient = dynamic(() => import('components/BurgerPageClient'), {
   ssr: false,
@@ -20,12 +18,10 @@ const BurgerPageClient = dynamic(() => import('components/BurgerPageClient'), {
   ),
 });
 
-type PageProps = {
-  slug: string;
-  initialBurger: ServerBurger | null;
-};
-
-export default function BurgerPage({ slug, initialBurger }: PageProps) {
+export default function BurgerPage({
+  slug,
+  initialBurger,
+}: BurgerDetailPageProps) {
   return (
     <>
       {initialBurger ? (
@@ -40,46 +36,3 @@ export default function BurgerPage({ slug, initialBurger }: PageProps) {
     </>
   );
 }
-
-export const getServerSideProps: GetServerSideProps<PageProps> = async (
-  context
-) => {
-  const raw = context.params?.slug;
-  if (!raw || typeof raw !== 'string') {
-    return { notFound: true };
-  }
-
-  let slug: string;
-  try {
-    slug = decodeURIComponent(raw);
-  } catch {
-    return { notFound: true };
-  }
-
-  if (!isValidBurgerUrlSegment(slug)) {
-    return { notFound: true };
-  }
-
-  try {
-    const burger = await resolveBurgerByUrlSegmentAdmin(slug);
-    if (!burger) {
-      return { notFound: true };
-    }
-
-    const canonicalPath = getBurgerPath(serverBurgerToBurger(burger));
-    const canonicalSegment = canonicalPath.replace(/^\/burger\//, '');
-    if (canonicalSegment && canonicalSegment !== slug) {
-      return {
-        redirect: {
-          destination: canonicalPath,
-          permanent: true,
-        },
-      };
-    }
-
-    return { props: { slug, initialBurger: burger } };
-  } catch (error) {
-    console.error('Server burger resolve failed:', error);
-    return { props: { slug, initialBurger: null } };
-  }
-};

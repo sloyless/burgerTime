@@ -31,6 +31,18 @@ import {
 
 const PAGE_SIZE = 25;
 
+function homeReviewListPath(
+  page: number,
+  cursors: Map<number, string>
+): string {
+  if (page <= 1) return '/';
+  const after = cursors.get(page);
+  if (after) {
+    return `/?page=${page}&after=${encodeURIComponent(after)}`;
+  }
+  return `/?page=${page}`;
+}
+
 const Home: NextPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -41,6 +53,10 @@ const Home: NextPage = () => {
   const [collectionStats, setCollectionStats] =
     useState<BurgerCollectionStats | null>(null);
   const [totalReviews, setTotalReviews] = useState(0);
+  const [listPagination, setListPagination] = useState<{
+    prev?: string;
+    next?: string;
+  }>();
   const pageCursorsRef = useRef<Map<number, string>>(new Map());
   const cursorsHydratedRef = useRef(false);
 
@@ -158,6 +174,20 @@ const Home: NextPage = () => {
           setCollectionStats(data.stats);
         }
         setPageItems(data.count > 0 ? data.pageItems : []);
+        setListPagination(
+          data.totalPages > 1
+            ? {
+                prev:
+                  page > 1
+                    ? homeReviewListPath(page - 1, pageCursorsRef.current)
+                    : undefined,
+                next:
+                  page < data.totalPages
+                    ? homeReviewListPath(page + 1, pageCursorsRef.current)
+                    : undefined,
+              }
+            : undefined
+        );
       } catch (error) {
         if (!cancelled) {
           console.error('Failed to load burgers:', error);
@@ -165,6 +195,7 @@ const Home: NextPage = () => {
           setTotalReviews(0);
           setTopTenBurgers([]);
           setPageItems([]);
+          setListPagination(undefined);
         }
       } finally {
         window.clearTimeout(timeoutId);
@@ -290,7 +321,14 @@ const Home: NextPage = () => {
 
   return (
     <Layout>
-      <PageMeta title="BurgerTime" />
+      <PageMeta
+        title={
+          currentPage > 1 ? `BurgerTime — Page ${currentPage}` : 'BurgerTime'
+        }
+        canonicalPath="/"
+        noIndex={currentPage > 1}
+        pagination={!loading ? listPagination : undefined}
+      />
       <div id="home-hero">
         <header className="pt-4 pb-2 text-center md:pt-6">
           <div className="mb-1 flex justify-center">

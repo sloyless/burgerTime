@@ -56,6 +56,7 @@ export function burgerDocumentToFormValues(
     sauceNA: Boolean(doc.sauceNA),
     price: doc.price ?? 0,
     image: doc.image,
+    imageCard: doc.imageCard,
   };
 }
 
@@ -77,6 +78,7 @@ const BURGER_FORM_VALUE_KEYS: (keyof BurgerFormValues)[] = [
   'sauceNA',
   'price',
   'image',
+  'imageCard',
 ];
 
 export function areBurgerFormValuesEqual(

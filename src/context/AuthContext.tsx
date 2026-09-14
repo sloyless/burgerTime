@@ -21,8 +21,7 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 /**
- * Avoid importing `utils/firebase` at module scope — that loads the client SDK
- * during SSR and breaks firebase-admin on Firebase Hosting dynamic routes.
+ * Avoid top-level `utils/firebase` imports — they pull the client SDK into the SSR bundle.
  */
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
@@ -42,12 +41,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const timeoutId = window.setTimeout(finishLoading, AUTH_INIT_TIMEOUT_MS);
 
     void (async () => {
-      const [{ auth }, { getRedirectResult, onAuthStateChanged }, { consumeAuthRedirectPending }] =
-        await Promise.all([
-          import('utils/firebase'),
-          import('firebase/auth'),
-          import('utils/authRedirectPending'),
-        ]);
+      const [
+        { auth },
+        { getRedirectResult, onAuthStateChanged },
+        { consumeAuthRedirectPending },
+      ] = await Promise.all([
+        import('utils/firebase'),
+        import('firebase/auth'),
+        import('utils/authRedirectPending'),
+      ]);
 
       if (consumeAuthRedirectPending()) {
         try {

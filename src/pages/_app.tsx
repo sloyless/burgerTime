@@ -6,6 +6,7 @@ import 'styles/globals.css';
 import { AuthProvider } from 'context/AuthContext';
 import ErrorBoundary from 'components/ErrorBoundary';
 import ProtectedRoute from 'components/ProtectedRoute';
+import SiteGoogleAnalytics from 'components/SiteGoogleAnalytics';
 import { antdTheme } from 'theme/antd';
 
 const protectedRoutes = ['/add'];
@@ -36,6 +37,7 @@ function BurgerApp({ Component, pageProps }: AppProps) {
               <Component {...pageProps} />
             )}
           </ErrorBoundary>
+          <SiteGoogleAnalytics />
         </AuthProvider>
       </App>
     </ConfigProvider>

@@ -3,7 +3,7 @@ import {
   resolveClientAuthDomain,
 } from 'utils/firebaseAuthDomain';
 
-/** Shared Firebase web config (client + `initializeServerApp` on the server). */
+/** Firebase web client config (browser SDK). */
 export function getFirebaseWebConfig() {
   return {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,

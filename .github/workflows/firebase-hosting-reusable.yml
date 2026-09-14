@@ -81,13 +81,10 @@ jobs:
       - name: Generate sitemap
         run: yarn generate:sitemap
 
-      - name: Use webpack for Firebase Hosting build
+      - name: Force webpack for Firebase `next build`
         run: bash scripts/wrap-next-bin-for-hosting.sh
 
-      # Next.js production build runs inside Firebase Hosting deploy (web frameworks).
-      # We invoke the CLI directly: action-hosting-deploy can fail *after* a successful
-      # deploy with "Failed to list functions" if the service account lacks
-      # cloudfunctions.functions.list (SSR uses Cloud Functions / Cloud Run).
+      # Deploy invokes the CLI directly (avoids post-deploy "Failed to list functions" from action-hosting-deploy).
       - name: Deploy to Firebase Hosting
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BURGERTIME_48011 }}

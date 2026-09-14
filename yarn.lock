@@ -1604,18 +1604,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/third-parties@npm:^16.3.5":
-  version: 16.3.5
-  resolution: "@next/third-parties@npm:16.3.5"
-  dependencies:
-    third-party-capital: "npm:1.0.20"
-  peerDependencies:
-    next: ^13.0.0 || ^14.0.0 || ^15.0.0 || ^16.0.0-beta.0
-    react: ^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0
-  checksum: 10c0/daeb39896f881464f0118fa6b5e8f5c7718e43b0adb29efb5302474073464d418697567f8e9aa3631d861915c25fa5d157393caedf7b4276d74e0965954b4875
-  languageName: node
-  linkType: hard
-
 "@nodable/entities@npm:^3.0.0":
   version: 3.0.0
   resolution: "@nodable/entities@npm:3.0.0"
@@ -3552,7 +3540,6 @@ __metadata:
     "@fortawesome/free-brands-svg-icons": "npm:^7.3.1"
     "@fortawesome/free-solid-svg-icons": "npm:^7.3.1"
     "@fortawesome/react-fontawesome": "npm:^3.5.0"
-    "@next/third-parties": "npm:^16.3.5"
     "@tailwindcss/postcss": "npm:^4.3.3"
     "@tailwindcss/typography": "npm:^0.5.20"
     "@types/node": "npm:^24.10.0"
@@ -7524,13 +7511,6 @@ __metadata:
     stream-events: "npm:^1.0.5"
     uuid: "npm:^9.0.0"
   checksum: 10c0/1c51a284075b57b7b7f970fc8d855d611912f0e485aa1d1dfda3c0be3f2df392e4ce83b1b39877134041abb7c255f3777f175b27323ef5bf008839e42a1958bc
-  languageName: node
-  linkType: hard
-
-"third-party-capital@npm:1.0.20":
-  version: 1.0.20
-  resolution: "third-party-capital@npm:1.0.20"
-  checksum: 10c0/7f45ff156ec9d7e2957a5b39061be22b780ffbd2d93c127252d908e2bff6cdd09f827a95909d457c8096e036f155006a38e355a06ee11cb6d63c7f4b150bbfb0
   languageName: node
   linkType: hard
 

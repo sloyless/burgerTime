@@ -2,13 +2,12 @@
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['antd'],
-  // Hosting SSR: keep Admin SDK external (webpack build — see scripts/wrap-next-bin-for-hosting.sh).
+  // Firebase Hosting SSR: webpack build (scripts/wrap-next-bin-for-hosting.sh) + external Admin SDK.
   serverExternalPackages: ['firebase-admin'],
   experimental: {
     optimizePackageImports: ['antd', '@fortawesome/free-solid-svg-icons'],
   },
   images: {
-    // Avoids an extra Hosting image-optimization Cloud Function on Firebase.
     unoptimized: true,
     remotePatterns: [
       {

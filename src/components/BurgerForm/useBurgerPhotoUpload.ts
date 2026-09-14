@@ -4,7 +4,7 @@ import type { MessageInstance } from 'antd/es/message/interface';
 
 import { uploadBurgerPhotoReplacingPrevious } from 'libs/storage';
 
-import { setBurgerFormImageUrl } from './burgerFormImage';
+import { setBurgerFormImageUrls } from './burgerFormImage';
 import type { BurgerFormValues } from './types';
 
 type Options = {
@@ -12,6 +12,7 @@ type Options = {
   message: MessageInstance;
   /** Edit mode: do not delete this URL from Storage until the review is saved. */
   retainCommittedUrl?: string;
+  retainCommittedImageCard?: string;
   onUploaded?: () => void;
 };
 
@@ -19,6 +20,7 @@ export function useBurgerPhotoUpload({
   form,
   message,
   retainCommittedUrl,
+  retainCommittedImageCard,
   onUploaded,
 }: Options) {
   const [isUploading, setIsUploading] = useState(false);
@@ -30,14 +32,18 @@ export function useBurgerPhotoUpload({
         const previousUrl =
           (form.getFieldValue('image') as string | undefined) ??
           retainCommittedUrl;
-        const url = await uploadBurgerPhotoReplacingPrevious(
+        const previousCard =
+          (form.getFieldValue('imageCard') as string | undefined) ??
+          retainCommittedImageCard;
+        const urls = await uploadBurgerPhotoReplacingPrevious(
           file,
           previousUrl,
           {
             retainCommittedUrl,
+            previousImageCard: previousCard,
           }
         );
-        setBurgerFormImageUrl(form, url);
+        setBurgerFormImageUrls(form, urls);
         onUploaded?.();
       } catch (error) {
         console.error('Image upload failed:', error);
@@ -47,7 +53,7 @@ export function useBurgerPhotoUpload({
         setIsUploading(false);
       }
     },
-    [form, message, onUploaded, retainCommittedUrl]
+    [form, message, onUploaded, retainCommittedUrl, retainCommittedImageCard]
   );
 
   return { isUploading, uploadImage };

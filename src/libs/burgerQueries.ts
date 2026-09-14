@@ -19,7 +19,6 @@ import { database } from 'utils/firebase';
 import type { Burger } from 'utils/types';
 import {
   extractLegacyDocumentIdFromSlug,
-  getCanonicalBurgerSlug,
   looksLikeFirestoreDocumentId,
 } from 'utils/burgerSlug';
 
@@ -27,6 +26,7 @@ import {
   cacheBurgerDocId,
   getCachedBurgerDocId,
 } from './burgerSlugResolveCache';
+import { burgerMatchesUrlSegment } from './burgerMatchesUrlSegment';
 import {
   decodeReviewPageCursor,
   encodeReviewPageCursor,
@@ -347,12 +347,8 @@ export async function resolveBurgerDocumentId(
     return id;
   }
 
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  /** Legacy docs without `slug` — prefer backfill; cap scan for safety. */
-  const LEGACY_SLUG_SCAN_LIMIT = 300;
+  /** Legacy docs without `slug` — match computed canonical URL segment. */
+  const LEGACY_SLUG_SCAN_LIMIT = 500;
   const recentQuery = query(
     collection(database, BURGERS_COLLECTION),
     orderBy('timestamp', 'desc'),
@@ -361,10 +357,7 @@ export async function resolveBurgerDocumentId(
   const recentSnap = await getDocs(recentQuery);
   for (const docSnap of recentSnap.docs) {
     const burger = docToBurger(docSnap);
-    if (
-      burger.slug === urlSegment ||
-      getCanonicalBurgerSlug(burger) === urlSegment
-    ) {
+    if (burgerMatchesUrlSegment(burger, urlSegment)) {
       cacheBurgerDocId(urlSegment, docSnap.id);
       return docSnap.id;
     }

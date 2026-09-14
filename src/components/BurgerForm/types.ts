@@ -19,4 +19,5 @@ export type BurgerFormValues = {
   sauceNA: boolean;
   price: number;
   image?: string;
+  imageCard?: string;
 };

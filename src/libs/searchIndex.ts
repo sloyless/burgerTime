@@ -25,6 +25,7 @@ export type SearchIndexEntry = {
   cookType?: string;
   timestampSeconds: number;
   image?: string;
+  imageCard?: string;
   total?: number;
   appearance?: number;
   bun?: number;
@@ -74,6 +75,7 @@ export function searchEntryToBurger(entry: SearchIndexEntry): Burger {
     burgerName: entry.burgerName,
     address: entry.address,
     image: entry.image,
+    imageCard: entry.imageCard,
     total: entry.total,
     appearance: entry.appearance,
     bun: entry.bun,
@@ -108,6 +110,9 @@ export function buildSearchIndexEntry(burger: Burger): SearchIndexEntry {
   if (burger.cookType) entry.cookType = burger.cookType;
   if (burger.image && typeof burger.image === 'string') {
     entry.image = burger.image;
+  }
+  if (burger.imageCard && typeof burger.imageCard === 'string') {
+    entry.imageCard = burger.imageCard;
   }
   if (burger.total != null) entry.total = burger.total;
   if (burger.appearance != null) entry.appearance = burger.appearance;

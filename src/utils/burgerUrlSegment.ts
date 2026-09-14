@@ -46,3 +46,18 @@ export function extractLegacyDocumentIdFromSlug(
   const candidate = segment.slice(lastDash + 1);
   return looksLikeFirestoreDocumentId(candidate) ? candidate : null;
 }
+
+/** Decode and validate `context.params.slug` for burger detail GSSP. */
+export function parseBurgerSlugParam(
+  raw: string | string[] | undefined
+): string | null {
+  if (!raw || typeof raw !== 'string') {
+    return null;
+  }
+  try {
+    const slug = decodeURIComponent(raw);
+    return isValidBurgerUrlSegment(slug) ? slug : null;
+  } catch {
+    return null;
+  }
+}

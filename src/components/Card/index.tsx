@@ -16,6 +16,7 @@ import LocationLink from 'components/LocationLink';
 import ScoreBadge from 'components/ScoreBadge';
 import type { Burger } from 'utils/types';
 import { getBurgerPath } from 'utils/burgerSlug';
+import { pickBurgerImageReference } from 'libs/burgerPhotoRefs';
 
 type Props = {
   burger: DocumentData;
@@ -39,6 +40,12 @@ function Card({
   const displayScore = getDisplayScore(burger as Burger);
   const timestampDate = calculateTimestamp(burger?.timestamp?.seconds);
   const timestampISO = timestampDate?.toISOString();
+  const burgerRecord = burger as Burger;
+  const compactPhoto = pickBurgerImageReference(burgerRecord, 'cardCompact');
+  const listPhoto = pickBurgerImageReference(
+    burgerRecord,
+    featured ? 'featured' : 'cardFull'
+  );
 
   if (compact) {
     return (
@@ -49,9 +56,9 @@ function Card({
           title={`${burger.burgerName} at ${burger.venue}`}
         >
           <div className="relative aspect-5/3 w-full shrink-0 overflow-hidden bg-stone-100">
-            {burger.image ? (
+            {compactPhoto ? (
               <BurgerPhoto
-                src={burger.image}
+                src={compactPhoto}
                 alt={burger.burgerName ?? burger.venue ?? 'Burger'}
                 layout="cardCompact"
                 priority={imagePriority}
@@ -99,7 +106,7 @@ function Card({
       }`}
     >
       <div className={featured ? '' : 'lg:flex lg:min-h-48 lg:items-stretch'}>
-        {burger.image && (
+        {listPhoto ? (
           <Link
             className={`group relative block aspect-5/3 w-full cursor-pointer overflow-hidden bg-stone-100 ${
               featured
@@ -110,14 +117,14 @@ function Card({
             title={`${burger.burgerName} at ${burger.venue}`}
           >
             <BurgerPhoto
-              src={burger.image}
+              src={listPhoto}
               alt={burger.burgerName}
               layout={featured ? 'featured' : 'cardFull'}
               priority={imagePriority}
               className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             />
           </Link>
-        )}
+        ) : null}
         <div className={`min-w-0 p-5 ${featured ? '' : 'lg:flex-1'}`}>
           <div className="flex min-w-0 flex-row gap-4">
             <div className="min-w-0 flex-1">

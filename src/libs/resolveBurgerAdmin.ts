@@ -4,14 +4,21 @@ import {
   extractLegacyDocumentIdFromSlug,
   looksLikeFirestoreDocumentId,
 } from 'utils/burgerUrlSegment';
-import { docToServerBurger, type ServerBurger } from 'utils/serverBurger';
+import {
+  docToServerBurger,
+  serverBurgerToBurger,
+  type ServerBurger,
+} from 'utils/serverBurger';
 
+import { burgerMatchesUrlSegment } from './burgerMatchesUrlSegment';
 import { getAdminFirestore } from './firebaseAdmin';
 
 const BURGERS = 'burgers';
+/** Legacy reviews without a stored `slug` — match computed canonical segment. */
+const LEGACY_SLUG_SCAN_LIMIT = 500;
 
-/** Hosting SSR on Cloud Functions — uses Admin SDK (ADC). See Firebase Next.js hosting docs. */
-export async function resolveBurgerByUrlSegmentAdmin(
+/** Firestore read for burger detail SSR on Firebase Hosting (Admin SDK + ADC). */
+export async function resolveBurgerByUrlSegment(
   urlSegment: string
 ): Promise<ServerBurger | null> {
   const db = getAdminFirestore();
@@ -38,6 +45,19 @@ export async function resolveBurgerByUrlSegmentAdmin(
   if (!slugSnap.empty) {
     const doc = slugSnap.docs[0];
     return docToServerBurger(doc.id, doc.data() as DocumentData);
+  }
+
+  const recentSnap = await db
+    .collection(BURGERS)
+    .orderBy('timestamp', 'desc')
+    .limit(LEGACY_SLUG_SCAN_LIMIT)
+    .get();
+
+  for (const doc of recentSnap.docs) {
+    const burger = docToServerBurger(doc.id, doc.data() as DocumentData);
+    if (burgerMatchesUrlSegment(serverBurgerToBurger(burger), urlSegment)) {
+      return burger;
+    }
   }
 
   return null;

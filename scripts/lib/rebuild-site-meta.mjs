@@ -94,6 +94,16 @@ function buildSearchIndexEntry(burger) {
   return entry;
 }
 
+function slugifyPart(value) {
+  return value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-{2,}/g, '-');
+}
+
 function getBurgerPath(burger) {
   if (!burger.id) return '/';
   if (burger.slug) return `/burger/${burger.slug}`;
@@ -103,20 +113,8 @@ function getBurgerPath(burger) {
 
   const date = new Date(seconds * 1000);
   const ymd = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
-  const slug =
-    burger.slug ||
-    `${slugifyPart(`${burger.venue ?? ''}-${burger.burgerName ?? ''}`) || 'burger-review'}-${ymd}`;
+  const slug = `${slugifyPart(`${burger.venue ?? ''}-${burger.burgerName ?? ''}`) || 'burger-review'}-${ymd}`;
   return `/burger/${slug}`;
-}
-
-function slugifyPart(value) {
-  return value
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .replace(/-{2,}/g, '-');
 }
 
 function reviewLastmod(burger) {

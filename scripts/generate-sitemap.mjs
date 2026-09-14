@@ -7,7 +7,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { initializeApp } from 'firebase/app';
+import { initializeApp, deleteApp } from 'firebase/app';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -101,3 +101,5 @@ const xml = sitemapToXml(urls, origin);
 const outPath = join(root, 'public', 'sitemap.xml');
 writeFileSync(outPath, xml, 'utf8');
 console.log(`Wrote ${outPath} (${urls.length} URLs)`);
+
+await deleteApp(app);

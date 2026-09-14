@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/no-unnecessary-arbitrary-value */
 import { memo } from 'react';
 import Link from 'next/link';
 import BurgerPhoto from 'components/BurgerPhoto';
@@ -54,7 +55,7 @@ function Card({
                 alt={burger.burgerName ?? burger.venue ?? 'Burger'}
                 layout="cardCompact"
                 priority={imagePriority}
-                className="group-hover:scale-1.02 object-cover transition-transform duration-300"
+                className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
               />
             ) : null}
             <div className="absolute right-2 bottom-2 z-10">
@@ -113,7 +114,7 @@ function Card({
               alt={burger.burgerName}
               layout={featured ? 'featured' : 'cardFull'}
               priority={imagePriority}
-              className="group-hover:scale-1.02 object-cover transition-transform duration-300"
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             />
           </Link>
         )}

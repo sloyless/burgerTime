@@ -93,8 +93,7 @@ const Home: NextPage = () => {
 
     if (page > 1 && !afterParam) {
       const cursor =
-        pageCursorsRef.current.get(page) ??
-        readStoredPageCursors().get(page);
+        pageCursorsRef.current.get(page) ?? readStoredPageCursors().get(page);
       if (!cursor) {
         void router.replace('/', undefined, { shallow: true });
         return;
